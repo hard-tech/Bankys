@@ -18,6 +18,7 @@ def register(user: User):
 
 @app.post("/login")
 def login(user: User):
+    User.id = user.id
     return {"message": "Connexion réussie"}
 
 @app.get("/me")
