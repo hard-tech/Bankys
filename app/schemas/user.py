@@ -1,11 +1,10 @@
 from pydantic import BaseModel
-from account import Account
 
 
 # Input models
 class User_Register(BaseModel):
-    password: str
     email: str
+    password: str
     first_name: str
     last_name: str
 
@@ -21,6 +20,7 @@ class User_transaction(BaseModel):
     email: str
 
 class User_Without_Password(BaseModel):
+    user_id: int
     email: str
     first_name: str
     last_name: str
