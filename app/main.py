@@ -8,6 +8,8 @@ from app.auth.api.endpoints import auth
 from app.accounts.models.account import Account
 from app.accounts.api.endpoints import accounts
 
+from app.accounts.models.transaction import Transaction
+
 from app.db.session import create_db_and_tables
 
 app = FastAPI()

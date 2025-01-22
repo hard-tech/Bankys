@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 from datetime import datetime as dateTime
-from app.auth.schemas.user import User_Without_Password
+from app.accounts.schemas.account import Account_Info
 
 
 # Input models
@@ -17,7 +17,7 @@ class Transaction_Get_Transaction_Info(BaseModel):
 # Output models
 class Transaction(BaseModel):
     transaction_id: int
-    user_from: User_Without_Password
-    user_to: User_Without_Password
+    account_from: Account_Info
+    account_to: Account_Info
     amount: float
     created_at: dateTime

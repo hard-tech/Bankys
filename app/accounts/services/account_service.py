@@ -51,7 +51,7 @@ class AccountService:
 
 
     def get_accounts_of_user(self, user_id: int, session: Session) -> Get_Accounts:
-        accounts = session.query(Account).filter_by(user_id=user_id).order_by(Account.id.asc()).all()
+        accounts = session.query(Account).filter_by(user_id=user_id).order_by(Account.id.desc()).all()
 
         if accounts:
             return [
@@ -65,13 +65,13 @@ class AccountService:
         else:
             return None
         
-    def get_infos_account(self, account_id: int, session: Session) -> Accounts:
+    def get_infos_account(self, account_id: int, session: Session) -> Account_Info:
 
         account = session.query(Account).filter_by(id=account_id).first()
 
         if account:
             
-            return Accounts(
+            return Account_Info(
                 id=account.id,
                 sold=account.sold,
                 iban=account.iban,

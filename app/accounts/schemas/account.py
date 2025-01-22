@@ -20,7 +20,7 @@ class Account_Transfer_Money(BaseModel):
 class Account_Close(BaseModel):
     account_id: int
 
-class Accounts(BaseModel):
+class Account_Info(BaseModel):
     id: int | None
     sold: float
     iban: str
