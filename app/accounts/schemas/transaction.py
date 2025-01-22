@@ -19,5 +19,6 @@ class Transaction(BaseModel):
     transaction_id: int
     account_from: Account_Info
     account_to: Account_Info
+    type: str
     amount: float
     created_at: dateTime
