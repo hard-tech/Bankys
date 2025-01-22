@@ -11,3 +11,5 @@ class Account(SQLModel, table=True):
     status: bool
     main: bool
     user: Optional["User"] = Relationship(back_populates="accounts")  # Chaîne différée pour éviter les problèmes de circular import
+
+    

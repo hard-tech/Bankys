@@ -1,19 +1,22 @@
-from fastapi import Depends, HTTPException, status
+from fastapi import HTTPException, status
 from sqlmodel import Session
-from app.accounts.models.transaction import Transaction, TransactionType
 from app.accounts.schemas.account import *
-from app.db.session import get_session
 from app.accounts.models.account import Account
 import random
+import string
+from sqlmodel import Session
+from app.accounts.models.account import Account
 
-def generate_iban(session : Session) ->str:
-        while True:
-            # Générer un IBAN aléatoire avec un préfixe fixe.
-            iban = f"FAKE{random.randint(1000000000, 9999999999)}"
+def generate_iban(session: Session) -> str:
+    while True:
+        # Generate a random IBAN-like string with a fixed prefix and random alphanumeric characters
+        prefix = "FR"
+        random_part = ''.join(random.choices(string.digits, k=20))
+        iban = f"{prefix}{random_part}"
 
-            # Vérifier si l'IBAN existe déjà dans la base de données.
-            if not session.query(Account).filter_by(iban=iban).first():
-                return iban
+        # Check if the IBAN already exists in the database
+        if not session.query(Account).filter_by(iban=iban).first():
+            return iban
 
 
 class AccountService:
@@ -53,7 +56,6 @@ class AccountService:
 
         return account
 
-
     def get_accounts_of_user(self, user_id: int, session: Session) -> Get_Accounts:
         accounts = session.query(Account).filter_by(user_id=user_id).order_by(Account.id.desc()).all()
 
@@ -84,41 +86,8 @@ class AccountService:
                 main=account.main
             )
         return None
-
-    def add_money_to_account(self, addMoney: Account_Transfer_Money, session: Session) -> Account_Info:
-
-        account_id = addMoney.account_id
-        amount = addMoney.amount
-
-        if amount <= 0:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Le montant doit être positif."
-            )
-        account = session.query(Account).filter_by(id=account_id).first()
-
-        if not account:
-            raise ValueError(f"Le compte avec l'ID {account_id} n'existe pas.")
-
-        account.sold += amount
-        session.add(account)  # Ajout nécessaire pour enregistrer les modifications
-
-        # Log the transaction for traceability
-        transaction = Transaction(
-            account_id=account_id,
-            amount=amount,
-            type=TransactionType.DEPOSIT  # Assuming you have a type field to specify the transaction type
-        )
-        
-        session.add(transaction)
-        session.commit()
-        session.refresh(account)  # Actualiser le compte depuis la base de données
-
-        return self.get_infos_account(account_id, session)
         
 
 
 
 account_service_instance = AccountService()
-
-

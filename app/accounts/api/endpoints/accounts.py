@@ -1,6 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException, status
+from app.accounts.schemas.account import Account_Add_Money
 from app.db.session import get_session
 from app.accounts.services.account_service import account_service_instance
+from app.accounts.services.transaction_service import transaction_service_instance
+from app.accounts.models.transaction import TransactionType
 
 router = APIRouter()
 
@@ -38,11 +41,12 @@ def get_account(account_id: int, session=Depends(get_session)):
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
     
-@router.post("/{account_id}/add_money")
-def add_money(account_id: int, amount: float, session=Depends(get_session)):
-    try:
-        return account_service_instance.add_money_to_account(account_id, amount, session)
-    except Exception as e:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
-    except ValueError as e:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+# @router.post("/{account_id}/deposit/{amount}")
+# def add_money(account_id: int, amount: float, session=Depends(get_session)):
+#     try:
+#         deposit = Account_Add_Money(account_id_from=account_id, account_id_to=account_id, amount=amount)
+#         return transaction_service_instance.transfert_money(deposit, TransactionType.DEPOSIT, session)
+#     except Exception as e:
+#         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+#     except ValueError as e:
+#         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
