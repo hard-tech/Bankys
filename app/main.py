@@ -24,38 +24,6 @@ app.include_router(auth.router, prefix="/auth", tags=["auth"])
 # app.include_router(transactions.router, prefix="/transactions", tags=["transactions"])
 
 
-@app.post("/register")
-def register(user: User_Register):
-    """
-    Enregistre un nouvel utilisateur dans le système.
-    """
-    return {"message": "Utilisateur enregistré", "user": user}
-
-
-@app.post("/login")
-def login(user: User_Register):
-    """
-    Authentifie un utilisateur.
-    """
-    return {"message": "Connexion réussie", "user": user}
-
-
-@app.post("/account/create")
-def create_account(user_id: int):
-    """
-    Crée un nouveau compte bancaire pour un utilisateur.
-    """
-    return {"message": f"Compte créé pour l'utilisateur {user_id}"}
-
-
-@app.get("/account/{account_id}")
-def read_account(account_id: int):
-    """
-    Retourne les informations d'un compte spécifique.
-    """
-    return {"account_id": account_id, "balance": 100.0}
-
-
 @app.post("/account/{account_id}/add_money")
 def add_money(account_id: int, amount: float):
     """

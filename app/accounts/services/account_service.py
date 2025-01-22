@@ -65,6 +65,22 @@ class AccountService:
         else:
             return None
         
+    def get_infos_account(self, account_id: int, session: Session) -> Accounts:
+
+        account = session.query(Account).filter_by(id=account_id).first()
+
+        if account:
+            
+            return Accounts(
+                id=account.id,
+                sold=account.sold,
+                iban=account.iban,
+                user_id=account.user_id,
+                status=account.status,
+                main=account.main
+            )
+        return None
+        
 
 
 
