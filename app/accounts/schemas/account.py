@@ -26,7 +26,7 @@ class Account_Info(BaseModel):
     sold: float
     iban: str
     user_id: int
-    status: bool
+    actived: bool
     main: bool
 
 class Get_Accounts(BaseModel):

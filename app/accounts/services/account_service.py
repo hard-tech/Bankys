@@ -29,7 +29,7 @@ class AccountService:
         return account
 
     def create_account(self, user_id: int, session : Session) -> Account:
-        account = Account(sold=0, iban=generate_iban(session), user_id = user_id, status = True, main = False)
+        account = Account(sold=0, iban=generate_iban(session), user_id = user_id, actived = True, main = False)
         session.add(account)
         session.commit()
         session.refresh(account)
@@ -49,7 +49,8 @@ class AccountService:
              raise ValueError("Vous ne pouvez pas cloturer votre compte principal.")
 
         # Mettre à jour le statut du compte à False
-        account.status = False
+        account.actived = False
+
         session.add(account)  # Ajout nécessaire pour enregistrer les modifications
         session.commit()
         session.refresh(account)  # Actualiser le compte depuis la base de données
@@ -82,7 +83,7 @@ class AccountService:
                 sold=account.sold,
                 iban=account.iban,
                 user_id=account.user_id,
-                status=account.status,
+                actived=account.actived,
                 main=account.main
             )
         return None
