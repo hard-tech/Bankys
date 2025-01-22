@@ -2,26 +2,17 @@ from pydantic import BaseModel
 
 
 # Input models
+from pydantic import BaseModel, EmailStr
+
 class User_Register(BaseModel):
-    email: str
+    email: EmailStr
     password: str
     first_name: str
     last_name: str
-
-class User_Login(BaseModel):
-    email: str
-    password: str
-
-
-# Output models
-class User_transaction(BaseModel):
-    first_name: str
-    last_name: str
-    email: str
 
 class User_Without_Password(BaseModel):
-    user_id: int
-    email: str
+    id: int | None
+    email: EmailStr
     first_name: str
     last_name: str
 
