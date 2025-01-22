@@ -21,6 +21,7 @@ class Account_Close(BaseModel):
     account_id: int
 
 class Accounts(BaseModel):
+    id: int | None
     sold: float
     iban: str
     user_id: int
