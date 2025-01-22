@@ -9,6 +9,10 @@ class User_Register(BaseModel):
     first_name: str
     last_name: str
 
+class User_login(BaseModel):
+    email: EmailStr
+    password: str
+
 class User_Without_Password(BaseModel):
     id: int | None
     email: EmailStr
