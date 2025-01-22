@@ -27,3 +27,4 @@ class Account(BaseModel):
     iban: str
     user_id: int
     status: bool
+    main: bool
