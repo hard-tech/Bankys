@@ -49,8 +49,25 @@ class AccountService:
 
         return account
 
-    
+
+    def get_accounts_of_user(self, user_id: int, session: Session) -> Get_Accounts:
+        accounts = session.query(Account).filter_by(user_id=user_id).order_by(Account.id.asc()).all()
+
+        if accounts:
+            return [
+            Get_Accounts(
+                id=account.id,
+                sold=account.sold,
+                iban=account.iban,
+            )
+            for account in accounts
+        ]
+        else:
+            return None
+        
 
 
 
 account_service_instance = AccountService()
+
+

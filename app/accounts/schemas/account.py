@@ -16,15 +16,19 @@ class Account_Transfer_Money(BaseModel):
     amount: float
     recipient_account_id: int
 
-class Account_Get_Accounts(BaseModel):
-    owner_id: int
 
 class Account_Close(BaseModel):
     account_id: int
 
-class Create_Account(BaseModel):
+class Accounts(BaseModel):
     sold: float
     iban: str
     user_id: int
     status: bool
     main: bool
+
+class Get_Accounts(BaseModel):
+    id: int | None
+    sold: float
+    iban: str
+   
