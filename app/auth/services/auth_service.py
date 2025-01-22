@@ -17,6 +17,10 @@ bearer_scheme = HTTPBearer()
 class UserService:
     def register_user(self, user: User_Register, session: Session) -> User_Without_Password:
         try:
+            # Check if the user already exists
+            existing_user = session.query(User).filter(User.email == user.email).first()
+            if existing_user:
+                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="User already exists")
             # Hash the user's password
             hashed_password = get_password_hash(user.password)
 
@@ -42,8 +46,11 @@ class UserService:
                 first_name=new_user.first_name,
                 last_name=new_user.last_name
             )
+
+        except HTTPException as e:
+            raise e  # Re-raise known HTTP exceptions
         except Exception as e:
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="An error occurred during registration")
 
     def authenticate_user(self, email: str, password: str, session: Session):
         user = session.query(User).filter(User.email == email).first()

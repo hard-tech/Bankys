@@ -4,7 +4,7 @@ from app.accounts.services.account_service import account_service_instance
 
 router = APIRouter()
 
-@router.post("/create/{user_id}")
+@router.post("/create/{user_id}") # TODO: get user_id from token
 def create_account(user_id: int, session=Depends(get_session)):
     try:
         return account_service_instance.create_account(user_id, session)
@@ -37,3 +37,12 @@ def get_account(account_id: int, session=Depends(get_session)):
         return account
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+    
+@router.post("/{account_id}/add_money")
+def add_money(account_id: int, amount: float, session=Depends(get_session)):
+    try:
+        return account_service_instance.add_money_to_account(account_id, amount, session)
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
