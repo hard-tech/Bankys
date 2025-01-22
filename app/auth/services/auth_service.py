@@ -28,6 +28,6 @@ class UserService:
             first_name=new_user.first_name,
             last_name=new_user.last_name
         )
-
+    
 # Create an instance of UserService
-user_service_instance = UserService()
+user_service_instance_auth = UserService()

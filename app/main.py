@@ -1,7 +1,7 @@
-from fastapi import FastAPI, Depends
-from app.schemas.user import User_Register, User_Without_Password
-from app.api.endpoints import users, accounts, transactions
-from app.db.session import create_db_and_tables, get_session
+from fastapi import FastAPI
+from app.auth.schemas.user import User_Register
+from app.auth.api.endpoints import auth
+from app.db.session import create_db_and_tables
 
 app = FastAPI()
 
@@ -10,7 +10,7 @@ app = FastAPI()
 def on_startup():
     create_db_and_tables()
 
-app.include_router(users.router, prefix="/users", tags=["users"])
+app.include_router(auth.router, prefix="/auth", tags=["auth"])
 # app.include_router(accounts.router, prefix="/accounts", tags=["accounts"])
 # app.include_router(transactions.router, prefix="/transactions", tags=["transactions"])
 
