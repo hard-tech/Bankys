@@ -1,6 +1,8 @@
 from fastapi import FastAPI
 from app.auth.schemas.user import User_Register
 from app.auth.api.endpoints import auth
+from app.auth.models.user import User
+from app.accounts.models.account import Account
 from app.db.session import create_db_and_tables
 
 app = FastAPI()
