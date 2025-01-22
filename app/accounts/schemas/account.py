@@ -22,8 +22,9 @@ class Account_Get_Accounts(BaseModel):
 class Account_Close(BaseModel):
     account_id: int
 
-# class Account(BaseModel):
-#     account_id: int
-#     sold: float
-#     iban: str
-#     owner: User
+class Create_Account(BaseModel):
+    sold: float
+    iban: str
+    user_id: int
+    status: bool
+    main: bool

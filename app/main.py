@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from app.auth.schemas.user import User_Register
 from app.auth.api.endpoints import auth
+from app.accounts.api.endpoints import accounts
 from app.auth.models.user import User
 from app.accounts.models.account import Account
 from app.db.session import create_db_and_tables
@@ -13,6 +14,7 @@ def on_startup():
     create_db_and_tables()
 
 app.include_router(auth.router, prefix="/auth", tags=["auth"])
+app.include_router(accounts.router, prefix="/account", tags=["accounts"])
 # app.include_router(accounts.router, prefix="/accounts", tags=["accounts"])
 # app.include_router(transactions.router, prefix="/transactions", tags=["transactions"])
 
