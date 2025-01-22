@@ -1,11 +1,17 @@
 from fastapi import FastAPI, Depends
 from pydantic import BaseModel
 from typing import TypedDict
-
-from app.schemas.account import ExempleItem
+from app.services.account_service import create_principal_account
+from app.db.session import *
 
 
 app = FastAPI()
+
+@app.on_event("startup")
+def on_startup():
+    create_db_and_tables()
+
+
 
 @app.get("/")
 def read_root(user: ExempleItem):
