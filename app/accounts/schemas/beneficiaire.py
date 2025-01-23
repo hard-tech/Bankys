@@ -1,6 +1,9 @@
+from datetime import datetime
 from pydantic import BaseModel
 
 
-class Create_Beneficiaire(BaseModel):
-    beneficiaire_envoyeur: int
-    beneficiaire_receveur: int
+class Get_Beneficiaires(BaseModel):
+    id: int | None
+    name : str
+    iban : str
+    date : datetime

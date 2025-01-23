@@ -35,7 +35,7 @@ def get_accounts(user_id: int, session=Depends(get_session)):
 
 def get_account(account_id: int, session=Depends(get_session)):
     try:
-        account = account_service_instance.getinfo_account_id(account_id, session)
+        account = account_service_instance.get_info_account_id(account_id, session)
         if not account:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Account not found")
         return account
