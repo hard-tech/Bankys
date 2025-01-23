@@ -34,7 +34,7 @@ async def refresh_transactions():
             session.commit()
 
         # Attendre avant la prochaine exécution
-        await asyncio.sleep(10)
+        await asyncio.sleep(15)
 
 class TransactionService:
 
@@ -113,6 +113,78 @@ class TransactionService:
         ).order_by(Transaction.created_at.desc()).all()
 
         return transactions
+    
+
+
+    def cancel_transaction(self, transaction_id: int, session: Session) -> str:
+        """
+        Annule une transaction si elle est en état PENDING et dans la limite des 5 secondes.
+        Annule le mouvement d'argent sur les comptes si la transaction est un dépôt, un retrait ou un transfert.
+        """
+        # Récupérer la transaction
+        transaction = session.query(Transaction).filter_by(id=transaction_id).first()
+        
+        if not transaction:
+            raise HTTPException(status_code=404, detail="Transaction non trouvée.")
+        
+        # Vérifier si la transaction est encore en état PENDING
+        if transaction.status != TransactionStatus.PENDING:
+            raise HTTPException(
+                status_code=400,
+                detail="La transaction ne peut pas être annulée car elle n'est pas en état PENDING."
+            )
+        
+        # Vérifier si la transaction a été créée il y a moins de 5 secondes
+        if datetime.utcnow() > transaction.created_at + timedelta(seconds=5):
+            raise HTTPException(
+                status_code=400,
+                detail="La transaction ne peut plus être annulée après 5 secondes."
+            )
+
+        # Gérer le mouvement d'argent en fonction du type de transaction
+        if transaction.type == TransactionType.TRANSFER:
+            # Transfert entre deux comptes
+            account_from = session.query(Account).filter_by(iban=transaction.account_from_iban).first()
+            account_to = session.query(Account).filter_by(iban=transaction.account_to_iban).first()
+
+            if not account_from or not account_to:
+                raise HTTPException(status_code=404, detail="Comptes source ou destinataire non trouvés.")
+            
+            # Restaurer les soldes
+            account_from.sold += transaction.amount  # Restaurer le solde du compte source
+            account_to.sold -= transaction.amount    # Retirer l'argent du compte destinataire
+
+            session.add(account_from)
+            session.add(account_to)
+
+        elif transaction.type == TransactionType.DEPOSIT:
+            # Dépôt sur un compte
+            account_to = session.query(Account).filter_by(iban=transaction.account_to_iban).first()
+
+            if not account_to:
+                raise HTTPException(status_code=404, detail="Compte destinataire non trouvé.")
+            
+            # Retirer l'argent du compte de dépôt
+            account_to.sold -= transaction.amount
+            session.add(account_to)
+
+        elif transaction.type == TransactionType.WITHDRAWAL:
+            # Retrait du compte
+            account_from = session.query(Account).filter_by(iban=transaction.account_from_iban).first()
+
+            if not account_from:
+                raise HTTPException(status_code=404, detail="Compte source non trouvé.")
+            
+            # Restaurer l'argent dans le compte source
+            account_from.sold += transaction.amount
+            session.add(account_from)
+
+        # Mettre à jour le statut de la transaction
+        transaction.status = TransactionStatus.REJECTED
+        session.add(transaction)
+        session.commit()
+        
+        return "Transaction annulée avec succès, les soldes ont été restaurés."
     
 
     
