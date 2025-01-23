@@ -88,7 +88,7 @@ class AccountService:
             )
         return None
     
-    def getinfo_account_id(self, account_id: int, session: Session) -> Account_Info:
+    def get_info_account_id(self, account_id: int, session: Session) -> Account_Info:
         account = session.query(Account).filter_by(id=account_id).first()
 
         if account:

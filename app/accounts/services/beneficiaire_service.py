@@ -1,6 +1,6 @@
 from fastapi import HTTPException, status
 from sqlmodel import Session
-from app.accounts.schemas.account import *
+from app.accounts.schemas.beneficiaire import Get_Beneficiaires
 from app.accounts.models.beneficiaire import Beneficiaire
 from app.accounts.models.account import Account
 from app.auth.models.user import User
@@ -54,5 +54,22 @@ class BeneficiaireService:
         session.commit()
         session.refresh(beneficiaire)
         return beneficiaire
+    
+
+    def get_benificiaires_of_user(self, user_id: int, session: Session) -> Get_Beneficiaires:
+        beneficiaires = session.query(Beneficiaire).filter_by(beneficiaire_envoyeur=user_id).order_by(Beneficiaire.created_at.desc()).all()
+
+        if beneficiaires:
+            return [
+            Get_Beneficiaires(
+                id=beneficiaire.id,
+                name=beneficiaire.name_beneficiaire_receveur,
+                iban=beneficiaire.iban_receveur,
+                date=beneficiaire.created_at
+            )
+            for beneficiaire in beneficiaires
+        ]
+        else:
+            return None
 
 beneficiaire_service_instance = BeneficiaireService()
