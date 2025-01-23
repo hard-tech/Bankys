@@ -7,8 +7,9 @@ from app.auth.api.endpoints import auth
 
 from app.accounts.models.account import Account
 from app.accounts.models.transaction import Transaction
+from app.accounts.models.beneficiaire import Beneficiaire
 
-from app.accounts.api.endpoints import accounts, transactions
+from app.accounts.api.endpoints import accounts, beneficiaires, transactions
 
 from app.db.session import create_db_and_tables
 
@@ -21,7 +22,8 @@ def on_startup():
 
 app.include_router(auth.router, prefix="/auth", tags=["auth"])
 app.include_router(accounts.router, prefix="/account", tags=["accounts"])
-app.include_router(transactions.router, prefix="/transactions", tags=["accounts"])
+app.include_router(transactions.router, prefix="/transactions", tags=["transactions"])
+app.include_router(beneficiaires.router, prefix="/beneficiaires", tags=["beneficiaires"])
 # app.include_router(accounts.router, prefix="/accounts", tags=["accounts"])
 # app.include_router(transactions.router, prefix="/transactions", tags=["transactions"])
 
