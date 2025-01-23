@@ -4,6 +4,7 @@ from app.accounts.schemas.account import Account_Add_Money
 from app.db.session import get_session
 from app.accounts.services.transaction_service import transaction_service_instance
 from app.accounts.models.transaction import TransactionType
+from app.auth.services.auth_service import user_service_instance_auth
 
 router = APIRouter()
 
@@ -38,9 +39,9 @@ def transfer_money(account_iban_from: str, account_iban_to: str, amount: float, 
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
     
 @router.get("/{transaction_id}")
-def get_transaction(transaction_id: int, session=Depends(get_session)):
+def get_transaction(transaction_id: int, session=Depends(get_session), user_id=Depends(user_service_instance_auth.get_current_user_id)):
     try:
-        transaction = transaction_service_instance.get_transaction(transaction_id, session)
+        transaction = transaction_service_instance.get_transaction(transaction_id, session, user_id)
         if not transaction:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Transaction not found")
         return transaction

@@ -24,7 +24,7 @@ def login(user: User_login, session=Depends(get_session)):
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Token generation failed")
 
 @router.get("/me")
-def me(user=Depends(user_service_instance_auth.get_user)):
+def me(user=Depends(user_service_instance_auth.get_current_user)):
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not authenticated")
     return user
