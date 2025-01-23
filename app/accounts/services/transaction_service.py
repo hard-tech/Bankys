@@ -37,7 +37,7 @@ async def refresh_transactions():
 
 class TransactionService:
 
-    def transfert_money(self, addMoney: Account_Add_Money, type: TransactionType, session: Session) -> Account_Info:
+    def transfert_money(self, user_id: int, addMoney: Account_Add_Money, type: TransactionType, session: Session) -> Account_Info:
         try:
             # Vérifier si le montant est positif
             if addMoney.amount <= 0:
@@ -71,6 +71,12 @@ class TransactionService:
                         detail="Fonds insuffisants sur le compte source.",
                         error_code="INSUFFICIENT_FUNDS"
                     )
+                if account_from.user_id != user_id:
+                    raise CustomHTTPException(
+                        status_code=status.HTTP_403_FORBIDDEN,
+                        detail="Le compte source n'appartient pas à l'utilisateur.",
+                        error_code="SOURCE_ACCOUNT_UNAUTHORIZED"
+                    )
 
             # Récupérer le compte destinataire si nécessaire
             if type in [TransactionType.TRANSFER, TransactionType.DEPOSIT]:
@@ -86,6 +92,21 @@ class TransactionService:
                         status_code=status.HTTP_400_BAD_REQUEST,
                         detail="Le compte destinataire n'est pas actif.",
                         error_code="DESTINATION_ACCOUNT_INACTIVE"
+                    )
+                if account_from and account_from.iban == account_to.iban:
+                    raise CustomHTTPException(
+                        status_code=status.HTTP_400_BAD_REQUEST,
+                        detail="Le compte destinataire doit être différent du compte source.",
+                        error_code="SAME_ACCOUNT_TRANSFER"
+                    )
+
+            # Vérifier si le compte appartient à l'utilisateur connecté
+            if type == TransactionType.DEPOSIT:
+                if account_to.user_id != user_id:
+                    raise CustomHTTPException(
+                        status_code=status.HTTP_403_FORBIDDEN,
+                        detail="Le compte source n'appartient pas à l'utilisateur.",
+                        error_code="SOURCE_ACCOUNT_UNAUTHORIZED"
                     )
 
             # Effectuer la transaction en fonction du type
@@ -107,6 +128,7 @@ class TransactionService:
             transaction = Transaction(
                 account_to_iban=account_to.iban if account_to else None,
                 account_from_iban=account_from.iban if account_from else None,
+                user_id=user_id,
                 amount=addMoney.amount,
                 type=type
             )
@@ -168,10 +190,11 @@ class TransactionService:
             # Récupérer les IBANs des comptes de l'utilisateur
             user_accounts = session.query(Account.iban).filter_by(user_id=user_id).subquery()
 
-            # Récupérer les transactions associées aux comptes de l'utilisateur
+            # Récupérer uniquement les transactions de type TRANSFER associées aux comptes de l'utilisateur
             transactions = session.query(Transaction).filter(
-                (Transaction.account_from_iban.in_(user_accounts)) |
-                (Transaction.account_to_iban.in_(user_accounts))
+                ((Transaction.account_from_iban.in_(user_accounts)) |
+                 (Transaction.account_to_iban.in_(user_accounts))) 
+                #  & (Transaction.type == TransactionType.TRANSFER) # TODO: À supprimer si vous souhaitez récupérer toutes les transactions (les transactions de dépôt, et de retrait) car ont ne savait pas le besoin exacte
             ).order_by(Transaction.created_at.desc()).all()
 
             return transactions
@@ -182,16 +205,38 @@ class TransactionService:
                 detail="Erreur lors de la récupération des transactions de l'utilisateur.",
                 error_code="GET_USER_TRANSACTIONS_ERROR"
             )
-    def cancel_transaction(self, transaction_id: int, session: Session) -> str:
+    def cancel_transaction(self, user_id: int, transaction_id: int, session: Session) -> str:
         try:
             # Récupérer la transaction
             transaction = session.query(Transaction).filter_by(id=transaction_id).first()
 
+            # Vérifier si la transaction existe
             if not transaction:
                 raise CustomHTTPException(
                     status_code=status.HTTP_404_NOT_FOUND,
                     detail="Transaction non trouvée.",
                     error_code="TRANSACTION_NOT_FOUND"
+                )
+            # Vérifier si c'est bien un type transfert
+            if transaction.type!= TransactionType.TRANSFER:
+                raise CustomHTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="La transaction ne peut pas être annulée car c'est un dépôt ou un retrait.",
+                    error_code="INVALID_TRANSACTION_TYPE"
+                )
+
+            # Récupérer les comptes de l'utilisateur
+            account_from = session.query(Account).filter_by(iban=transaction.account_from_iban).first()
+            account_to = session.query(Account).filter_by(iban=transaction.account_to_iban).first()
+
+            # Annuler le mouvement d'argent en fonction du type de transaction
+
+            # Vérifier si c'est bien l'utilisateur qui a créé la transaction
+            if transaction.user_id != user_id:
+                raise CustomHTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="Vous n'êtes pas autorisé à annuler cette transaction.",
+                    error_code="UNAUTHORIZED_ACCESS"
                 )
 
             # Vérifier si la transaction est encore en état PENDING
@@ -210,57 +255,37 @@ class TransactionService:
                     error_code="CANCEL_TIMEOUT"
                 )
 
-            # Gérer le mouvement d'argent en fonction du type de transaction
-            if transaction.type == TransactionType.TRANSFER:
-                account_from = session.query(Account).filter_by(iban=transaction.account_from_iban).first()
-                account_to = session.query(Account).filter_by(iban=transaction.account_to_iban).first()
+            # Vérifier si les comptes existents
+            if not account_from or not account_to:
+                raise CustomHTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail="Comptes source ou destinataire non trouvés.",
+                    error_code="ACCOUNTS_NOT_FOUND"
+                )
 
-                if not account_from or not account_to:
-                    raise CustomHTTPException(
-                        status_code=status.HTTP_404_NOT_FOUND,
-                        detail="Comptes source ou destinataire non trouvés.",
-                        error_code="ACCOUNTS_NOT_FOUND"
-                    )
+            # Restaurer les soldes
+            account_from.sold += transaction.amount
+            account_to.sold -= transaction.amount
 
-                # Restaurer les soldes
-                account_from.sold += transaction.amount
-                account_to.sold -= transaction.amount
-
-                session.add(account_from)
-                session.add(account_to)
-
-            elif transaction.type == TransactionType.DEPOSIT:
-                account_to = session.query(Account).filter_by(iban=transaction.account_to_iban).first()
-
-                if not account_to:
-                    raise CustomHTTPException(
-                        status_code=status.HTTP_404_NOT_FOUND,
-                        detail="Compte destinataire non trouvé.",
-                        error_code="DESTINATION_ACCOUNT_NOT_FOUND"
-                    )
-
-                account_to.sold -= transaction.amount
-                session.add(account_to)
-
-            elif transaction.type == TransactionType.WITHDRAWAL:
-                account_from = session.query(Account).filter_by(iban=transaction.account_from_iban).first()
-
-                if not account_from:
-                    raise CustomHTTPException(
-                        status_code=status.HTTP_404_NOT_FOUND,
-                        detail="Compte source non trouvé.",
-                        error_code="SOURCE_ACCOUNT_NOT_FOUND"
-                    )
-
-                account_from.sold += transaction.amount
-                session.add(account_from)
+            session.add(account_from)
+            session.add(account_to)
 
             # Mettre à jour le statut de la transaction
             transaction.status = TransactionStatus.REJECTED
             session.add(transaction)
             session.commit()
 
-            return "Transaction annulée avec succès, les soldes ont été restaurés."
+            return Transaction(
+                id=transaction.id,
+                account_from_iban=transaction.account_from_iban,
+                account_to_iban=transaction.account_to_iban,
+                user_id=transaction.user_id,
+                amount=transaction.amount,
+                type=transaction.type,
+                status=TransactionStatus.REJECTED,
+                created_at=transaction.created_at,
+                updated_at=datetime.utcnow()
+            )
 
         except CustomHTTPException as e:
             raise e
@@ -270,4 +295,5 @@ class TransactionService:
                 detail="Erreur lors de l'annulation de la transaction.",
                 error_code="CANCEL_TRANSACTION_ERROR"
             )
+
 transaction_service_instance = TransactionService()

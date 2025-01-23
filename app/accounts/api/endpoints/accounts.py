@@ -39,12 +39,12 @@ def get_accounts(session=Depends(get_session), user_id=Depends(user_service_inst
         )
 
 @router.post("/close/{account_id}")
-def close_account(account_id: int, session=Depends(get_session)):
+def close_account(account_id: int, session=Depends(get_session), user_id=Depends(user_service_instance_auth.get_current_user_id)):
     """
     Ferme le compte spécifié par l'ID.
     """
     try:
-        return account_service_instance.close_account(account_id, session)
+        return account_service_instance.close_account(account_id, user_id, session)
     except CustomHTTPException as e:
         raise e
     except Exception as e:
@@ -55,12 +55,12 @@ def close_account(account_id: int, session=Depends(get_session)):
         )
 
 @router.get("/{account_id}")
-def get_account(account_id: int, session=Depends(get_session)):
+def get_account(account_id: int, session=Depends(get_session), user_id=Depends(user_service_instance_auth.get_current_user_id)):
     """
     Récupère les informations du compte spécifié par l'ID.
     """
     try:
-        account = account_service_instance.get_info_account_id(account_id, session)
+        account = account_service_instance.get_info_account_id(user_id, account_id, session)
         return account
     except CustomHTTPException as e:
         raise e

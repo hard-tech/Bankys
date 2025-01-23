@@ -10,7 +10,8 @@ class BeneficiaireService:
     def create_beneficiaire(
         self, 
         user_id_envoyeur: int, 
-        account_id_receveur: int, 
+        beneficiary_name: str, 
+        account_id_to: int, 
         session: Session
     ) -> Beneficiaire:
         try:
@@ -24,11 +25,11 @@ class BeneficiaireService:
                 )
 
             # Vérifie si le compte receveur existe
-            account_receveur = session.query(Account).filter_by(id=account_id_receveur).first()
+            account_receveur = session.query(Account).filter_by(id=account_id_to).first()
             if not account_receveur:
                 raise CustomHTTPException(
                     status_code=status.HTTP_404_NOT_FOUND,
-                    detail=f"Le compte receveur avec ID {account_id_receveur} n'existe pas.",
+                    detail=f"Le compte receveur avec ID {account_id_to} n'existe pas.",
                     error_code="ACCOUNT_NOT_FOUND"
                 )
 
@@ -61,7 +62,7 @@ class BeneficiaireService:
 
             # Vérifie que le bénéficiaire avec le même IBAN n'existe pas déjà pour cet envoyeur
             existing_beneficiaire = session.query(Beneficiaire).filter_by(
-                beneficiaire_envoyeur=user_id_envoyeur,
+                beneficiary_sender=user_id_envoyeur,
                 iban_receveur=iban_receveur
             ).first()
             if existing_beneficiaire:
@@ -73,9 +74,10 @@ class BeneficiaireService:
 
             # Crée le bénéficiaire
             beneficiaire = Beneficiaire(
-                beneficiaire_receveur=account_receveur.user_id,
-                beneficiaire_envoyeur=user_id_envoyeur,
-                name_beneficiaire_receveur=receveur.first_name,
+                beneficiary_receiver=account_receveur.user_id,
+                beneficiary_sender=user_id_envoyeur,
+                beneficiary_name=beneficiary_name,
+                name_beneficiary_receiver=receveur.first_name,
                 iban_receveur=iban_receveur
             )
             session.add(beneficiaire)
@@ -94,13 +96,13 @@ class BeneficiaireService:
     def get_benificiaires_of_user(self, user_id: int, session: Session) -> Get_Beneficiaires:
         try:
             # Récupère tous les bénéficiaires de l'utilisateur
-            beneficiaires = session.query(Beneficiaire).filter_by(beneficiaire_envoyeur=user_id).order_by(Beneficiaire.created_at.desc()).all()
+            beneficiaires = session.query(Beneficiaire).filter_by(beneficiary_sender=user_id).order_by(Beneficiaire.created_at.desc()).all()
 
             if beneficiaires:
                 return [
                     Get_Beneficiaires(
                         id=beneficiaire.id,
-                        name=beneficiaire.name_beneficiaire_receveur,
+                        name=beneficiaire.name_beneficiary_receiver,
                         iban=beneficiaire.iban_receveur,
                         date=beneficiaire.created_at
                     )

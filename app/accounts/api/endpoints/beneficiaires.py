@@ -6,13 +6,13 @@ from app.core.exceptions import CustomHTTPException
 
 router = APIRouter()
 
-@router.post("/create/{account_id_receveur}")
-def create_beneficiaire(account_id_receveur: int, user_id_envoyeur=Depends(user_service_instance_auth.get_current_user_id), session=Depends(get_session)):
+@router.post("/create/{account_id_to}/{beneficiary_name}")
+def create_beneficiaire(account_id_to: int, beneficiary_name: str, user_id_envoyeur=Depends(user_service_instance_auth.get_current_user_id), session=Depends(get_session)):
     """
     Crée un nouveau bénéficiaire pour l'utilisateur actuel.
     """
     try:
-        return beneficiaire_service_instance.create_beneficiaire(user_id_envoyeur, account_id_receveur, session)
+        return beneficiaire_service_instance.create_beneficiaire(user_id_envoyeur, beneficiary_name, account_id_to, session)
     except CustomHTTPException as e:
         raise e
     except Exception as e:

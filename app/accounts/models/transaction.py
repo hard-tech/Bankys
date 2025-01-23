@@ -15,9 +15,11 @@ class TransactionStatus(str, Enum):
 
 class Transaction(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
+    user_id: int = Field(foreign_key="user.id")  # Assuming there is a user table with an id column
     account_from_iban: Optional[int] = Field(default=None, foreign_key="account.iban")
     account_to_iban: Optional[int] = Field(default=None, foreign_key="account.iban")
     amount: float
     type: TransactionType
     status: TransactionStatus = Field(default=TransactionStatus.PENDING)
     created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
