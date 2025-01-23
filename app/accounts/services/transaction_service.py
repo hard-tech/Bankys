@@ -56,6 +56,11 @@ class TransactionService:
             account_from = session.query(Account).filter_by(iban=addMoney.account_iban_from).first()
             if not account_from:
                 raise ValueError(f"Le compte source, avec l'ID {addMoney.account_iban_from} n'existe pas.")
+            if not account_from.actived:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Le compte source n'est pas actif."
+                )
             if account_from.sold < addMoney.amount:
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
@@ -67,6 +72,11 @@ class TransactionService:
             account_to = session.query(Account).filter_by(iban=addMoney.account_iban_to).first()
             if not account_to:
                 raise ValueError(f"Le compte destinataire, avec l'ID {addMoney.account_iban_to} n'existe pas.")
+            if not account_to.actived:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Le compte destinataire n'est pas actif."
+                )
 
         # Effectuer la transaction en fonction du type
         if type == TransactionType.DEPOSIT:
@@ -202,7 +212,7 @@ class TransactionService:
         session.add(transaction)
         session.commit()
         
-        return "Transaction annulée avec succès, les soldes ont été restaurés."
+        return HTTPException(status_code=201, detail="Transaction annulée avec succès, les soldes ont été restaurés.")
     
 
     

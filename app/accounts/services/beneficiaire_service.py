@@ -35,6 +35,13 @@ class BeneficiaireService:
         if any(account.iban == iban_receveur for account in envoyeur_accounts):
             raise ValueError("L'IBAN du receveur ne peut pas être un IBAN associé à l'utilisateur envoyeur.")
         
+        # Vérifie que le compte receveur est actif
+        if not account_receveur.actived:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Le compte receveur n'est pas actif."
+            )
+        
         # Vérifie que le bénéficiaire avec le même IBAN n'existe pas déjà pour cet envoyeur
         existing_beneficiaire = session.query(Beneficiaire).filter_by(
             beneficiaire_envoyeur=user_id_envoyeur,

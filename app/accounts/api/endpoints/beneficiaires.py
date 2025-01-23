@@ -1,15 +1,20 @@
 from fastapi import APIRouter, Depends, HTTPException
 from app.accounts.services.beneficiaire_service import beneficiaire_service_instance
-
+from app.auth.services.auth_service import user_service_instance_auth
 from app.db.session import get_session
-
 
 router = APIRouter()
 
-@router.post("/create/{user_id_envoyeur}/{account_id_receveur}")
-def create_beneficiaire(user_id_envoyeur: int, account_id_receveur : int, session=Depends(get_session)):
-    return beneficiaire_service_instance.create_beneficiaire(user_id_envoyeur, account_id_receveur, session)
+@router.post("/create/{account_id_receveur}")
+def create_beneficiaire(account_id_receveur: int, user_id_envoyeur=Depends(user_service_instance_auth.get_current_user_id), session=Depends(get_session)):
+    try:
+        return beneficiaire_service_instance.create_beneficiaire(user_id_envoyeur, account_id_receveur, session)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
-@router.post("/get_all_beneficiaires/{user_id}")
-def get_all_beneficiaires(user_id: int, session=Depends(get_session)):
-    return beneficiaire_service_instance.get_benificiaires_of_user(user_id, session)
+@router.get("/get_all_beneficiaires")
+def get_all_beneficiaires(user_id=Depends(user_service_instance_auth.get_current_user_id), session=Depends(get_session)):
+    try:
+        return beneficiaire_service_instance.get_benificiaires_of_user(user_id, session)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
