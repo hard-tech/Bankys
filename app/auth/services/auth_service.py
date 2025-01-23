@@ -106,7 +106,7 @@ class UserService:
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid authentication token"
             )
-    def get_current_user_id(
+    def get_current_user_id( # TODO: Corriger la gestion des tokens avec un user_id unique (Story 10)
         self,
         token: HTTPAuthorizationCredentials = Depends(HTTPBearer())
     ) -> int:

@@ -4,25 +4,19 @@ from app.db.session import get_session
 from app.accounts.services.account_service import account_service_instance
 from app.accounts.services.transaction_service import transaction_service_instance
 from app.accounts.models.transaction import TransactionType
+from app.auth.services.auth_service import user_service_instance_auth
 
 router = APIRouter()
 
-@router.post("/create/{user_id}") # TODO: get user_id from token
-def create_account(user_id: int, session=Depends(get_session)):
+@router.post("/create")
+def create_account(session=Depends(get_session), user_id=Depends(user_service_instance_auth.get_current_user_id)):
     try:
         return account_service_instance.create_account(user_id, session)
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
-@router.post("/close/{account_id}")
-def close_account(account_id: int, session=Depends(get_session)):
-    try:
-        return account_service_instance.close_account(account_id, session)
-    except Exception as e:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
-
-@router.get("/{user_id}/accounts")
-def get_accounts(user_id: int, session=Depends(get_session)):
+@router.get("/get-all-accounts")
+def get_accounts(session=Depends(get_session), user_id=Depends(user_service_instance_auth.get_current_user_id)):
     try:
         accounts = account_service_instance.get_accounts_of_user(user_id, session)
         if not accounts:
@@ -30,9 +24,15 @@ def get_accounts(user_id: int, session=Depends(get_session)):
         return accounts
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
-
+    
+@router.post("/close/{account_id}")
+def close_account(account_id: int, session=Depends(get_session)):
+    try:
+        return account_service_instance.close_account(account_id, session)
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+    
 @router.get("/{account_id}")
-
 def get_account(account_id: int, session=Depends(get_session)):
     try:
         account = account_service_instance.getinfo_account_id(account_id, session)
