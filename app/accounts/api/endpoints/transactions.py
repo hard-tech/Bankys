@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status
+from sqlmodel import Session
 from app.accounts.schemas.account import Account_Add_Money
 from app.db.session import get_session
 from app.accounts.services.transaction_service import transaction_service_instance
@@ -46,3 +47,18 @@ def get_transaction(transaction_id: int, session=Depends(get_session), user_id=D
         return transaction
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+    
+@router.get("/get/{user_id}")
+def get_transactions_by_user(user_id: int, session=Depends(get_session)):
+    try:
+        transactions = transaction_service_instance.get_transactions_by_user(user_id, session)
+        return transactions
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+    
+@router.post("/cancel/{transaction_id}")
+def cancel_transaction(transaction_id: int, session: Session = Depends(get_session)):
+    """
+    Endpoint pour annuler une transaction.
+    """
+    return transaction_service_instance.cancel_transaction(transaction_id, session)
