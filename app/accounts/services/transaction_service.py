@@ -2,11 +2,44 @@ from typing import List
 from fastapi import HTTPException, status
 from sqlmodel import Session
 from app.accounts.models.account import Account
-from app.accounts.models.transaction import Transaction, TransactionType
+from app.accounts.models.transaction import Transaction, TransactionType, TransactionStatus
 from app.accounts.schemas.account import Account_Add_Money, Account_Info
 from app.accounts.services.account_service import account_service_instance
 
+import asyncio
+from datetime import datetime, timedelta
+from sqlalchemy.orm import Session
+from app.db.session import SessionLocal
+
+
+
+async def refresh_transactions():
+    while True:
+        # Créer une session pour chaque cycle
+        with SessionLocal() as session:
+            now = datetime.utcnow()
+            
+            # Récupérer les transactions PENDING
+            pending_transactions = session.query(Transaction).filter(
+                Transaction.status == TransactionStatus.PENDING,
+                Transaction.created_at <= now - timedelta(seconds=5)
+            ).all()
+
+            # Mettre à jour les transactions
+            for transaction in pending_transactions:
+                transaction.status = TransactionStatus.COMPLETED
+                session.add(transaction)
+
+            # Sauvegarder les changements
+            session.commit()
+
+        # Attendre avant la prochaine exécution
+        await asyncio.sleep(10)
+
 class TransactionService:
+
+
+    
 
     def transfert_money(self, addMoney: Account_Add_Money, type: TransactionType, session: Session) -> Account_Info:
         if addMoney.amount <= 0:
@@ -80,6 +113,9 @@ class TransactionService:
         ).order_by(Transaction.created_at.desc()).all()
 
         return transactions
+    
+
+    
    
 
 transaction_service_instance = TransactionService()
