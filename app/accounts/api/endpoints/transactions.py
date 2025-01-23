@@ -45,3 +45,11 @@ def get_transaction(transaction_id: int, session=Depends(get_session)):
         return transaction
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+    
+@router.get("/get/{user_id}")
+def get_transactions_by_user(user_id: int, session=Depends(get_session)):
+    try:
+        transactions = transaction_service_instance.get_transactions_by_user(user_id, session)
+        return transactions
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
