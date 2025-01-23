@@ -18,10 +18,7 @@ def create_account(session=Depends(get_session), user_id=Depends(user_service_in
 @router.get("/get-all-accounts")
 def get_accounts(session=Depends(get_session), user_id=Depends(user_service_instance_auth.get_current_user_id)):
     try:
-        accounts = account_service_instance.get_accounts_of_user(user_id, session)
-        if not accounts:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No accounts found for user")
-        return accounts
+        return account_service_instance.get_accounts_of_user(user_id, session)
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
     
