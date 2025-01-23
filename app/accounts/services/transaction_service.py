@@ -1,3 +1,4 @@
+from typing import List
 from fastapi import HTTPException, status
 from sqlmodel import Session
 from app.accounts.models.account import Account
@@ -69,5 +70,16 @@ class TransactionService:
 
     def get_transaction(self, transaction_id: int, session: Session) -> Transaction:
         return session.query(Transaction).filter_by(id=transaction_id).first()
+    
+    def get_transactions_by_user(self, user_id: int, session: Session) -> List[Transaction]:
+        user_accounts = session.query(Account.iban).filter_by(user_id=user_id).subquery()
+
+        transactions = session.query(Transaction).filter(
+            (Transaction.account_from_iban.in_(user_accounts)) |
+            (Transaction.account_to_iban.in_(user_accounts))
+        ).order_by(Transaction.created_at.desc()).all()
+
+        return transactions
+   
 
 transaction_service_instance = TransactionService()
