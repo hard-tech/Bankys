@@ -1,7 +1,8 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, status
 from app.accounts.services.beneficiaire_service import beneficiaire_service_instance
 from app.auth.services.auth_service import user_service_instance_auth
 from app.db.session import get_session
+from app.core.exceptions import CustomHTTPException
 
 router = APIRouter()
 
@@ -12,8 +13,14 @@ def create_beneficiaire(account_id_receveur: int, user_id_envoyeur=Depends(user_
     """
     try:
         return beneficiaire_service_instance.create_beneficiaire(user_id_envoyeur, account_id_receveur, session)
+    except CustomHTTPException as e:
+        raise e
     except Exception as e:
-        raise HTTPException(status_code=400, detail=f"Erreur lors de la création du bénéficiaire: {str(e)}")
+        raise CustomHTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Erreur lors de la création du bénéficiaire.",
+            error_code="CREATE_BENEFICIAIRE_ERROR"
+        )
 
 @router.get("/get_all_beneficiaires")
 def get_all_beneficiaires(user_id=Depends(user_service_instance_auth.get_current_user_id), session=Depends(get_session)):
@@ -22,5 +29,11 @@ def get_all_beneficiaires(user_id=Depends(user_service_instance_auth.get_current
     """
     try:
         return beneficiaire_service_instance.get_benificiaires_of_user(user_id, session)
+    except CustomHTTPException as e:
+        raise e
     except Exception as e:
-        raise HTTPException(status_code=400, detail=f"Erreur lors de la récupération des bénéficiaires: {str(e)}")
+        raise CustomHTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Erreur lors de la récupération des bénéficiaires.",
+            error_code="GET_BENEFICIAIRES_ERROR"
+        )

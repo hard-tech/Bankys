@@ -1,14 +1,14 @@
 from datetime import datetime, timedelta
 import jwt
-from pydantic import EmailStr
 from sqlalchemy.orm import Session
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, status
 from app.auth.models.user import User
 from app.auth.domain.PasswordHasher import verify_password
 from app.auth.schemas.user import User_Without_Password, User_Register
 from app.auth.domain import get_password_hash
 from app.accounts.services.account_service import account_service_instance
+from app.core.exceptions import CustomHTTPException
 
 class UserService:
     def __init__(self):
@@ -24,9 +24,10 @@ class UserService:
             # Vérifier si l'utilisateur existe déjà
             existing_user = session.query(User).filter(User.email == user.email).first()
             if existing_user:
-                raise HTTPException(
+                raise CustomHTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST, 
-                    detail="Email déjà enregistré"
+                    detail="Email déjà enregistré",
+                    error_code="USER_ALREADY_EXISTS"
                 )
 
             # Hacher le mot de passe de l'utilisateur
@@ -52,13 +53,14 @@ class UserService:
                 first_name=new_user.first_name,
                 last_name=new_user.last_name
             )
-        except HTTPException as e:
+        except CustomHTTPException as e:
             raise e
         except Exception as e:
             session.rollback()
-            raise HTTPException(
+            raise CustomHTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Échec de l'enregistrement"
+                detail="Échec de l'enregistrement",
+                error_code="REGISTRATION_FAILED"
             )
 
     def generate_token(self, user):
@@ -75,9 +77,10 @@ class UserService:
             }
             return jwt.encode(payload, self.secret_key, algorithm=self.algorithm)
         except Exception as e:
-            raise HTTPException(
+            raise CustomHTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=f"Échec de la génération du token: {str(e)}"
+                detail=f"Échec de la génération du token: {str(e)}",
+                error_code="TOKEN_GENERATION_FAILED"
             )
 
     def authenticate_user(self, email: str, password: str, session: Session) -> User:
@@ -86,9 +89,10 @@ class UserService:
         """
         user = session.query(User).filter(User.email == email).first()
         if not user or not verify_password(password, user.password):
-            raise HTTPException(
+            raise CustomHTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Identifiants invalides"
+                detail="Identifiant ou mots de passe incorrects",
+                error_code="INVALID_CREDENTIALS"
             )
         return user
 
@@ -109,16 +113,18 @@ class UserService:
             # Vérification de l'expiration
             exp = payload.get("exp")
             if not exp or datetime.fromtimestamp(exp) < datetime.utcnow():
-                raise HTTPException(
+                raise CustomHTTPException(
                     status_code=status.HTTP_401_UNAUTHORIZED,
-                    detail="Le token a expiré"
+                    detail="Le token a expiré",
+                    error_code="TOKEN_EXPIRED"
                 )
 
             return payload
         except jwt.InvalidTokenError:
-            raise HTTPException(
+            raise CustomHTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Token d'authentification invalide"
+                detail="Token d'authentification invalide",
+                error_code="INVALID_TOKEN"
             )
 
     def get_current_user_id(
@@ -131,9 +137,10 @@ class UserService:
         payload = self.get_current_user(token)
         user_id = payload.get("sub")
         if not user_id:
-            raise HTTPException(
+            raise CustomHTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="ID utilisateur non trouvé dans le token"
+                detail="ID utilisateur non trouvé dans le token",
+                error_code="USER_ID_NOT_FOUND"
             )
         return int(user_id)
 
@@ -143,9 +150,10 @@ class UserService:
         """
         user = session.query(User).filter(User.id == user_id).first()
         if not user:
-            raise HTTPException(
+            raise CustomHTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail="Utilisateur non trouvé"
+                detail="Utilisateur non trouvé",
+                error_code="USER_NOT_FOUND"
             )
         return user
 

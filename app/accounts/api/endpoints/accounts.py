@@ -1,10 +1,8 @@
-from fastapi import APIRouter, Depends, HTTPException, status
-from app.accounts.schemas.account import Account_Add_Money
+from fastapi import APIRouter, Depends, status
 from app.db.session import get_session
 from app.accounts.services.account_service import account_service_instance
-from app.accounts.services.transaction_service import transaction_service_instance
-from app.accounts.models.transaction import TransactionType
 from app.auth.services.auth_service import user_service_instance_auth
+from app.core.exceptions import CustomHTTPException
 
 router = APIRouter()
 
@@ -15,8 +13,14 @@ def create_account(session=Depends(get_session), user_id=Depends(user_service_in
     """
     try:
         return account_service_instance.create_account(user_id, session)
+    except CustomHTTPException as e:
+        raise e
     except Exception as e:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Erreur lors de la création du compte: {str(e)}")
+        raise CustomHTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Erreur lors de la création du compte.",
+            error_code="CREATE_ACCOUNT_ERROR"
+        )
 
 @router.get("/get-all-accounts")
 def get_accounts(session=Depends(get_session), user_id=Depends(user_service_instance_auth.get_current_user_id)):
@@ -25,8 +29,14 @@ def get_accounts(session=Depends(get_session), user_id=Depends(user_service_inst
     """
     try:
         return account_service_instance.get_accounts_of_user(user_id, session)
+    except CustomHTTPException as e:
+        raise e
     except Exception as e:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Erreur lors de la récupération des comptes: {str(e)}")
+        raise CustomHTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Erreur lors de la récupération des comptes.",
+            error_code="GET_ACCOUNTS_ERROR"
+        )
 
 @router.post("/close/{account_id}")
 def close_account(account_id: int, session=Depends(get_session)):
@@ -35,8 +45,14 @@ def close_account(account_id: int, session=Depends(get_session)):
     """
     try:
         return account_service_instance.close_account(account_id, session)
+    except CustomHTTPException as e:
+        raise e
     except Exception as e:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Erreur lors de la fermeture du compte: {str(e)}")
+        raise CustomHTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Erreur lors de la fermeture du compte.",
+            error_code="CLOSE_ACCOUNT_ERROR"
+        )
 
 @router.get("/{account_id}")
 def get_account(account_id: int, session=Depends(get_session)):
@@ -45,8 +61,12 @@ def get_account(account_id: int, session=Depends(get_session)):
     """
     try:
         account = account_service_instance.get_info_account_id(account_id, session)
-        if not account:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Compte non trouvé")
         return account
+    except CustomHTTPException as e:
+        raise e
     except Exception as e:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Erreur lors de la récupération du compte: {str(e)}")
+        raise CustomHTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Erreur lors de la récupération des informations du compte.",
+            error_code="GET_ACCOUNT_INFO_ERROR"
+        )
