@@ -10,4 +10,3 @@ class User(SQLModel, table=True):
     password: str
     first_name: str
     last_name: str
-    accounts: List["Account"] = Relationship(back_populates="user")  # Chaîne différée pour éviter les problèmes de circular import

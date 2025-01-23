@@ -1,122 +1,33 @@
-from fastapi import FastAPI
-
-from app.auth.schemas.user import User_Register
-from app.auth.models.user import User
+from fastapi import FastAPI, Depends
 from app.auth.api.endpoints import auth
-from app.auth.api.endpoints import auth
-
 from app.accounts.models.account import Account
-from app.accounts.api.endpoints import accounts
-
+from app.accounts.models.transaction import Transaction
+from app.accounts.models.beneficiaire import Beneficiaire
+from app.accounts.api.endpoints import accounts, beneficiaires, transactions
 from app.db.session import create_db_and_tables
+from app.auth.services.auth_service import user_service_instance_auth
+
+import asyncio
+from app.accounts.services.transaction_service import refresh_transactions
 
 app = FastAPI()
 
 # Initialize the database and create tables if they don't exist
+# Secure the /account and /transactions routes
+account_router = accounts.router
+transaction_router = transactions.router
+beneficiaires_router = beneficiaires.router
+
 @app.on_event("startup")
-def on_startup():
-    create_db_and_tables()
+async def on_startup():
+    """
+    Initialise la base de données et démarre les tâches asynchrones au démarrage de l'application.
+    """
+    create_db_and_tables()  # Crée les tables dans la base de données
+    asyncio.create_task(refresh_transactions())  # Lancer la tâche de vérification des transactions PENDING
 
+# Inclusion des routers pour les différentes fonctionnalités
 app.include_router(auth.router, prefix="/auth", tags=["auth"])
-app.include_router(accounts.router, prefix="/account", tags=["accounts"])
-app.include_router(auth.router, prefix="/auth", tags=["auth"])
-# app.include_router(accounts.router, prefix="/accounts", tags=["accounts"])
-# app.include_router(transactions.router, prefix="/transactions", tags=["transactions"])
-
-
-@app.post("/register")
-def register(user: User_Register):
-    """
-    Enregistre un nouvel utilisateur dans le système.
-    """
-    return {"message": "Utilisateur enregistré", "user": user}
-
-
-@app.post("/login")
-def login(user: User_Register):
-    """
-    Authentifie un utilisateur.
-    """
-    return {"message": "Connexion réussie", "user": user}
-
-
-@app.post("/account/create")
-def create_account(user_id: int):
-    """
-    Crée un nouveau compte bancaire pour un utilisateur.
-    """
-    return {"message": f"Compte créé pour l'utilisateur {user_id}"}
-
-
-@app.get("/account/{account_id}")
-def read_account(account_id: int):
-    """
-    Retourne les informations d'un compte spécifique.
-    """
-    return {"account_id": account_id, "balance": 100.0}
-
-
-@app.post("/account/{account_id}/add_money")
-def add_money(account_id: int, amount: float):
-    """
-    Ajoute de l'argent à un compte bancaire.
-    """
-    return {"message": f"{amount} ajouté au compte {account_id}"}
-
-
-@app.post("/account/{account_id}/transfer_money")
-def transfer_money(account_id: int, amount: float, recipient_id: int):
-    """
-    Transfère de l'argent d'un compte à un autre.
-    """
-    return {
-        "message": f"{amount} transféré du compte {account_id} au compte {recipient_id}"
-    }
-
-
-@app.get("/account/{account_id}/history")
-def get_account_history(account_id: int):
-    """
-    Retourne l'historique des transactions d'un compte.
-    """
-    return {"account_id": account_id, "history": []}
-
-
-@app.get("/accounts")
-def get_accounts():
-    """
-    Retourne tous les comptes d'un utilisateur.
-    """
-    return [{"account_id": 1, "balance": 100.0}, {"account_id": 2, "balance": 200.0}]
-
-
-@app.post("/transaction/{transaction_id}/cancel")
-def cancel_transaction(transaction_id: int):
-    """
-    Annule une transaction spécifique.
-    """
-    return {"message": f"Transaction {transaction_id} annulée"}
-
-
-@app.patch("/account/{account_id}/close")
-def close_account(account_id: int):
-    """
-    Ferme un compte bancaire.
-    """
-    return {"message": f"Compte {account_id} fermé"}
-
-
-@app.get("/transaction/{transaction_id}")
-def read_transaction(transaction_id: int):
-    """
-    Retourne les détails d'une transaction spécifique.
-    """
-    return {"transaction_id": transaction_id, "amount": 50.0}
-
-
-@app.post("/account/{account_id}/withdraw_money")
-def withdraw_money(account_id: int, amount: float):
-    """
-    Retire de l'argent d'un compte bancaire.
-    """
-    return {"message": f"{amount} retiré du compte {account_id}"}
+app.include_router(account_router, prefix="/account", tags=["accounts"], dependencies=[Depends(user_service_instance_auth.get_current_user_id)])
+app.include_router(transaction_router, prefix="/transactions", tags=["transactions"], dependencies=[Depends(user_service_instance_auth.get_current_user_id)])
+app.include_router(beneficiaires_router, prefix="/beneficiaires", tags=["beneficiaires"], dependencies=[Depends(user_service_instance_auth.get_current_user_id)])

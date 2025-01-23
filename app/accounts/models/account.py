@@ -1,5 +1,5 @@
-from typing import Optional
-from sqlmodel import Field, Relationship, SQLModel
+from datetime import datetime
+from sqlmodel import Field, SQLModel
 
 # from app.models.user import User
 
@@ -8,6 +8,8 @@ class Account(SQLModel, table=True):
     sold: float = Field(default=0)
     iban: str
     user_id: int = Field(foreign_key="user.id")  # La clé étrangère pointe vers `user.id`
-    status: bool
+    actived: bool = Field(default=True)
     main: bool
-    user: Optional["User"] = Relationship(back_populates="accounts")  # Chaîne différée pour éviter les problèmes de circular import
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+    
