@@ -1,5 +1,5 @@
+from datetime import datetime, timedelta
 import jwt
-import os as fs
 from pydantic import EmailStr
 from sqlalchemy.orm import Session
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
@@ -7,24 +7,25 @@ from fastapi import Depends, HTTPException, status
 from app.auth.models.user import User
 from app.auth.domain.PasswordHasher import verify_password
 from app.auth.schemas.user import User_Without_Password, User_Register
-from app.auth.domain import get_password_hash  # Assuming this function exists for hashing passwords
+from app.auth.domain import get_password_hash
 from app.accounts.services.account_service import account_service_instance
 
-secret_key = "GCFDN4DA3HFKHZL0UN0WETV64IA3JOQ92HQ6694YJTVFMHELGYOLSB6MRVF3XZGYECPW993LY7K3PB92BTXLERGWXT8BYX"
-algorithm = "HS256"
-bearer_scheme = HTTPBearer()
-
 class UserService:
+    def __init__(self):
+        self.secret_key = "GCFDN4DA3HFKHZL0UN0WETV64IA3JOQ92HQ6694YJTVFMHELGYOLSB6MRVF3XZGYECPW993LY7K3PB92BTXLERGWXT8BYX"
+        self.algorithm = "HS256"
+        self.access_token_expire_minutes = 30
+
     def register_user(self, user: User_Register, session: Session) -> User_Without_Password:
         try:
-            # Check if the user already exists
             existing_user = session.query(User).filter(User.email == user.email).first()
             if existing_user:
-                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="User already exists")
-            # Hash the user's password
-            hashed_password = get_password_hash(user.password)
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST, 
+                    detail="Email already registered"
+                )
 
-            # Create a new User instance
+            hashed_password = get_password_hash(user.password)
             new_user = User(
                 email=user.email,
                 first_name=user.first_name,
@@ -32,47 +33,99 @@ class UserService:
                 password=hashed_password
             )
 
-            # Add the new user to the session and commit
             session.add(new_user)
             session.commit()
             session.refresh(new_user)
 
+            # Création du compte principal avec 100€ (Story 11)
             account_service_instance.create_principal_account(new_user.id, session)
 
-            # Return the user data without the password
             return User_Without_Password(
-                id=new_user.id, 
-                email=new_user.email, 
+                id=new_user.id,
+                email=new_user.email,
                 first_name=new_user.first_name,
                 last_name=new_user.last_name
             )
-
         except HTTPException as e:
-            raise e  # Re-raise known HTTP exceptions
+            raise e
         except Exception as e:
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="An error occurred during registration")
+            session.rollback()
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Registration failed"
+            )
 
-    def authenticate_user(self, email: str, password: str, session: Session):
+    def generate_token(self, user):
+        try:
+            expire = datetime.utcnow() + timedelta(minutes=self.access_token_expire_minutes)
+            payload = {
+                "sub": str(user.id),
+                "email": user.email,
+                "exp": expire,
+                "iat": datetime.utcnow()
+            }
+            return jwt.encode(payload, self.secret_key, algorithm=self.algorithm)
+        except Exception as e:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f"Token generation failed: {str(e)}"
+            )
+
+
+    def authenticate_user(self, email: str, password: str, session: Session) -> User:
         user = session.query(User).filter(User.email == email).first()
-        if user and verify_password(password, user.password):
-            return user
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid email or password")
+        if not user or not verify_password(password, user.password):
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid credentials"
+            )
+        return user
 
-    def generate_token(self, user: User):
+    def get_current_user(
+        self,
+        token: HTTPAuthorizationCredentials = Depends(HTTPBearer())
+    ) -> dict:
         try:
-            user_data = {"id": user.id, "email": user.email}
-            return jwt.encode(user_data, secret_key, algorithm=algorithm)
-        except Exception as e:
-            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Token generation failed")
-
-    def get_user(self, authorization: HTTPAuthorizationCredentials = Depends(bearer_scheme)):
-        try:
-            payload = jwt.decode(authorization.credentials, secret_key, algorithms=[algorithm])
+            payload = jwt.decode(
+                token.credentials,
+                self.secret_key,
+                algorithms=[self.algorithm]
+            )
+            
+            # Vérification de l'expiration
+            exp = payload.get("exp")
+            if not exp or datetime.fromtimestamp(exp) < datetime.utcnow():
+                raise HTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail="Token has expired"
+                )
+                
             return payload
-        except jwt.ExpiredSignatureError:
-            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token expired")
         except jwt.InvalidTokenError:
-            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid authentication token"
+            )
+    def get_current_user_id(
+        self,
+        token: HTTPAuthorizationCredentials = Depends(HTTPBearer())
+    ) -> int:
+        payload = self.get_current_user(token)
+        user_id = payload.get("sub")
+        if not user_id:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="User ID not found in token"
+            )
+        return int(user_id)
 
-# Create an instance of UserService
+    def get_user_from_db(self, user_id: int, session: Session) -> User:
+        user = session.query(User).filter(User.id == user_id).first()
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="User not found"
+            )
+        return user
+
 user_service_instance_auth = UserService()

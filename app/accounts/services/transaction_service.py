@@ -67,7 +67,25 @@ class TransactionService:
         # Retourner les informations du compte mis à jour
         return account_service_instance.get_infos_account(addMoney.account_iban_to if account_to else addMoney.account_iban_from, session)
 
-    def get_transaction(self, transaction_id: int, session: Session) -> Transaction:
-        return session.query(Transaction).filter_by(id=transaction_id).first()
+    def get_transaction(self, transaction_id: int, session: Session, user_id: int) -> Transaction:
+        transaction = session.query(Transaction).filter_by(id=transaction_id).first()
+
+        if not transaction:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Transaction not found"
+            )
+
+        # Check if the user is either the sender or the recipient
+        account_from = session.query(Account).filter_by(iban=transaction.account_from_iban).first()
+        account_to = session.query(Account).filter_by(iban=transaction.account_to_iban).first()
+
+        if (account_from and account_from.user_id == user_id) or (account_to and account_to.user_id == user_id):
+            return transaction
+
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You are not authorized to view this transaction"
+        )
 
 transaction_service_instance = TransactionService()
