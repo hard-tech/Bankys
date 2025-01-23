@@ -5,7 +5,6 @@ from app.accounts.models.beneficiaire import Beneficiaire
 from app.accounts.models.account import Account
 from app.auth.models.user import User
 
-
 class BeneficiaireService:
     def create_beneficiaire(
         self, 
@@ -13,17 +12,17 @@ class BeneficiaireService:
         account_id_receveur: int, 
         session: Session
     ) -> Beneficiaire:
-        
+
         # Vérifie si l'utilisateur envoyeur existe
         envoyeur = session.query(User).filter_by(id=user_id_envoyeur).first()
         if not envoyeur:
             raise ValueError(f"L'utilisateur envoyeur avec ID {user_id_envoyeur} n'existe pas.")
-        
+
         # Vérifie si le compte receveur existe
         account_receveur = session.query(Account).filter_by(id=account_id_receveur).first()
         if not account_receveur:
             raise ValueError(f"Le compte receveur avec ID {account_id_receveur} n'existe pas.")
-        
+
         # Vérifie si l'utilisateur receveur existe
         receveur = session.query(User).filter_by(id=account_receveur.user_id).first()
         if not receveur:
@@ -34,14 +33,14 @@ class BeneficiaireService:
         envoyeur_accounts = session.query(Account).filter_by(user_id=user_id_envoyeur).all()
         if any(account.iban == iban_receveur for account in envoyeur_accounts):
             raise ValueError("L'IBAN du receveur ne peut pas être un IBAN associé à l'utilisateur envoyeur.")
-        
+
         # Vérifie que le compte receveur est actif
         if not account_receveur.actived:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Le compte receveur n'est pas actif."
             )
-        
+
         # Vérifie que le bénéficiaire avec le même IBAN n'existe pas déjà pour cet envoyeur
         existing_beneficiaire = session.query(Beneficiaire).filter_by(
             beneficiaire_envoyeur=user_id_envoyeur,
@@ -61,21 +60,21 @@ class BeneficiaireService:
         session.commit()
         session.refresh(beneficiaire)
         return beneficiaire
-    
 
     def get_benificiaires_of_user(self, user_id: int, session: Session) -> Get_Beneficiaires:
+        # Récupère tous les bénéficiaires de l'utilisateur
         beneficiaires = session.query(Beneficiaire).filter_by(beneficiaire_envoyeur=user_id).order_by(Beneficiaire.created_at.desc()).all()
 
         if beneficiaires:
             return [
-            Get_Beneficiaires(
-                id=beneficiaire.id,
-                name=beneficiaire.name_beneficiaire_receveur,
-                iban=beneficiaire.iban_receveur,
-                date=beneficiaire.created_at
-            )
-            for beneficiaire in beneficiaires
-        ]
+                Get_Beneficiaires(
+                    id=beneficiaire.id,
+                    name=beneficiaire.name_beneficiaire_receveur,
+                    iban=beneficiaire.iban_receveur,
+                    date=beneficiaire.created_at
+                )
+                for beneficiaire in beneficiaires
+            ]
         else:
             return None
 

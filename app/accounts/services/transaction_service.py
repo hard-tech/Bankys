@@ -11,14 +11,12 @@ from datetime import datetime, timedelta
 from sqlalchemy.orm import Session
 from app.db.session import SessionLocal
 
-
-
 async def refresh_transactions():
     while True:
         # Créer une session pour chaque cycle
         with SessionLocal() as session:
             now = datetime.utcnow()
-            
+
             # Récupérer les transactions PENDING
             pending_transactions = session.query(Transaction).filter(
                 Transaction.status == TransactionStatus.PENDING,
@@ -38,10 +36,8 @@ async def refresh_transactions():
 
 class TransactionService:
 
-
-    
-
     def transfert_money(self, addMoney: Account_Add_Money, type: TransactionType, session: Session) -> Account_Info:
+        # Vérifier si le montant est positif
         if addMoney.amount <= 0:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -110,17 +106,18 @@ class TransactionService:
 
         # Retourner les informations du compte mis à jour
         return account_service_instance.get_infos_account(addMoney.account_iban_to if account_to else addMoney.account_iban_from, session)
-      
+
     def get_transaction(self, transaction_id: int, session: Session, user_id: int) -> Transaction:
+        # Récupérer la transaction par ID
         transaction = session.query(Transaction).filter_by(id=transaction_id).first()
 
         if not transaction:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail="Transaction not found"
+                detail="Transaction non trouvée"
             )
 
-        # Check if the user is either the sender or the recipient
+        # Vérifier si l'utilisateur est soit l'expéditeur soit le destinataire
         account_from = session.query(Account).filter_by(iban=transaction.account_from_iban).first()
         account_to = session.query(Account).filter_by(iban=transaction.account_to_iban).first()
 
@@ -129,20 +126,20 @@ class TransactionService:
 
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="You are not authorized to view this transaction"
+            detail="Vous n'êtes pas autorisé à voir cette transaction"
         )
-    
+
     def get_transactions_by_user(self, user_id: int, session: Session) -> List[Transaction]:
+        # Récupérer les IBANs des comptes de l'utilisateur
         user_accounts = session.query(Account.iban).filter_by(user_id=user_id).subquery()
 
+        # Récupérer les transactions associées aux comptes de l'utilisateur
         transactions = session.query(Transaction).filter(
             (Transaction.account_from_iban.in_(user_accounts)) |
             (Transaction.account_to_iban.in_(user_accounts))
         ).order_by(Transaction.created_at.desc()).all()
 
         return transactions
-    
-
 
     def cancel_transaction(self, transaction_id: int, session: Session) -> str:
         """
@@ -151,17 +148,17 @@ class TransactionService:
         """
         # Récupérer la transaction
         transaction = session.query(Transaction).filter_by(id=transaction_id).first()
-        
+
         if not transaction:
             raise HTTPException(status_code=404, detail="Transaction non trouvée.")
-        
+
         # Vérifier si la transaction est encore en état PENDING
         if transaction.status != TransactionStatus.PENDING:
             raise HTTPException(
                 status_code=400,
                 detail="La transaction ne peut pas être annulée car elle n'est pas en état PENDING."
             )
-        
+
         # Vérifier si la transaction a été créée il y a moins de 5 secondes
         if datetime.utcnow() > transaction.created_at + timedelta(seconds=5):
             raise HTTPException(
@@ -177,7 +174,7 @@ class TransactionService:
 
             if not account_from or not account_to:
                 raise HTTPException(status_code=404, detail="Comptes source ou destinataire non trouvés.")
-            
+
             # Restaurer les soldes
             account_from.sold += transaction.amount  # Restaurer le solde du compte source
             account_to.sold -= transaction.amount    # Retirer l'argent du compte destinataire
@@ -191,7 +188,7 @@ class TransactionService:
 
             if not account_to:
                 raise HTTPException(status_code=404, detail="Compte destinataire non trouvé.")
-            
+
             # Retirer l'argent du compte de dépôt
             account_to.sold -= transaction.amount
             session.add(account_to)
@@ -202,7 +199,7 @@ class TransactionService:
 
             if not account_from:
                 raise HTTPException(status_code=404, detail="Compte source non trouvé.")
-            
+
             # Restaurer l'argent dans le compte source
             account_from.sold += transaction.amount
             session.add(account_from)
@@ -211,11 +208,7 @@ class TransactionService:
         transaction.status = TransactionStatus.REJECTED
         session.add(transaction)
         session.commit()
-        
-        return HTTPException(status_code=201, detail="Transaction annulée avec succès, les soldes ont été restaurés.")
-    
 
-    
-
+        return "Transaction annulée avec succès, les soldes ont été restaurés."
 
 transaction_service_instance = TransactionService()
