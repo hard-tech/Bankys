@@ -8,7 +8,8 @@ class Account_Get_Info(BaseModel):
     account_id: int
 
 class Account_Add_Money(BaseModel):
-    account_id: int
+    account_id_from: int
+    account_id_to: int
     amount: float
 
 class Account_Transfer_Money(BaseModel):
@@ -25,7 +26,7 @@ class Account_Info(BaseModel):
     sold: float
     iban: str
     user_id: int
-    status: bool
+    actived: bool
     main: bool
 
 class Get_Accounts(BaseModel):
