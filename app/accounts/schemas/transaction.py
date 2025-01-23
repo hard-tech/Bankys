@@ -5,7 +5,7 @@ from app.accounts.schemas.account import Account_Info
 
 # Input models
 class Transaction_Get_Account_Transaction(BaseModel):
-    account_id: int
+    account_iban: int
 
 class Transaction_Cancel_Transaction(BaseModel):
     transaction_id: int

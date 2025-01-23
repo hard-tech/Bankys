@@ -8,10 +8,16 @@ class TransactionType(str, Enum):
     WITHDRAWAL = "WITHDRAWAL"
     TRANSFER = "TRANSFER"
 
+class TransactionStatus(str, Enum):
+    PENDING = "PENDING"
+    COMPLETED = "COMPLETED"
+    REJECTED = "REJECTED"
+
 class Transaction(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
-    account_from_id: Optional[int] = Field(default=None, foreign_key="account.id")
-    account_to_id: Optional[int] = Field(default=None, foreign_key="account.id")
+    account_from_iban: Optional[int] = Field(default=None, foreign_key="account.iban")
+    account_to_iban: Optional[int] = Field(default=None, foreign_key="account.iban")
     amount: float
     type: TransactionType
+    status: TransactionStatus = Field(default=TransactionStatus.PENDING)
     created_at: datetime = Field(default_factory=datetime.utcnow)

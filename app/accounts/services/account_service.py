@@ -72,9 +72,9 @@ class AccountService:
         else:
             return None
 
-    def get_infos_account(self, account_id: int, session: Session) -> Account_Info:
+    def get_infos_account(self, account_iban: int, session: Session) -> Account_Info:
 
-        account = session.query(Account).filter_by(id=account_id).first()
+        account = session.query(Account).filter_by(iban=account_iban).first()
 
         if account:
 

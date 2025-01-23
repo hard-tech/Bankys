@@ -6,32 +6,42 @@ from app.accounts.models.transaction import TransactionType
 
 router = APIRouter()
 
-@router.post("/{account_id}/deposit/{amount}")
-def add_money(account_id: int, amount: float, session=Depends(get_session)):
+@router.post("/{account_iban}/deposit/{amount}")
+def add_money(account_iban: str, amount: float, session=Depends(get_session)):
     try:
-        deposit = Account_Add_Money(account_id_from=account_id, account_id_to=account_id, amount=amount)
+        deposit = Account_Add_Money(account_iban_from=account_iban, account_iban_to=account_iban, amount=amount)
         return transaction_service_instance.transfert_money(deposit, TransactionType.DEPOSIT, session)
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
     
-@router.post("/{account_id}/withdrawal/{amount}")
-def withdraw_money(account_id: int, amount: float, session=Depends(get_session)):
+@router.post("/{account_iban}/withdrawal/{amount}")
+def withdraw_money(account_iban: str, amount: float, session=Depends(get_session)):
     try:
-        withdrawal = Account_Add_Money(account_id_from=account_id, account_id_to=account_id, amount=amount)
+        withdrawal = Account_Add_Money(account_iban_from=account_iban, account_iban_to=account_iban, amount=amount)
         return transaction_service_instance.transfert_money(withdrawal, TransactionType.WITHDRAWAL, session)
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
     
-@router.post("/{account_id_from}/transfer/{account_id_to}/{amount}")
-def transfer_money(account_id_from: int, account_id_to: int, amount: float, session=Depends(get_session)):
+@router.post("/{account_iban_from}/transfer/{account_iban_to}/{amount}")
+def transfer_money(account_iban_from: str, account_iban_to: str, amount: float, session=Depends(get_session)):
     try:
-        transfer = Account_Add_Money(account_id_from=account_id_from, account_id_to=account_id_to, amount=amount)
+        transfer = Account_Add_Money(account_iban_from=account_iban_from, account_iban_to=account_iban_to, amount=amount)
         return transaction_service_instance.transfert_money(transfer, TransactionType.TRANSFER, session)
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+    
+@router.get("/{transaction_id}")
+def get_transaction(transaction_id: int, session=Depends(get_session)):
+    try:
+        transaction = transaction_service_instance.get_transaction(transaction_id, session)
+        if not transaction:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Transaction not found")
+        return transaction
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))

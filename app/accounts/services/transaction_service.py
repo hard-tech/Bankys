@@ -17,21 +17,24 @@ class TransactionService:
         account_from: Account = None
         account_to: Account = None
 
+        # Vérifier le type de transaction et récupérer le compte source si nécessaire
         if type in [TransactionType.TRANSFER, TransactionType.WITHDRAWAL]:
-            account_from = session.query(Account).filter_by(id=addMoney.account_id_from).first()
+            account_from = session.query(Account).filter_by(iban=addMoney.account_iban_from).first()
             if not account_from:
-                raise ValueError(f"Le compte source, avec l'ID {addMoney.account_id_from} n'existe pas.")
+                raise ValueError(f"Le compte source, avec l'ID {addMoney.account_iban_from} n'existe pas.")
             if account_from.sold < addMoney.amount:
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
                     detail="Fonds insuffisants sur le compte source."
                 )
 
+        # Récupérer le compte destinataire si nécessaire
         if type in [TransactionType.TRANSFER, TransactionType.DEPOSIT]:
-            account_to = session.query(Account).filter_by(id=addMoney.account_id_to).first()
+            account_to = session.query(Account).filter_by(iban=addMoney.account_iban_to).first()
             if not account_to:
-                raise ValueError(f"Le compte destinataire, avec l'ID {addMoney.account_id_to} n'existe pas.")
+                raise ValueError(f"Le compte destinataire, avec l'ID {addMoney.account_iban_to} n'existe pas.")
 
+        # Effectuer la transaction en fonction du type
         if type == TransactionType.DEPOSIT:
             account_to.sold += addMoney.amount
         elif type == TransactionType.WITHDRAWAL:
@@ -40,15 +43,16 @@ class TransactionService:
             account_from.sold -= addMoney.amount
             account_to.sold += addMoney.amount
 
+        # Ajouter les comptes modifiés à la session
         if account_from:
             session.add(account_from)
         if account_to:
             session.add(account_to)
 
-        # Log the transaction for traceability
+        # Enregistrer la transaction pour la traçabilité
         transaction = Transaction(
-            account_to_id=account_to.id if account_to else None,
-            account_from_id=account_from.id if account_from else None,
+            account_to_iban=account_to.iban if account_to else None,
+            account_from_iban=account_from.iban if account_from else None,
             amount=addMoney.amount,
             type=type
         )
@@ -56,9 +60,14 @@ class TransactionService:
         session.add(transaction)
         session.commit()
 
+        # Actualiser le compte destinataire si nécessaire
         if account_to:
             session.refresh(account_to)
 
-        return account_service_instance.get_infos_account(addMoney.account_id_to if account_to else addMoney.account_id_from, session)
+        # Retourner les informations du compte mis à jour
+        return account_service_instance.get_infos_account(addMoney.account_iban_to if account_to else addMoney.account_iban_from, session)
+
+    def get_transaction(self, transaction_id: int, session: Session) -> Transaction:
+        return session.query(Transaction).filter_by(id=transaction_id).first()
 
 transaction_service_instance = TransactionService()
