@@ -76,8 +76,7 @@ class BeneficiaireService:
             beneficiaire = Beneficiaire(
                 beneficiary_receiver=account_receveur.user_id,
                 beneficiary_sender=user_id_envoyeur,
-                beneficiary_name=beneficiary_name,
-                name_beneficiary_receiver=receveur.first_name,
+                name_beneficiary_receiver=beneficiary_name,
                 iban_receveur=iban_receveur
             )
             session.add(beneficiaire)
