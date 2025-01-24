@@ -9,6 +9,7 @@ from app.auth.schemas.user import User_Without_Password, User_Register
 from app.auth.domain import get_password_hash
 from app.accounts.services.account_service import account_service_instance
 from app.core.exceptions import CustomHTTPException
+from app.db.session import get_session
 
 class UserService:
     def __init__(self):
@@ -114,6 +115,7 @@ class UserService:
 
     def get_current_user(
         self,
+        session=Depends(get_session),
         token: HTTPAuthorizationCredentials = Depends(HTTPBearer())
     ) -> dict:
         """
@@ -135,7 +137,30 @@ class UserService:
                     error_code="TOKEN_EXPIRED"
                 )
 
-            return payload
+            # Return les informations de l'utilisateur
+            user_id = payload.get("sub")
+            if not user_id:
+                raise CustomHTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail="ID utilisateur non trouvé dans le token",
+                    error_code="USER_ID_NOT_FOUND"
+                )
+
+            user = session.query(User).filter(User.id == int(user_id)).first()
+            if not user:
+                raise CustomHTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail="Utilisateur non trouvé",
+                    error_code="USER_NOT_FOUND"
+                )
+
+            return {
+                "id": user.id,
+                "email": user.email,
+                "first_name": user.first_name,
+                "last_name": user.last_name
+            }
+
         except jwt.InvalidTokenError:
             raise CustomHTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
