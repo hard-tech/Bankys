@@ -21,6 +21,13 @@ class UserService:
         Enregistre un nouvel utilisateur dans la base de données.
         """
         try:
+            # Vérifier que tous les champs requis sont présents
+            if not all([user.email, user.password, user.first_name, user.last_name]):
+                raise CustomHTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Tous les champs requis doivent être remplis",
+                    error_code="MISSING_REQUIRED_FIELDS"
+                )
             # Vérifier si l'utilisateur existe déjà
             existing_user = session.query(User).filter(User.email == user.email).first()
             if existing_user:
@@ -87,14 +94,23 @@ class UserService:
         """
         Authentifie un utilisateur en vérifiant ses identifiants.
         """
-        user = session.query(User).filter(User.email == email).first()
-        if not user or not verify_password(password, user.password):
+        try:
+            user = session.query(User).filter(User.email == email).first()
+            if not user or not verify_password(password, user.password):
+                raise CustomHTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail="Identifiant ou mots de passe incorrects",
+                    error_code="INVALID_CREDENTIALS"
+                )
+            return user
+        except CustomHTTPException as e:
+            raise e
+        except Exception as e:
             raise CustomHTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Identifiant ou mots de passe incorrects",
-                error_code="INVALID_CREDENTIALS"
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Erreur lors de l'authentification de l'utilisateur",
+                error_code="AUTHENTICATION_ERROR"
             )
-        return user
 
     def get_current_user(
         self,
@@ -126,6 +142,12 @@ class UserService:
                 detail="Token d'authentification invalide",
                 error_code="INVALID_TOKEN"
             )
+        except Exception as e:
+            raise CustomHTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Erreur lors de la récupération de l'utilisateur actuel",
+                error_code="GET_CURRENT_USER_ERROR"
+            )
 
     def get_current_user_id(
         self,
@@ -134,27 +156,45 @@ class UserService:
         """
         Récupère l'ID de l'utilisateur actuel à partir du token JWT.
         """
-        payload = self.get_current_user(token)
-        user_id = payload.get("sub")
-        if not user_id:
+        try:
+            payload = self.get_current_user(token)
+            user_id = payload.get("sub")
+            if not user_id:
+                raise CustomHTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail="ID utilisateur non trouvé dans le token",
+                    error_code="USER_ID_NOT_FOUND"
+                )
+            return int(user_id)
+        except CustomHTTPException as e:
+            raise e
+        except Exception as e:
             raise CustomHTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="ID utilisateur non trouvé dans le token",
-                error_code="USER_ID_NOT_FOUND"
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Erreur lors de la récupération de l'ID utilisateur",
+                error_code="GET_USER_ID_ERROR"
             )
-        return int(user_id)
 
     def get_user_from_db(self, user_id: int, session: Session) -> User:
         """
         Récupère un utilisateur de la base de données par son ID.
         """
-        user = session.query(User).filter(User.id == user_id).first()
-        if not user:
+        try:
+            user = session.query(User).filter(User.id == user_id).first()
+            if not user:
+                raise CustomHTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail="Utilisateur non trouvé",
+                    error_code="USER_NOT_FOUND"
+                )
+            return user
+        except CustomHTTPException as e:
+            raise e
+        except Exception as e:
             raise CustomHTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Utilisateur non trouvé",
-                error_code="USER_NOT_FOUND"
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Erreur lors de la récupération de l'utilisateur",
+                error_code="GET_USER_ERROR"
             )
-        return user
 
 user_service_instance_auth = UserService()
