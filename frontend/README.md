@@ -73,33 +73,41 @@ yarn preview
 ## Configuration
 
 ### Environnement
+
 Créez un fichier `.env` à la racine du projet :
+
 ```env
 VITE_API_URL=http://localhost:8000
 ```
 
 ### TypeScript
+
 Le projet utilise deux configurations TypeScript :
+
 - `tsconfig.app.json` : Configuration pour l'application React
 - `tsconfig.node.json` : Configuration pour l'environnement Node.js
 
 ## Architecture
 
 ### Composants
+
 - **Layout** : Structure principale de l'application
 - **NavBar** : Barre de navigation responsive
 - **SideBar** : Menu latéral avec navigation
 
 ### Pages
+
 - **Home** : Page d'accueil
 - **Login** : Authentification
 - **Register** : Création de compte
 
 ### Services
+
 - **API** : Configuration Axios et endpoints
 - **Auth** : Gestion de l'authentification
 
 ### Utilitaires
+
 - **Formatters** : Formatage des dates et montants
 - **Validators** : Validation des formulaires
 - **Constants** : Variables globales
@@ -108,6 +116,7 @@ Le projet utilise deux configurations TypeScript :
 ## Déploiement
 
 1. Construire l'application :
+
 ```bash
 yarn build
 ```
@@ -115,6 +124,7 @@ yarn build
 2. Le dossier `dist` contient l'application optimisée pour la production
 
 3. Options de déploiement :
+
 - Vercel (recommandé)
 - Netlify
 - Hébergement statique classique
@@ -122,6 +132,7 @@ yarn build
 ## Développement
 
 ### Structure des Composants
+
 ```typescript
 import React from 'react';
 
@@ -137,7 +148,9 @@ export default Component;
 ```
 
 ### Gestion des États
+
 Utilisation des hooks personnalisés pour la gestion des états globaux :
+
 ```typescript
 const { isAuthenticated, user } = useAuth();
 ```
