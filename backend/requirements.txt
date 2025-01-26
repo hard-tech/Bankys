@@ -1,0 +1,11 @@
+# Backend Requirements
+sqlmodel
+fastapi
+uvicorn
+sqlalchemy
+passlib[bcrypt]
+python-dotenv
+pydantic
+pyjwt
+fs
+pydantic[email]
