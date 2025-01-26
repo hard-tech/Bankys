@@ -1,50 +1,127 @@
-# React + TypeScript + Vite
+# Bankys - Banque en ligne 整 - Application Frontend React/TypeScript
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Description
 
-Currently, two official plugins are available:
+Interface utilisateur moderne pour une application bancaire, développée avec React et TypeScript. Cette application permet aux utilisateurs de gérer leurs comptes, effectuer des transactions et suivre leurs finances de manière intuitive.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Stack Technique
 
-## Expanding the ESLint configuration
+- React 18 avec TypeScript
+- Vite pour le bundling
+- Tailwind CSS pour le styling
+- React Router pour la navigation
+- Axios pour les requêtes API
+- React Icons pour l'interface
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+## Structure du Projet
 
-- Configure the top-level `parserOptions` property like this:
-
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+```
+src/
+├── assets/          # Ressources statiques
+├── components/      # Composants réutilisables
+├── hooks/          # Hooks personnalisés
+│   ├── useAuth.ts
+│   ├── useLocalStorage.ts
+│   └── useWindowSize.ts
+├── layouts/        # Composants de mise en page
+│   ├── Layout.tsx
+│   ├── NavBar.tsx
+│   └── SideBar.tsx
+├── pages/          # Pages principales
+├── services/       # Services API
+├── types/         # Types TypeScript
+└── utils/         # Utilitaires
 ```
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+## Installation
 
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
+```bash
+# Cloner le projet
+git clone [url-du-projet]
 
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
+# Installer les dépendances
+yarn install
 ```
+
+## Scripts Disponibles
+
+```bash
+# Développement
+yarn dev
+
+# Production
+yarn build
+
+# Prévisualisation
+yarn preview
+```
+
+## Fonctionnalités Principales
+
+**Interface Utilisateur**
+
+- Design responsive
+- Navigation fluide
+- Thème personnalisable
+
+**Authentification**
+
+- Connexion sécurisée
+- Gestion des sessions
+- Protection des routes
+
+**Gestion des Comptes**
+
+- Vue d'ensemble des comptes
+- Détails des transactions
+- Virements entre comptes
+
+## Configuration
+
+### Environnement
+
+```env
+VITE_API_URL=http://localhost:8000
+```
+
+### TypeScript
+
+- `tsconfig.app.json` : Configuration React
+- `tsconfig.node.json` : Configuration Node.js
+
+## Développement
+
+### Conventions de Code
+
+- Utilisation de composants fonctionnels
+- Hooks personnalisés pour la logique réutilisable
+- TypeScript strict mode
+
+### État Global
+
+- Gestion des états avec Context API
+- Services centralisés pour les appels API
+
+## Déploiement
+
+1. Build de production :
+
+```bash
+yarn build
+```
+
+2. Options de déploiement :
+
+- Vercel (recommandé)
+- Netlify
+- Serveur statique
+
+## Contribution
+
+1. Créer une branche feature
+2. Commiter les changements
+3. Soumettre une Pull Request
+
+## License
+
+MIT
