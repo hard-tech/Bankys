@@ -16,22 +16,35 @@ Interface utilisateur moderne pour une application bancaire, développée avec R
 ## Structure du Projet
 
 ```
-src/
-├── assets/          # Ressources statiques
-├── components/      # Composants réutilisables
-├── hooks/          # Hooks personnalisés
-│   ├── useAuth.ts
-│   ├── useLocalStorage.ts
-│   └── useWindowSize.ts
-├── layouts/        # Composants de mise en page
-│   ├── Layout.tsx
-│   ├── NavBar.tsx
-│   └── SideBar.tsx
-├── pages/          # Pages principales
-├── services/       # Services API
-├── types/         # Types TypeScript
-└── utils/         # Utilitaires
+frontend/
+├── src/
+│   ├── assets/          # Ressources statiques
+│   ├── components/      # Composants réutilisables
+│   ├── hooks/          # Hooks personnalisés
+│   │   ├── useAuth.ts
+│   │   ├── useLocalStorage.ts
+│   │   └── useWindowSize.ts
+│   ├── layouts/        # Composants de mise en page
+│   │   ├── Layout.tsx
+│   │   ├── NavBar.tsx
+│   │   └── SideBar.tsx
+│   ├── pages/          # Pages de l'application
+│   │   ├── Home.tsx
+│   │   ├── Login.tsx
+│   │   └── Register.tsx
+│   ├── services/       # Services et API
+│   │   ├── api/
+│   │   └── auth/
+│   └── utils/          # Utilitaires
 ```
+
+## Technologies Utilisées
+
+- **React** avec **TypeScript**
+- **Vite** pour le bundling et le développement
+- **Tailwind CSS** pour le styling
+- **React Router** pour la navigation
+- **Axios** pour les requêtes API
 
 ## Installation
 
@@ -40,6 +53,7 @@ src/
 git clone [url-du-projet]
 
 # Installer les dépendances
+cd frontend
 yarn install
 ```
 
@@ -56,72 +70,84 @@ yarn build
 yarn preview
 ```
 
-## Fonctionnalités Principales
-
-**Interface Utilisateur**
-
-- Design responsive
-- Navigation fluide
-- Thème personnalisable
-
-**Authentification**
-
-- Connexion sécurisée
-- Gestion des sessions
-- Protection des routes
-
-**Gestion des Comptes**
-
-- Vue d'ensemble des comptes
-- Détails des transactions
-- Virements entre comptes
-
 ## Configuration
 
 ### Environnement
-
+Créez un fichier `.env` à la racine du projet :
 ```env
 VITE_API_URL=http://localhost:8000
 ```
 
 ### TypeScript
+Le projet utilise deux configurations TypeScript :
+- `tsconfig.app.json` : Configuration pour l'application React
+- `tsconfig.node.json` : Configuration pour l'environnement Node.js
 
-- `tsconfig.app.json` : Configuration React
-- `tsconfig.node.json` : Configuration Node.js
+## Architecture
 
-## Développement
+### Composants
+- **Layout** : Structure principale de l'application
+- **NavBar** : Barre de navigation responsive
+- **SideBar** : Menu latéral avec navigation
 
-### Conventions de Code
+### Pages
+- **Home** : Page d'accueil
+- **Login** : Authentification
+- **Register** : Création de compte
 
-- Utilisation de composants fonctionnels
-- Hooks personnalisés pour la logique réutilisable
-- TypeScript strict mode
+### Services
+- **API** : Configuration Axios et endpoints
+- **Auth** : Gestion de l'authentification
 
-### État Global
-
-- Gestion des états avec Context API
-- Services centralisés pour les appels API
+### Utilitaires
+- **Formatters** : Formatage des dates et montants
+- **Validators** : Validation des formulaires
+- **Constants** : Variables globales
+- **Helpers** : Fonctions utilitaires
 
 ## Déploiement
 
-1. Build de production :
-
+1. Construire l'application :
 ```bash
 yarn build
 ```
 
-2. Options de déploiement :
+2. Le dossier `dist` contient l'application optimisée pour la production
 
+3. Options de déploiement :
 - Vercel (recommandé)
 - Netlify
-- Serveur statique
+- Hébergement statique classique
+
+## Développement
+
+### Structure des Composants
+```typescript
+import React from 'react';
+
+const Component = () => {
+  return (
+    <div>
+      // Contenu
+    </div>
+  );
+};
+
+export default Component;
+```
+
+### Gestion des États
+Utilisation des hooks personnalisés pour la gestion des états globaux :
+```typescript
+const { isAuthenticated, user } = useAuth();
+```
 
 ## Contribution
 
-1. Créer une branche feature
+1. Créer une branche pour la fonctionnalité
 2. Commiter les changements
-3. Soumettre une Pull Request
+3. Créer une Pull Request
 
-## License
+## Licence
 
 MIT
