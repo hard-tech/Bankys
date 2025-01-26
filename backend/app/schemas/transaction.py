@@ -14,6 +14,20 @@ class Transaction_Cancel_Transaction(BaseModel):
 class Transaction_Get_Transaction_Info(BaseModel):
     transaction_id: int
 
+from pydantic import BaseModel
+
+class DepositRequest(BaseModel):
+    account_iban: str
+    amount: float
+
+class WithdrawalRequest(BaseModel):
+    account_iban: str
+    amount: float
+
+class TransferRequest(BaseModel):
+    account_iban_from: str
+    account_iban_to: str
+    amount: float
 # Output models
 class Transaction(BaseModel):
     transaction_id: int

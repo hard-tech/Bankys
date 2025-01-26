@@ -1,10 +1,13 @@
 from fastapi import APIRouter, Depends, status
+from pydantic import BaseModel
 from app.database.session import get_session
 from app.services.account_service import account_service_instance
 from app.services.auth_service import user_service_instance_auth
 from app.utils.exceptions import CustomHTTPException
+from backend.app.schemas.account import AccountIdRequest
 
 router = APIRouter()
+
 
 @router.post("/create")
 def create_account(session=Depends(get_session), user_id=Depends(user_service_instance_auth.get_current_user_id)):
@@ -38,13 +41,13 @@ def get_accounts(session=Depends(get_session), user_id=Depends(user_service_inst
             error_code="GET_ACCOUNTS_ERROR"
         )
 
-@router.post("/close/{account_id}")
-def close_account(account_id: int, session=Depends(get_session), user_id=Depends(user_service_instance_auth.get_current_user_id)):
+@router.post("/close")
+def close_account(account_request: AccountIdRequest, session=Depends(get_session), user_id=Depends(user_service_instance_auth.get_current_user_id)):
     """
     Ferme le compte spécifié par l'ID.
     """
     try:
-        return account_service_instance.close_account(account_id, user_id, session)
+        return account_service_instance.close_account(account_request.account_id, user_id, session)
     except CustomHTTPException as e:
         raise e
     except Exception as e:
@@ -54,13 +57,13 @@ def close_account(account_id: int, session=Depends(get_session), user_id=Depends
             error_code="CLOSE_ACCOUNT_ERROR"
         )
 
-@router.get("/{account_id}")
-def get_account(account_id: int, session=Depends(get_session), user_id=Depends(user_service_instance_auth.get_current_user_id)):
+@router.post("/get-account")
+def get_account(account_request: AccountIdRequest, session=Depends(get_session), user_id=Depends(user_service_instance_auth.get_current_user_id)):
     """
     Récupère les informations du compte spécifié par l'ID.
     """
     try:
-        account = account_service_instance.get_info_account_id(user_id, account_id, session)
+        account = account_service_instance.get_info_account_id(user_id, account_request.account_id, session)
         return account
     except CustomHTTPException as e:
         raise e

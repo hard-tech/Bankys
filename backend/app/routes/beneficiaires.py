@@ -3,16 +3,17 @@ from app.services.beneficiaire_service import beneficiaire_service_instance
 from app.services.auth_service import user_service_instance_auth
 from app.database.session import get_session
 from app.utils.exceptions import CustomHTTPException
+from app.schemas.beneficiaire import BeneficiaireCreateRequest
 
 router = APIRouter()
 
-@router.post("/create/{account_id_to}/{beneficiary_name}")
-def create_beneficiaire(account_id_to: int, beneficiary_name: str, user_id_envoyeur=Depends(user_service_instance_auth.get_current_user_id), session=Depends(get_session)):
+@router.post("/create")
+def create_beneficiaire(request: BeneficiaireCreateRequest, user_id_envoyeur=Depends(user_service_instance_auth.get_current_user_id), session=Depends(get_session)):
     """
     Crée un nouveau bénéficiaire pour l'utilisateur actuel.
     """
     try:
-        return beneficiaire_service_instance.create_beneficiaire(user_id_envoyeur, beneficiary_name, account_id_to, session)
+        return beneficiaire_service_instance.create_beneficiaire(user_id_envoyeur, request.beneficiary_name, request.account_id_to, session)
     except CustomHTTPException as e:
         raise e
     except Exception as e:
