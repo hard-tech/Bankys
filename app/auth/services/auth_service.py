@@ -113,6 +113,37 @@ class UserService:
                 error_code="AUTHENTICATION_ERROR"
             )
 
+    def get_current_user_token(
+        self,
+        token: HTTPAuthorizationCredentials = Depends(HTTPBearer())
+    ) -> dict:
+        """
+        Récupère l'utilisateur actuel à partir du token JWT.
+        """
+        try:
+            payload = jwt.decode(
+                token.credentials,
+                self.secret_key,
+                algorithms=[self.algorithm]
+            )
+
+            # Vérification de l'expiration
+            exp = payload.get("exp")
+            if not exp or datetime.fromtimestamp(exp) < datetime.utcnow():
+                raise CustomHTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail="Le token a expiré",
+                    error_code="TOKEN_EXPIRED"
+                )
+
+            return payload
+        except jwt.InvalidTokenError:
+            raise CustomHTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Token d'authentification invalide",
+                error_code="INVALID_TOKEN"
+            )
+    
     def get_current_user(
         self,
         session=Depends(get_session),
@@ -174,6 +205,7 @@ class UserService:
                 error_code="GET_CURRENT_USER_ERROR"
             )
 
+
     def get_current_user_id(
         self,
         token: HTTPAuthorizationCredentials = Depends(HTTPBearer())
@@ -182,7 +214,7 @@ class UserService:
         Récupère l'ID de l'utilisateur actuel à partir du token JWT.
         """
         try:
-            payload = self.get_current_user(token)
+            payload = self.get_current_user_token(token)
             user_id = payload.get("sub")
             if not user_id:
                 raise CustomHTTPException(
