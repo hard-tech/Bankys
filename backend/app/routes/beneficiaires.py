@@ -23,7 +23,7 @@ def create_beneficiaire(request: BeneficiaireCreateRequest, user_id_envoyeur=Dep
             error_code="CREATE_BENEFICIAIRE_ERROR"
         )
 
-@router.get("/get_all_beneficiaires")
+@router.get("/get/all")
 def get_all_beneficiaires(user_id=Depends(user_service_instance_auth.get_current_user_id), session=Depends(get_session)):
     """
     Récupère tous les bénéficiaires de l'utilisateur actuel.

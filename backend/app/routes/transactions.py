@@ -3,10 +3,10 @@ from sqlmodel import Session
 from app.schemas.transaction import DepositRequest, WithdrawalRequest, TransferRequest
 from app.database.session import get_session
 from app.services.transaction_service import transaction_service_instance
-from app.models.transaction import TransactionType
+from app.models.transaction import Transaction, TransactionType
 from app.services.auth_service import user_service_instance_auth
 from app.utils.exceptions import CustomHTTPException
-from backend.app.schemas.account import Account_Add_Money
+from app.schemas.account import Account_Add_Money
 
 router = APIRouter()
 
@@ -84,7 +84,7 @@ def get_transaction(transaction_id: int, session=Depends(get_session), user_id=D
             error_code="GET_TRANSACTION_ERROR"
         )
 
-@router.get("/get-all-transactions")
+@router.get("/get/all")
 def get_transactions_by_user(user_id=Depends(user_service_instance_auth.get_current_user_id), session=Depends(get_session)):
     """
     Récupère toutes les transactions pour un utilisateur spécifique.
@@ -101,7 +101,7 @@ def get_transactions_by_user(user_id=Depends(user_service_instance_auth.get_curr
             error_code="GET_ALL_TRANSACTIONS_ERROR"
         )
 
-@router.post("/cancel/{transaction_id}")
+@router.delete("/cancel/{transaction_id}")
 def cancel_transaction(transaction_id: int, session: Session = Depends(get_session), user_id=Depends(user_service_instance_auth.get_current_user_id)):
     """
     Endpoint pour annuler une transaction.

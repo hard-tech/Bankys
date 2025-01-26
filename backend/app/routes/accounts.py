@@ -4,7 +4,7 @@ from app.database.session import get_session
 from app.services.account_service import account_service_instance
 from app.services.auth_service import user_service_instance_auth
 from app.utils.exceptions import CustomHTTPException
-from backend.app.schemas.account import AccountIdRequest
+from app.schemas.account import AccountIdRequest
 
 router = APIRouter()
 
@@ -25,7 +25,7 @@ def create_account(session=Depends(get_session), user_id=Depends(user_service_in
             error_code="CREATE_ACCOUNT_ERROR"
         )
 
-@router.get("/get-all-accounts")
+@router.get("/get/all")
 def get_accounts(session=Depends(get_session), user_id=Depends(user_service_instance_auth.get_current_user_id)):
     """
     Récupère tous les comptes de l'utilisateur actuel.
@@ -41,13 +41,13 @@ def get_accounts(session=Depends(get_session), user_id=Depends(user_service_inst
             error_code="GET_ACCOUNTS_ERROR"
         )
 
-@router.post("/close")
-def close_account(account_request: AccountIdRequest, session=Depends(get_session), user_id=Depends(user_service_instance_auth.get_current_user_id)):
+@router.delete("/close/{account_request}")
+def close_account(account_request: int, session=Depends(get_session), user_id=Depends(user_service_instance_auth.get_current_user_id)):
     """
     Ferme le compte spécifié par l'ID.
     """
     try:
-        return account_service_instance.close_account(account_request.account_id, user_id, session)
+        return account_service_instance.close_account(account_request, user_id, session)
     except CustomHTTPException as e:
         raise e
     except Exception as e:
@@ -57,7 +57,7 @@ def close_account(account_request: AccountIdRequest, session=Depends(get_session
             error_code="CLOSE_ACCOUNT_ERROR"
         )
 
-@router.post("/get-account")
+@router.post("/info")
 def get_account(account_request: AccountIdRequest, session=Depends(get_session), user_id=Depends(user_service_instance_auth.get_current_user_id)):
     """
     Récupère les informations du compte spécifié par l'ID.

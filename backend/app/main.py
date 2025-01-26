@@ -1,15 +1,18 @@
+from fastapi import FastAPI, Depends
+import asyncio
+
 from app.routes import auth 
+from app.routes import accounts, beneficiaires, transactions
 from app.models.account import Account
 from app.models.transaction import Transaction
 from app.models.beneficiaire import Beneficiaire
-from app.routes import accounts, beneficiaires, transactions
-from app.database.session import create_db_and_tables
 from app.services.auth_service import user_service_instance_auth
-from fastapi import FastAPI, Depends
-import asyncio
 from app.services.transaction_service import refresh_transactions
+from app.database.session import create_db_and_tables
 
 app = FastAPI()
+
+
 
 # Initialize the database and create tables if they don't exist
 # Secure the /account and /transactions routes
@@ -17,6 +20,7 @@ account_router = accounts.router
 transaction_router = transactions.router
 beneficiaires_router = beneficiaires.router
 
+@app.on_event("startup")
 async def on_startup():
     """
     Initialise la base de données et démarre les tâches asynchrones au démarrage de l'application.
