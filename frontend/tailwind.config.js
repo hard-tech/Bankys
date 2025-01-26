@@ -7,6 +7,7 @@ export default {
   theme: {
     extend: {
       colors: {
+        // Primary color palette
         primary: {
           50: '#E7EBFC',
           100: '#C2CCF7',
@@ -19,6 +20,7 @@ export default {
           800: '#10205A',
           900: '#0B174A',
         },
+        // Secondary color palette
         secondary: {
           50: '#F2F3FE',
           100: '#D9DAFC',
@@ -31,6 +33,7 @@ export default {
           800: '#3D43B4',
           900: '#3037A0',
         },
+        // Neutral color palette
         neutral: {
           50: '#FAFAFB',
           100: '#F7F7F8',
@@ -43,6 +46,7 @@ export default {
           800: '#676B75',
           900: '#4E525E',
         },
+        // Additional colors
         white: '#FFFFFF',
       },
     },
