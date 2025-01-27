@@ -1,35 +1,24 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-
-// import reactLogo from './assets/react.svg'
-// import viteLogo from '/vite.svg'
-
-import Home from './pages/Home'
-import Login from './pages/Login'
-import Register from './pages/Register'
-import NoPage from './pages/NotFound'
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import Home from './pages/Home';
+import Login from './pages/Login';
+import Register from './pages/Register';
+import NoPage from './pages/NotFound';
+import PrivateRoute from './components/PrivateRoute';
 
 function App() {
-
   return (
-    <Router>
+    <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/" element={<PrivateRoute />}>
+          <Route index element={<Home />} />
+          {/* Ajoutez d'autres routes privées ici */}
+        </Route>
         <Route path="*" element={<NoPage />} />
-        {/* Exemple de route avec un param */}
-        {/* <Route path="/user/:id" element={<UserProfile />} /> */}
-
-        {/* 
-            // Dans le composant
-            function UserProfile() {
-              const { id } = useParams();
-              return <div>Profil de l'utilisateur {id}</div>;
-            }        
-        */}
       </Routes>
-    </Router>
-  )
+    </BrowserRouter>
+  );
 }
 
-export default App
+export default App;
