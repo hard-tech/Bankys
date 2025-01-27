@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { AiOutlineMenu, AiOutlineClose } from 'react-icons/ai';
+import { constants } from '../utils/constants';
+import Logo from '../assets/Bankys-Logo-removebg-preview.png';
 
 const NavBar = () => {
   const [nav, setNav] = useState(false);
@@ -21,19 +23,14 @@ const NavBar = () => {
     return () => window.removeEventListener('scroll', handleShadow);
   }, []);
 
-  const menuItems = [
-    { title: 'Home', path: '/' },
-    { title: 'About', path: '/about' },
-    { title: 'Services', path: '/services' },
-    { title: 'Contact', path: '/contact' },
-  ];
+  const menuItems = constants.MENU_ITEMS;
 
   return (
-    <div className={`fixed w-full h-20 z-[100] ${
+    <div className={`w-full h-20 z-[100] ${
       shadow ? 'shadow-xl' : ''
     } bg-white`}>
       <div className="flex justify-between items-center w-full h-full px-6 2xl:px-16">
-        <h1 className="font-bold text-2xl">LOGO</h1>
+        <img src={Logo} alt="Logo" className="h-12 w-12" />
         
         {/* Desktop Menu */}
         <div className="hidden md:flex">

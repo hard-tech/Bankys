@@ -41,7 +41,7 @@ const SideBar = () => {
 
       {/* Sidebar */}
       <div
-        className={`fixed top-0 left-0 h-screen 
+        className={`fixed block top-0 left-0 h-screen 
         ${isOpen ? 'w-64' : 'w-20'} 
         bg-gray-900 text-white transition-all duration-300 
         ${!isOpen && 'items-center'} z-40`}

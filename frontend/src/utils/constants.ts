@@ -22,6 +22,13 @@ export const constants = {
     PROFILE: "/profile",
   },
 
+  MENU_ITEMS: [
+    { title: "Home", path: "/" },
+    { title: "Login", path: "/login" },
+    { title: "Register", path: "/register" },
+    { title: "Profile", path: "/profile" },
+  ],
+
   BREAKPOINTS: {
     sm: 640,
     md: 768,

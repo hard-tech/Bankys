@@ -1,6 +1,6 @@
 import React from 'react';
-import Navbar from './NavBar';
-import Sidebar from './SideBar';
+import Navbar from '../components/NavBar';
+// import Sidebar from '../components/SideBar';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -8,11 +8,11 @@ interface LayoutProps {
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   return (
-    <div className="flex min-h-screen">
-      <Sidebar />
-      <div className="flex-1">
+    <div className="">
+      {/* <Sidebar /> */}
+      <div className="justify-center flex flex-col items-center">
         <Navbar />
-        <main className="p-4 lg:p-8">
+        <main className="p-4 lg:p-8 border-2">
           {children}
         </main>
       </div>
