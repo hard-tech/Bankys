@@ -18,7 +18,7 @@ const SideBar = () => {
   const [isOpen, setIsOpen] = useState(true);
   const [activeItem, setActiveItem] = useState('Home');
 
-  const menuItems: MenuItem[] = [
+  const menuItems: MenuItem[] = [ // TODO: mettre les items dans le fichier constants.ts
     { title: 'Home', icon: <AiOutlineHome size={24} />, path: '/' },
     { title: 'Profile', icon: <AiOutlineUser size={24} />, path: '/profile' },
     { title: 'Messages', icon: <AiOutlineMessage size={24} />, path: '/messages' },
