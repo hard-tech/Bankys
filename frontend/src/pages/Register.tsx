@@ -43,7 +43,6 @@ const Register = () => {
           )
           navigate("/");
         }).catch(() => {
-          // Handle any additional error logic here if needed
         }).finally(() => {
         });
       }
