@@ -4,18 +4,21 @@ from app.database.session import get_session
 from app.services.account_service import account_service_instance
 from app.services.auth_service import user_service_instance_auth
 from app.utils.exceptions import CustomHTTPException
-from app.schemas.account import AccountIdRequest
+from app.schemas.account import AccountIdRequest, CreateAccountRequest
 
 router = APIRouter()
 
-
 @router.post("/create")
-def create_account(session=Depends(get_session), user_id=Depends(user_service_instance_auth.get_current_user_id)):
+def create_account(
+    request: CreateAccountRequest,
+    session=Depends(get_session),
+    user_id=Depends(user_service_instance_auth.get_current_user_id)
+):
     """
     Crée un nouveau compte pour l'utilisateur actuel.
     """
     try:
-        return account_service_instance.create_account(user_id, session)
+        return account_service_instance.create_account(user_id, request.account_name, session)
     except CustomHTTPException as e:
         raise e
     except Exception as e:

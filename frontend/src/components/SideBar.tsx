@@ -15,7 +15,7 @@ import { MenuItem } from '../type/common.types';
 import { authService } from '../services/auth/auth.service';
 import { Link, useNavigate } from 'react-router-dom';
 import { constants } from '../utils/constants';
-
+import Logo from '../assets/Bankys-Logo-removebg-preview.png';
 
 
 const SideBar = () => {
@@ -38,7 +38,7 @@ const SideBar = () => {
     <div className="flex">
       {/* Toggle Button */}
       <button
-        className="fixed top-4 left-4 z-50 lg:hidden p-2 rounded-md bg-gray-800 text-white"
+        className="fixed top-4 left-4 z-50  p-2 rounded-md bg-gray-800 text-white"
         onClick={toggleSidebar}
       >
         <AiOutlineMenu size={24} />
@@ -52,14 +52,16 @@ const SideBar = () => {
       >
         {/* Logo Section */}
         <div className="flex items-center justify-center h-20 border-b border-gray-800">
-          <h1 className={`text-white font-bold ${!isOpen && 'hidden'}`}>
-            LOGO
-          </h1>
+          <span className={`text-white font-bold ${!isOpen && 'hidden'} flex items-center space-x-4 text-2xl font-bold ms-12 mb-2`}>
+            <span>BANKYS</span>
+            <img src={Logo} alt="Logo" className="h-12" />
+          </span>
         </div>
 
         {/* Menu Items */}
         <div className="flex-grow px-4 py-6">
           {menuItems.map((item, index) => (
+            <Link to={item.path} className="ml-3 text-gray-300 ">
             <div
               key={index}
               className={`flex items-center cursor-pointer
@@ -73,11 +75,10 @@ const SideBar = () => {
                 {item.icon}
               </div>
               {isOpen && (
-                <Link to={item.path} className="ml-3 text-gray-300 ">
-                  {item.title}
-                </Link>
-              )}
+                  <span className="ml-3">{item.title}</span>
+                )}
             </div>
+                </Link>
           ))}
         </div>
 

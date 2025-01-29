@@ -22,8 +22,8 @@ class AccountService:
 
     def create_principal_account(self, user_id: int, session: Session) -> Account:
         try:
-            # Créer un compte principal avec un solde initial de 100
-            account = Account(sold=100, iban=generate_iban(session), user_id=user_id, status=True, main=True)
+            # Créer un compte principal avec un balance initial de 100
+            account = Account(balance=100, iban=generate_iban(session), user_id=user_id, status=True, main=True, name="Principal")
             session.add(account)
             session.commit()
             session.refresh(account)
@@ -36,10 +36,10 @@ class AccountService:
                 error_code="CREATE_PRINCIPAL_ACCOUNT_ERROR"
             )
 
-    def create_account(self, user_id: int, session: Session) -> Account:
+    def create_account(self, user_id: int, account_name: str, session: Session) -> Account:
         try:
-            # Créer un compte secondaire avec un solde initial de 0
-            account = Account(sold=0, iban=generate_iban(session), user_id=user_id, actived=True, main=False)
+            # Créer un compte secondaire avec un balance initial de 0
+            account = Account(balance=0, iban=generate_iban(session), user_id=user_id, actived=True, main=False, name=account_name)
             session.add(account)
             session.commit()
             session.refresh(account)
@@ -112,9 +112,9 @@ class AccountService:
                     error_code="MAIN_ACCOUNT_NOT_FOUND"
                 )
 
-            # Transférer le solde du compte à fermer vers le compte principal
-            main_account.sold += account.sold
-            account.sold = 0
+            # Transférer le balance du compte à fermer vers le compte principal
+            main_account.balance += account.balance
+            account.balance = 0
             # Mettre à jour le statut du compte à False
             account.actived = False
 
@@ -141,7 +141,7 @@ class AccountService:
                 return [
                     Get_Accounts(
                         id=account.id,
-                        sold=account.sold,
+                        balance=account.balance,
                         iban=account.iban,
                     )
                     for account in accounts
@@ -176,7 +176,7 @@ class AccountService:
                     )
                 return Account_Info(
                     id=account.id,
-                    sold=account.sold,
+                    balance=account.balance,
                     iban=account.iban,
                     user_id=account.user_id,
                     actived=account.actived,
@@ -219,7 +219,7 @@ class AccountService:
                     )
                 return Account_Info(
                     id=account.id,
-                    sold=account.sold,
+                    balance=account.balance,
                     iban=account.iban,
                     user_id=account.user_id,
                     actived=account.actived,

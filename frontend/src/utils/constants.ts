@@ -29,7 +29,7 @@ export const constants = {
     { title: "Home", path: "/", needAuth: false },
     { title: "Login", path: "/login", needAuth: false },
     { title: "Register", path: "/register", needAuth: false },
-    { title: "Profile", path: "/profile", needAuth: true },
+    { title: "Tableau de board", path: "/dashboard", needAuth: true },
   ],
 
   BREAKPOINTS: {

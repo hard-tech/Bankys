@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Toaster } from "react-hot-toast";
 
 import Home from "./pages/Home";
 import Login from "./pages/Login";
@@ -7,12 +8,13 @@ import Profile from "./pages/Profile";
 import NoPage from "./pages/NotFound";
 
 import PrivateRoute from "./components/PrivateRoute";
-import { Toaster } from "react-hot-toast";
 import { AuthProvider } from "./context/AuthContext";
-import NavBar from "./components/NavBar";
 import SideBar from "./components/SideBar";
 import Layout from "./layouts/Layout";
 import { constants } from "./utils/constants";
+import Dashboard from "./pages/Dashboard";
+import Transaction from "./pages/Transaction";
+import Account from "./pages/Account";
 
 function App() {
   return (
@@ -53,9 +55,35 @@ function App() {
               </Layout>
             }
           />
-
           {/* Private Routes */}
-          <Route path={constants.ROUTES.HOME} element={<PrivateRoute />}>
+            <Route path={constants.ROUTES.HOME} element={<PrivateRoute />}>
+            <Route
+              path={constants.ROUTES.DASHBOARD}
+              element={
+                <>
+                  <SideBar />
+                  <Dashboard />
+                </>
+              }
+            />
+            <Route
+              path={constants.ROUTES.TRANSACTIONS}
+              element={
+                <>
+                  <SideBar />
+                  <Transaction />
+                </>
+              }
+            />
+            <Route
+              path={constants.ROUTES.ACCOUNTS}
+              element={
+                <>
+                  <SideBar />
+                  <Account />
+                </>
+              }
+            />
             <Route
               path={constants.ROUTES.PROFILE}
               element={
@@ -65,6 +93,7 @@ function App() {
                 </>
               }
             />
+            
             {/* Add more private routes here */}
           </Route>
         </Routes>

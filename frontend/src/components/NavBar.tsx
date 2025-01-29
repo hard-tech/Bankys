@@ -30,10 +30,13 @@ const NavBar = () => {
 
   return (
     <div
-      className={`w-full h-20 z-[100] ${shadow ? "shadow-xl" : ""} bg-white`}
+      className={`w-full h-20 z-[100] ${shadow ? "shadow-xl" : ""}`}
     >
       <div className="flex justify-between items-center w-full h-full px-6 2xl:px-16">
-        <img src={Logo} alt="Logo" className="h-12 w-12" />
+        <div className="space-x-4 flex items-center text-2xl font-semibold">
+          <span>BANKYS</span>
+          <img src={Logo} alt="Logo" className="h-12 w-12" />
+        </div>
 
         {/* Desktop Menu */}
         <div className="hidden md:flex">
