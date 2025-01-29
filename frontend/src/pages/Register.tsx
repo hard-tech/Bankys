@@ -48,9 +48,11 @@ const Register = () => {
           );
 
           navigate("/");
-        }).catch(() => {
-        }).finally(() => {
-        });
+        } catch (error) {
+          console.error("Erreur d'inscription :", error);
+        } finally {
+          setLoading(false);
+        }
       }
     };
 
