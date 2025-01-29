@@ -23,10 +23,10 @@ export const constants = {
   },
 
   MENU_ITEMS: [
-    { title: "Home", path: "/" },
-    { title: "Login", path: "/login" },
-    { title: "Register", path: "/register" },
-    { title: "Profile", path: "/profile" },
+    { title: "Home", path: "/", needAuth: false },
+    { title: "Login", path: "/login", needAuth: false },
+    { title: "Register", path: "/register", needAuth: false },
+    { title: "Profile", path: "/profile", needAuth: true },
   ],
 
   BREAKPOINTS: {

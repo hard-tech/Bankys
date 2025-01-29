@@ -41,8 +41,6 @@ const Register = () => {
             }
           )
           navigate("/");
-        }).catch(() => {
-          // Handle any additional error logic here if needed
         }).finally(() => {
         });
       }
@@ -52,7 +50,9 @@ const Register = () => {
   }, [formData]);
 
   return (
-    <RegisterForm formData={formData} setFormData={setFormData} />
+    <div className="max-w-md mx-auto my-10">
+      <RegisterForm formData={formData} setFormData={setFormData} />
+    </div>
   );
 };
 

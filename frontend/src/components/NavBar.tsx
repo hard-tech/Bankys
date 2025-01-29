@@ -3,8 +3,10 @@ import { AiOutlineMenu, AiOutlineClose } from 'react-icons/ai';
 import { constants } from '../utils/constants';
 import Logo from '../assets/Bankys-Logo-removebg-preview.png';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 const NavBar = () => {
+  const { isAuthenticated } = useAuth();
   const [nav, setNav] = useState(false);
   const [shadow, setShadow] = useState(false);
 
@@ -37,7 +39,8 @@ const NavBar = () => {
         <div className="hidden md:flex">
           <ul className="hidden md:flex">
             {menuItems.map((item, index) => (
-              <li key={index} className="ml-10 text-sm uppercase hover:text-gray-600">
+              (item.needAuth && isAuthenticated || !item.needAuth ) &&
+                <li key={index} className="ml-10 text-sm uppercase hover:text-gray-600">
                 <Link to={item.path}>
                   {item.title}
                 </Link>

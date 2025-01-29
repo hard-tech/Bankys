@@ -24,7 +24,9 @@ const Login = () => {
   };
 
   return (
-    <LoginForm handelSubmit={handelSubmit} />
+    <div className="max-w-md mx-auto my-10">
+      <LoginForm handelSubmit={handelSubmit} />
+    </div>
   );
 };
 
