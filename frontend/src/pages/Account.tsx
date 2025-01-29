@@ -3,12 +3,13 @@ import api from "../services/api/axios.config";
 import { AccountFormValues, AccountUser } from "../type/auth.types";
 import AccountsUser from '../components/AccountsUser';
 import AccountForm from '../components/AccountCreate';
+import { toast } from "react-hot-toast";
 
 const AccountsList = () => {
     const [formData, setFormData] = useState<AccountFormValues>({
         name: "",
         type: "",
-      });
+    });
     const [accounts, setAccounts] = useState<AccountUser[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
@@ -26,7 +27,36 @@ const AccountsList = () => {
         };
 
         fetchAccounts();
-    }, []);
+    }, [accounts]);
+
+
+    useEffect(() => {
+        const addAccount = async () => {
+
+            if (formData.name) {
+                toast.promise(
+                    api.post(`/account/create/${formData.name}`),
+                    {
+                        loading: 'Ajout',
+                        success: 'Ajouté avec succès',
+                        error: (err) => {
+                            return err.response?.data?.detail?.message || "An error occurred during registration.";
+                        },
+                    }
+                ).then(() => {
+                    setFormData(
+                        { name: "", type: "" }
+                    )
+                })
+                    .catch(() => {
+                        // Handle any additional error logic here if needed
+                    }).finally(() => {
+                    });
+            }
+        };
+
+        addAccount();
+    }, [formData]);
 
     if (loading) return <p className="account-loading">Chargement des comptes...</p>;
     if (error) return <p className="account-error">{error}</p>;
@@ -38,11 +68,11 @@ const AccountsList = () => {
             {accounts.length > 0 ? (
                 <div className="">
                     {accounts.map((account) => (
-                        <AccountsUser 
+                        <AccountsUser
                             id={account.id}
-                            name={account.name} 
-                            iban={account.iban} 
-                            sold={account.sold} 
+                            name={account.name}
+                            iban={account.iban}
+                            sold={account.sold}
                         />
                     ))}
                 </div>
