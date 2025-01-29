@@ -23,7 +23,7 @@ class AccountService:
     def create_principal_account(self, user_id: int, session: Session) -> Account:
         try:
             # Créer un compte principal avec un solde initial de 100
-            account = Account(sold=100, iban=generate_iban(session), user_id=user_id, status=True, main=True)
+            account = Account(sold=100, iban=generate_iban(session), user_id=user_id, status=True, main=True, name="Compte principal")
             session.add(account)
             session.commit()
             session.refresh(account)
@@ -36,10 +36,10 @@ class AccountService:
                 error_code="CREATE_PRINCIPAL_ACCOUNT_ERROR"
             )
 
-    def create_account(self, user_id: int, session: Session) -> Account:
+    def create_account(self, user_id: int, session: Session, name: str) -> Account:
         try:
             # Créer un compte secondaire avec un solde initial de 0
-            account = Account(sold=0, iban=generate_iban(session), user_id=user_id, actived=True, main=False)
+            account = Account(sold=0, iban=generate_iban(session), user_id=user_id, actived=True, main=False, name=name)
             session.add(account)
             session.commit()
             session.refresh(account)
@@ -143,6 +143,7 @@ class AccountService:
                         id=account.id,
                         sold=account.sold,
                         iban=account.iban,
+                        name=account.name
                     )
                     for account in accounts
                 ]
