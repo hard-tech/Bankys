@@ -61,7 +61,9 @@ const Register = () => {
             Veuillez patienter...
           </p>
         )}
-
+        <br></br>
+        <br></br>
+        <div className="border-t border-gray-400 my-4"></div>
         {/* Bouton pour aller vers la connexion */}
         <p className="text-center text-gray-700 mt-6">
           Vous avez déjà un compte ?{" "}

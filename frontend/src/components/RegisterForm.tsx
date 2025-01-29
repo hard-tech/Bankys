@@ -6,17 +6,17 @@ import { RegisterCredentials } from "../type/auth.types";
 const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_])[a-zA-Z\d\W_]{8,}$/;
 const validationSchema = Yup.object().shape({
   email: Yup.string()
-    .email("Invalid email format")
-    .required("Email is required"),
+    .email("Format de l'email invalide")
+    .required("Email requis"),
   password: Yup.string()
     .min(8, "Password must be at least 8 characters")
-    .required("Password is required")
+    .required("Mot de passe requis")
     .matches(
       regex,
       "Password must contain at least one uppercase letter, one lowercase letter, and one number, and one special character"
     ),
-  first_name: Yup.string().required("First name is required"),
-  last_name: Yup.string().required("Last name is required"),
+  first_name: Yup.string().required("Prénom requis"),
+  last_name: Yup.string().required("Nom requis"),
 });
 
 interface RegisterFormProps {
@@ -36,14 +36,16 @@ const RegisterForm = ({ formData, setFormData }: RegisterFormProps) => {
       }}
     >
       <Form className="mt-8 space-y-6">
-        <div className="rounded-md shadow-sm -space-y-px">
+        <div className="space-y-4">
+          {" "}
+          {/* Ajout de l'espace entre les champs */}
           <div>
             <Field
               name="first_name"
               type="text"
               as={Input}
-              className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-              placeholder="First name"
+              className="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              placeholder="Prénom"
             />
             <ErrorMessage
               className="text-red-500"
@@ -56,8 +58,8 @@ const RegisterForm = ({ formData, setFormData }: RegisterFormProps) => {
               name="last_name"
               type="text"
               as={Input}
-              className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-              placeholder="Last name"
+              className="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              placeholder="Nom"
             />
             <ErrorMessage
               className="text-red-500"
@@ -70,8 +72,8 @@ const RegisterForm = ({ formData, setFormData }: RegisterFormProps) => {
               name="email"
               type="email"
               as={Input}
-              className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-              placeholder="Email address"
+              className="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              placeholder="Email"
             />
             <ErrorMessage
               className="text-red-500"
@@ -84,8 +86,8 @@ const RegisterForm = ({ formData, setFormData }: RegisterFormProps) => {
               name="password"
               type="password"
               as={Input}
-              className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-              placeholder="Password"
+              className="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              placeholder="Mot de passe"
             />
             <ErrorMessage
               className="text-red-500"
@@ -94,10 +96,13 @@ const RegisterForm = ({ formData, setFormData }: RegisterFormProps) => {
             />
           </div>
         </div>
+
         <div>
           <Button
             type="submit"
-            className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            className="w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium 
+              rounded-md text-white bg-indigo-500 hover:bg-indigo-700 
+              transition-transform transform hover:scale-105 shadow-md"
           >
             Register
           </Button>
@@ -106,5 +111,4 @@ const RegisterForm = ({ formData, setFormData }: RegisterFormProps) => {
     </Formik>
   );
 };
-
 export default RegisterForm;
