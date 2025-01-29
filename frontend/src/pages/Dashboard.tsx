@@ -1,6 +1,7 @@
 // Dashboard.tsx
 import React from 'react';
 import AccountCard from '../components/a';
+import { Account } from '../type/common.types';
 
 const Dashboard: React.FC = () => {
 

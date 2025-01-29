@@ -52,7 +52,7 @@ Documentation Swagger : `http://localhost:8000/docs`
 
 - Création automatique d'un compte principal (100€ offerts)
 - Ouverture de comptes additionnels
-- Consultation des soldes
+- Consultation des balance
 - Clôture de compte
 
 **Transactions**

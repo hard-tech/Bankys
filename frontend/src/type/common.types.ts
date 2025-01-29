@@ -12,7 +12,7 @@ export interface AccountCardProps {
 
 export interface Account {
   id: string;
-  title: string;
+  account_name: string;
   balance: number;
   iban: string;
 }

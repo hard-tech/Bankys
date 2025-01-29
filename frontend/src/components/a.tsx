@@ -14,7 +14,7 @@ const AccountCard: React.FC<AccountCardProps> = ({ title, balance, accountNumber
       <span className="text-2xl font-bold text-primary-900">{balance}€</span>
       <p className="text-sm text-neutral-500 mt-1">{accountNumber}</p>
     </div>
-    <div className="flex gap-4 pt-4 border-t border-neutral-200">
+    <div className="flex gap-4 pt-4 border-t border-neutral-200">   
       <button className="text-sm text-primary-600 hover:text-primary-800 font-medium">
         Transactions
       </button>

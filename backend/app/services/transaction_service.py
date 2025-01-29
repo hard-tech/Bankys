@@ -65,7 +65,7 @@ class TransactionService:
                         detail="Le compte source n'est pas actif.",
                         error_code="SOURCE_ACCOUNT_INACTIVE"
                     )
-                if account_from.sold < addMoney.amount:
+                if account_from.balance < addMoney.amount:
                     raise CustomHTTPException(
                         status_code=status.HTTP_400_BAD_REQUEST,
                         detail="Fonds insuffisants sur le compte source.",
@@ -111,12 +111,12 @@ class TransactionService:
 
             # Effectuer la transaction en fonction du type
             if type == TransactionType.DEPOSIT:
-                account_to.sold += addMoney.amount
+                account_to.balance += addMoney.amount
             elif type == TransactionType.WITHDRAWAL:
-                account_from.sold -= addMoney.amount
+                account_from.balance -= addMoney.amount
             elif type == TransactionType.TRANSFER:
-                account_from.sold -= addMoney.amount
-                account_to.sold += addMoney.amount
+                account_from.balance -= addMoney.amount
+                account_to.balance += addMoney.amount
 
             # Ajouter les comptes modifiés à la session
             if account_from:
@@ -263,9 +263,9 @@ class TransactionService:
                     error_code="ACCOUNTS_NOT_FOUND"
                 )
 
-            # Restaurer les soldes
-            account_from.sold += transaction.amount
-            account_to.sold -= transaction.amount
+            # Restaurer les balance
+            account_from.balance += transaction.amount
+            account_to.balance -= transaction.amount
 
             session.add(account_from)
             session.add(account_to)
