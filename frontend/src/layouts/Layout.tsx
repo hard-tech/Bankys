@@ -1,5 +1,5 @@
-import React from 'react';
-import Navbar from '../components/NavBar';
+import React from "react";
+import Navbar from "../components/NavBar";
 // import Sidebar from '../components/SideBar';
 
 interface LayoutProps {
@@ -10,11 +10,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   return (
     <div className="">
       {/* <Sidebar /> */}
-      <div className="justify-center flex flex-col items-center">
+      <div className="">
         <Navbar />
-        <main className="p-4 lg:p-8 border-2">
-          {children}
-        </main>
+        <main>{children}</main>
       </div>
     </div>
   );
