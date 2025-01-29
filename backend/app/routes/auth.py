@@ -12,6 +12,7 @@ def register_user(user: User_Register, session=Depends(get_session)):
     Enregistre un nouvel utilisateur.
     """
     try:
+        
         return user_service_instance_auth.register_user(user, session)
     except CustomHTTPException as e:
         raise e

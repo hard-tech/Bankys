@@ -13,11 +13,13 @@ function App() {
       <Toaster />
       <Layout>
         <Routes>
-          <Route path="/login" element={<Login />} />
           <Route index element={<Home />} />
+          <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/" element={<PrivateRoute />}>
-            {/* Ajoutez d'autres routes privées ici */}
+            {
+
+        }
           </Route>
           <Route path="*" element={<NoPage />} />
         </Routes>
