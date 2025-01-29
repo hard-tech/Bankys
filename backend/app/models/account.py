@@ -11,5 +11,6 @@ class Account(SQLModel, table=True):
     actived: bool = Field(default=True)
     main: bool
     created_at: datetime = Field(default_factory=datetime.utcnow)
+    name: str = Field(default="")
 
     

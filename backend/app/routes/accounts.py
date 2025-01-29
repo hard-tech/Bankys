@@ -9,13 +9,13 @@ from app.schemas.account import AccountIdRequest
 router = APIRouter()
 
 
-@router.post("/create")
-def create_account(session=Depends(get_session), user_id=Depends(user_service_instance_auth.get_current_user_id)):
+@router.post("/create/{name}")
+def create_account(name:str, session=Depends(get_session), user_id=Depends(user_service_instance_auth.get_current_user_id)):
     """
     Crée un nouveau compte pour l'utilisateur actuel.
     """
     try:
-        return account_service_instance.create_account(user_id, session)
+        return account_service_instance.create_account(user_id, session, name)
     except CustomHTTPException as e:
         raise e
     except Exception as e:

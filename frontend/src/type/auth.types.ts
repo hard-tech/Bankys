@@ -22,3 +22,14 @@ export interface User {
     user: User;
     token: string;
   }
+
+  export interface AccountUser {
+    id: number;
+    sold: number;
+    iban: string;
+    name: string;
+}
+export interface AccountFormValues {
+  name: string;
+  type: "Compte courant" | "Épargne" | "";
+}
