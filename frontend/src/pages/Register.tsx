@@ -4,10 +4,9 @@ import { toast } from "react-hot-toast";
 import { RegisterCredentials } from "../type/auth.types";
 import RegisterForm from "../components/RegisterForm";
 import api from "../services/api/axios.config";
+import { authService } from "../services/auth/auth.service";
 
 const Register = () => {
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState<boolean>(false);
   const [formData, setFormData] = useState<RegisterCredentials>({
     email: "",
     password: "@NewPassword123",
@@ -18,19 +17,17 @@ const Register = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    console.log("formData", formData);
     const registerUser = async () => {
       
       if (formData.email && formData.password && formData.first_name && formData.last_name) {
-        setLoading(true);
         toast.promise(
-          api.post("/auth/register", formData),
+          // api.post("/auth/register", formData),  
+          authService.register(formData),
           {
             loading: 'Registering...',
             success: 'Registration successful!',
             error: (err) => {
-              setError("Registration failed. Please try again.");
-              return err.response?.data?.detail || "An error occurred during registration.";
+              return err.response?.data?.detail?.message || "An error occurred during registration.";
             },
           }
         ).then(() => {
@@ -38,7 +35,6 @@ const Register = () => {
         }).catch(() => {
           // Handle any additional error logic here if needed
         }).finally(() => {
-          setLoading(false);
         });
       }
     };
