@@ -3,15 +3,14 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
 import { RegisterCredentials } from "../type/auth.types";
 import RegisterForm from "../components/RegisterForm";
-import api from "../services/api/axios.config";
 import { authService } from "../services/auth/auth.service";
 
 const Register = () => {
   const [formData, setFormData] = useState<RegisterCredentials>({
     email: "",
-    password: "@NewPassword123",
-    first_name: "Eloise",
-    last_name: "Tomlinson",
+    password: "",
+    first_name: "",
+    last_name: "",
   });
 
   const navigate = useNavigate();
