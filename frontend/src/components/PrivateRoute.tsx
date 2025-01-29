@@ -1,7 +1,6 @@
 // src/components/PrivateRoute.tsx
 import { Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import SideBar from './SideBar';
 
 const PrivateRoute = () => {
   const { isAuthenticated, loading } = useAuth();
@@ -15,9 +14,8 @@ const PrivateRoute = () => {
   }
 
   return (
-    <div>
-        <SideBar />
-        <Outlet />
+    <div className='w-full flex items-center'>
+      <Outlet />
     </div>
   );
 };

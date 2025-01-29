@@ -1,12 +1,10 @@
-import { useContext } from "react";
 import { useAuth } from '../context/AuthContext';
 
 const Profile = () => {
     const { user } = useAuth();
 
   return (
-    <div>
-      <div>
+    <div className='flex w-full items-center justify-center flex-col'>
         <h1>Mon Profile !</h1>
         <div>
           <div>
@@ -25,7 +23,6 @@ const Profile = () => {
           </div>
         </div>
       </div>
-    </div>
   );
 };
 

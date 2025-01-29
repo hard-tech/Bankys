@@ -30,7 +30,7 @@ const SideBar = () => {
   };
 
   return (
-    <div className="relative">
+    <div className="flex">
       {/* Toggle Button */}
       <button
         className="fixed top-4 left-4 z-50 lg:hidden p-2 rounded-md bg-gray-800 text-white"
@@ -41,10 +41,9 @@ const SideBar = () => {
 
       {/* Sidebar */}
       <div
-        className={`fixed block top-0 left-0 h-screen 
+        className={`flex flex-col flex-shrink-0 h-screen 
         ${isOpen ? 'w-64' : 'w-20'} 
-        bg-gray-900 text-white transition-all duration-300 
-        ${!isOpen && 'items-center'} z-40`}
+        bg-gray-900 text-white transition-all duration-300`}
       >
         {/* Logo Section */}
         <div className="flex items-center justify-center h-20 border-b border-gray-800">
@@ -54,7 +53,7 @@ const SideBar = () => {
         </div>
 
         {/* Menu Items */}
-        <div className="px-4 py-6">
+        <div className="flex-grow px-4 py-6">
           {menuItems.map((item, index) => (
             <div
               key={index}
@@ -78,7 +77,7 @@ const SideBar = () => {
         </div>
 
         {/* Logout Section */}
-        <div className="absolute bottom-0 w-full px-4 pb-6">
+        <div className="px-4 pb-6">
           <div
             className={`flex items-center cursor-pointer
               ${!isOpen ? 'justify-center' : 'justify-start'}
@@ -95,6 +94,11 @@ const SideBar = () => {
             )}
           </div>
         </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="flex-grow">
+        {/* Votre contenu principal ici */}
       </div>
     </div>
   );
