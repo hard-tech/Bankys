@@ -33,6 +33,7 @@ class Get_Accounts(BaseModel):
     id: int | None
     sold: float
     iban: str
+    name: str
    
 class AccountIdRequest(BaseModel):
     account_id: int

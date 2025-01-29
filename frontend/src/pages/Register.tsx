@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
 import { RegisterCredentials } from "../type/auth.types";
 import RegisterForm from "../components/RegisterForm";
-import api from "../services/api/axios.config";
+// import api from "../services/api/axios.config";
 import { authService } from "../services/auth/auth.service";
 
 const Register = () => {
