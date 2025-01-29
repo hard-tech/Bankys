@@ -1,4 +1,5 @@
 from fastapi import FastAPI, Depends
+from fastapi.middleware.cors import CORSMiddleware
 import asyncio
 
 from app.routes import auth 
@@ -12,7 +13,21 @@ from app.database.session import create_db_and_tables
 
 app = FastAPI()
 
+# Configure CORS
+origins = [
+    "http://localhost",  # Allow requests from localhost
+    "http://localhost:3000",  # Allow requests from your frontend dev server
+    "http://localhost:5173",  # Allow requests from your frontend dev server
+    # Add other origins as needed
+]
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Initialize the database and create tables if they don't exist
 # Secure the /account and /transactions routes

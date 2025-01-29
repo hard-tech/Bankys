@@ -5,10 +5,12 @@ import Register from './pages/Register';
 import NoPage from './pages/NotFound';
 import PrivateRoute from './components/PrivateRoute';
 import Layout from './layouts/Layout';
+import { Toaster } from 'react-hot-toast';
 
 function App() {
   return (
     <BrowserRouter>
+      <Toaster />
       <Layout>
         <Routes>
           <Route path="/login" element={<Login />} />

@@ -14,7 +14,8 @@ export interface User {
   export interface RegisterCredentials {
     email: string;
     password: string;
-    username: string;
+    first_name: string;
+    last_name: string;
   }
   
   export interface AuthResponse {

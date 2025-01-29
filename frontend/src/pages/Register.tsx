@@ -1,55 +1,53 @@
-// pages/Register.tsx
-// import React from 'react';
-
-import { Input } from "@mui/material";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-hot-toast";
+import { RegisterCredentials } from "../type/auth.types";
+import RegisterForm from "../components/RegisterForm";
+import api from "../services/api/axios.config";
 
 const Register = () => {
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [formData, setFormData] = useState<RegisterCredentials>({
+    email: "",
+    password: "@NewPassword123",
+    first_name: "Eloise",
+    last_name: "Tomlinson",
+  });
+
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    console.log("formData", formData);
+    const registerUser = async () => {
+      
+      if (formData.email && formData.password && formData.first_name && formData.last_name) {
+        setLoading(true);
+        toast.promise(
+          api.post("/auth/register", formData),
+          {
+            loading: 'Registering...',
+            success: 'Registration successful!',
+            error: (err) => {
+              setError("Registration failed. Please try again.");
+              return err.response?.data?.detail || "An error occurred during registration.";
+            },
+          }
+        ).then(() => {
+          navigate("/");
+        }).catch(() => {
+          // Handle any additional error logic here if needed
+        }).finally(() => {
+          setLoading(false);
+        });
+      }
+    };
+
+    registerUser();
+  }, [formData]);
+
   return (
-    <div>
-      <div className="max-w-md w-full space-y-8">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Create your account
-          </h2>
-        </div>
-        <form className="mt-8 space-y-6">
-          <div className="rounded-md shadow-sm -space-y-px">
-            <div>
-              <Input
-                type="text"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="Full name"
-              />
-            </div>
-            <div>
-              <Input
-                type="email"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="Email address"
-              />
-            </div>
-            <div>
-              <Input
-                type="password"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="Password"
-              />
-            </div>
-          </div>
-          <div>
-            <button
-              type="submit"
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-            >
-              Register
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+    <RegisterForm formData={formData} setFormData={setFormData} />
   );
 };
 
