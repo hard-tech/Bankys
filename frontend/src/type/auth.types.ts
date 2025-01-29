@@ -29,3 +29,7 @@ export interface User {
     iban: string;
     name: string;
 }
+export interface AccountFormValues {
+  name: string;
+  type: "Compte courant" | "Épargne" | "";
+}
