@@ -20,6 +20,9 @@ export const constants = {
     LOGIN: "/login",
     REGISTER: "/register",
     PROFILE: "/profile",
+    DASHBOARD: "/dashboard",
+    TRANSACTIONS: "/transactions",
+    ACCOUNTS: "/accounts",
   },
 
   MENU_ITEMS: [

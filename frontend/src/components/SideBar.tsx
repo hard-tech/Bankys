@@ -5,11 +5,15 @@ import {
   AiOutlineSetting,
   AiOutlineMessage,
   AiOutlineLogout,
-  AiOutlineMenu
+  AiOutlineMenu,
+  AiFillDollarCircle,
+  AiOutlineBank,
+  AiTwotoneBank
 } from 'react-icons/ai';
+import { IoStatsChart } from "react-icons/io5";
 import { MenuItem } from '../type/common.types';
 import { authService } from '../services/auth/auth.service';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { constants } from '../utils/constants';
 
 
@@ -19,9 +23,11 @@ const SideBar = () => {
   const [activeItem, setActiveItem] = useState('Home');
   const navigate = useNavigate();
   const menuItems: MenuItem[] = [
-    { title: 'Home', icon: <AiOutlineHome size={24} />, path: '/' },
-    { title: 'Profile', icon: <AiOutlineUser size={24} />, path: '/profile' },
-    { title: 'Settings', icon: <AiOutlineSetting size={24} />, path: '/settings' },
+    { title: "Page d'acceuil", icon: <AiOutlineHome size={24} />, path: constants.ROUTES.HOME },
+    { title: 'Dashboard', icon: <IoStatsChart size={24} />, path: constants.ROUTES.DASHBOARD },
+    { title: 'Transactions', icon: <AiFillDollarCircle size={24} />, path: constants.ROUTES.TRANSACTIONS },
+    { title: 'Mes comptes', icon: <AiTwotoneBank size={24} />, path: constants.ROUTES.ACCOUNTS },
+    { title: 'Profile', icon: <AiOutlineUser size={24} />, path: constants.ROUTES.PROFILE },
   ];
 
   const toggleSidebar = () => {
@@ -67,16 +73,16 @@ const SideBar = () => {
                 {item.icon}
               </div>
               {isOpen && (
-                <span className="ml-3 text-gray-300">
+                <Link to={item.path} className="ml-3 text-gray-300 ">
                   {item.title}
-                </span>
+                </Link>
               )}
             </div>
           ))}
         </div>
 
         {/* Logout Section */}
-        <div className="px-4 pb-6">
+        <div className="px-4 pb-6" onClick={() => {authService.logout(); navigate(constants.ROUTES.LOGIN)}}>
           <div
             className={`flex items-center cursor-pointer
               ${!isOpen ? 'justify-center' : 'justify-start'}
@@ -87,7 +93,7 @@ const SideBar = () => {
               <AiOutlineLogout size={24} />
             </div>
             {isOpen && (
-              <span onClick={() => {authService.logout(); navigate(constants.ROUTES.LOGIN)}} className="ml-3 text-gray-300">
+              <span className="ml-3 text-gray-300">
                 Logout
               </span>
             )}
