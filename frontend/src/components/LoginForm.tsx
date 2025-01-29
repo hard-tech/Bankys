@@ -1,9 +1,10 @@
+"use client";
+
 import { Input, Button, Typography } from "@mui/material";
 import * as Yup from "yup";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import { LoginCredentials } from "../type/auth.types";
 
-const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_])[a-zA-Z\d\W_]{8,}$/;
 const validationSchema = Yup.object().shape({
   email: Yup.string()
     .email("Invalid email format")
@@ -11,24 +12,19 @@ const validationSchema = Yup.object().shape({
   password: Yup.string()
     .min(8, "Password must be at least 8 characters")
     .required("Password is required")
-    .matches(
-      regex,
-      "Password must contain at least one uppercase letter, one lowercase letter, and one number, and one special character"
-    ),
 });
 
 interface LoginFormProps {
-  formData: LoginCredentials;
-  setFormData: React.Dispatch<React.SetStateAction<LoginCredentials>>;
+  handelSubmit: (values: LoginCredentials) => void;
 }
 
-const LoginForm = ({ formData, setFormData }: LoginFormProps) => {
+const LoginForm = ({ handelSubmit }: LoginFormProps) => {
   return (
     <Formik
-      initialValues={formData}
+      initialValues={{ email: "", password: "" }}
       validationSchema={validationSchema}
       onSubmit={(values) => {
-        setFormData(values);
+       handelSubmit(values);
         // Ajoutez ici la logique supplémentaire, comme l'envoi des données à un serveur
         console.log("Form submitted", values);
       }}

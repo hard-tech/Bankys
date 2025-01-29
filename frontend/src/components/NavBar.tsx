@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { AiOutlineMenu, AiOutlineClose } from 'react-icons/ai';
 import { constants } from '../utils/constants';
 import Logo from '../assets/Bankys-Logo-removebg-preview.png';
+import { Link } from 'react-router-dom';
 
 const NavBar = () => {
   const [nav, setNav] = useState(false);
@@ -37,7 +38,9 @@ const NavBar = () => {
           <ul className="hidden md:flex">
             {menuItems.map((item, index) => (
               <li key={index} className="ml-10 text-sm uppercase hover:text-gray-600">
-                {item.title}
+                <Link to={item.path}>
+                  {item.title}
+                </Link>
               </li>
             ))}
           </ul>
