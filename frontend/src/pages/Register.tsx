@@ -18,29 +18,35 @@ const Register = () => {
 
   useEffect(() => {
     const registerUser = async () => {
-      
-      if (formData.email && formData.password && formData.first_name && formData.last_name) {
-        toast.promise(
-          // api.post("/auth/register", formData),  
-          authService.register(formData),
-          {
-            loading: 'Inscription en cours...',
-            success: 'Inscription réussie !',
-            error: (err) => {
-              return err.response?.data?.detail?.message || "Une erreur est survenue.";
-            },
-          }
-        ).then(() => {
-          toast.promise(
-            authService.login({ email: formData.email, password: formData.password }),
+      if (
+        formData.email &&
+        formData.password &&
+        formData.first_name &&
+        formData.last_name
+      ) {
+        setLoading(true);
+
+        try {
+          // Inscription
+          await toast.promise(authService.register(formData), {
+            loading: "Inscription en cours...",
+            success: "Inscription réussie !",
+            error: "Une erreur est survenue lors de l'inscription.",
+          });
+
+          // Connexion automatique après inscription
+          await toast.promise(
+            authService.login({
+              email: formData.email,
+              password: formData.password,
+            }),
             {
-              loading: 'Logging in...',
-              success: 'Login successful!',
-              error: (err) => {
-                return err.response?.data?.detail?.message || "An error occurred during login.";
-              },
+              loading: "Connexion en cours...",
+              success: "Connexion réussie !",
+              error: "Une erreur est survenue lors de la connexion.",
             }
-          )
+          );
+
           navigate("/");
         } catch (error) {
           console.error("Erreur d'inscription :", error);
