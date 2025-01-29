@@ -1,5 +1,4 @@
 from fastapi import APIRouter, Depends, status
-from pydantic import BaseModel
 from app.database.session import get_session
 from app.services.account_service import account_service_instance
 from app.services.auth_service import user_service_instance_auth

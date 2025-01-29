@@ -142,6 +142,7 @@ class AccountService:
                     Get_Accounts(
                         id=account.id,
                         balance=account.balance,
+                        name=account.name,
                         iban=account.iban,
                     )
                     for account in accounts
@@ -177,6 +178,7 @@ class AccountService:
                 return Account_Info(
                     id=account.id,
                     balance=account.balance,
+                    name=account.name,
                     iban=account.iban,
                     user_id=account.user_id,
                     actived=account.actived,
@@ -220,6 +222,7 @@ class AccountService:
                 return Account_Info(
                     id=account.id,
                     balance=account.balance,
+                    name=account.name,
                     iban=account.iban,
                     user_id=account.user_id,
                     actived=account.actived,

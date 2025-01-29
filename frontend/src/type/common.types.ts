@@ -7,7 +7,7 @@ export interface MenuItem {
 export interface AccountCardProps {
   title: string;
   balance: string;
-  accountNumber: string;
+  iban: string;
 }
 
 export interface Account {

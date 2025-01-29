@@ -1,12 +1,26 @@
 export const endpoints = {
     auth: {
-      login: '/auth/login',
-      register: '/auth/register',
-      me: '/auth/me',
+        login: '/auth/login',
+        register: '/auth/register',
+        me: '/auth/me',
     },
-    users: {
-      profile: '/users/profile',
-      update: '/users/update',
+    accounts: {
+        create: '/account/create',
+        getAll: '/account/get/all',
+        close: (accountRequest: number) => `/account/close/${accountRequest}`,
+        info: '/account/info',
+    },
+    transactions: {
+        deposit: '/transactions/deposit',
+        withdrawal: '/transactions/withdrawal',
+        transfer: '/transactions/transfer',
+        info: (transactionId: number) => `/transactions/info/${transactionId}`,
+        getAll: '/transactions/get/all',
+        cancel: (transactionId: number) => `/transactions/cancel/${transactionId}`,
+    },
+    beneficiaires: {
+        create: '/beneficiaires/create',
+        getAll: '/beneficiaires/get/all',
     }
-  };
+};
   

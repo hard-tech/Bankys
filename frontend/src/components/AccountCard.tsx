@@ -1,7 +1,7 @@
 import { BsThreeDotsVertical } from "react-icons/bs";
 import { AccountCardProps } from "../type/common.types";
 
-const AccountCard: React.FC<AccountCardProps> = ({ title, balance, accountNumber }) => {
+const AccountCard: React.FC<AccountCardProps> = ({ title, balance, iban }) => {
     return(
   <div className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow duration-300 border border-neutral-200">
     <div className="flex justify-between items-start mb-4">
@@ -12,7 +12,7 @@ const AccountCard: React.FC<AccountCardProps> = ({ title, balance, accountNumber
     </div>
     <div className="mb-4">
       <span className="text-2xl font-bold text-primary-900">{balance}€</span>
-      <p className="text-sm text-neutral-500 mt-1">{accountNumber}</p>
+      <p className="text-sm text-neutral-500 mt-1">{iban}</p>
     </div>
     <div className="flex gap-4 pt-4 border-t border-neutral-200">   
       <button className="text-sm text-primary-600 hover:text-primary-800 font-medium">

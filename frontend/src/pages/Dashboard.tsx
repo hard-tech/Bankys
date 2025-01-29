@@ -1,11 +1,21 @@
 // Dashboard.tsx
-import React from 'react';
-import AccountCard from '../components/a';
-import { Account } from '../type/common.types';
+import React, { useEffect } from "react";
+import AccountCard from "../components/AccountCard";
+import { Account } from "../type/common.types";
+import api from "../services/api/axios.config";
+import { endpoints } from "../services/api/endpoints";
+import toast from "react-hot-toast";
 
 const Dashboard: React.FC = () => {
+  const [accounts, setAccounts] = React.useState<Account[]>([]);
 
-    const [accounts, setAccounts] = React.useState<Account[]>([]);
+  useEffect(() => {
+    api.get(endpoints.accounts.getAll).then((response) => {
+        setAccounts(response.data);
+    }).catch((error) => {
+        toast.error("Erreur lors de la récupération des comptes");
+    });
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-primary-50 to-white p-6">
@@ -19,13 +29,16 @@ const Dashboard: React.FC = () => {
             Ajouter un compte
           </button>
         </div>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <AccountCard
-            title="Compte principal"
-            balance="1234,56"
-            accountNumber="FR76 1234 4321 0987"
-          />
+          {accounts.map((account, index) => (
+            <AccountCard
+              key={index}
+              title={account.account_name}
+              balance={String(account.balance)}
+              iban={account.iban}
+            />
+          ))}
         </div>
       </div>
     </div>
