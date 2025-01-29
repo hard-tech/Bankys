@@ -31,6 +31,16 @@ const Register = () => {
             },
           }
         ).then(() => {
+          toast.promise(
+            authService.login({ email: formData.email, password: formData.password }),
+            {
+              loading: 'Logging in...',
+              success: 'Login successful!',
+              error: (err) => {
+                return err.response?.data?.detail?.message || "An error occurred during login.";
+              },
+            }
+          )
           navigate("/");
         }).catch(() => {
           // Handle any additional error logic here if needed
