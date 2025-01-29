@@ -7,21 +7,20 @@ import {
   AiOutlineLogout,
   AiOutlineMenu
 } from 'react-icons/ai';
+import { MenuItem } from '../type/common.types';
+import { authService } from '../services/auth/auth.service';
+import { useNavigate } from 'react-router-dom';
+import { constants } from '../utils/constants';
 
-interface MenuItem {
-  title: string;
-  icon: JSX.Element;
-  path: string;
-}
+
 
 const SideBar = () => {
   const [isOpen, setIsOpen] = useState(true);
   const [activeItem, setActiveItem] = useState('Home');
-
-  const menuItems: MenuItem[] = [ // TODO: mettre les items dans le fichier constants.ts
+  const navigate = useNavigate();
+  const menuItems: MenuItem[] = [
     { title: 'Home', icon: <AiOutlineHome size={24} />, path: '/' },
     { title: 'Profile', icon: <AiOutlineUser size={24} />, path: '/profile' },
-    { title: 'Messages', icon: <AiOutlineMessage size={24} />, path: '/messages' },
     { title: 'Settings', icon: <AiOutlineSetting size={24} />, path: '/settings' },
   ];
 
@@ -88,7 +87,7 @@ const SideBar = () => {
               <AiOutlineLogout size={24} />
             </div>
             {isOpen && (
-              <span className="ml-3 text-gray-300">
+              <span onClick={() => {authService.logout(); navigate(constants.ROUTES.LOGIN)}} className="ml-3 text-gray-300">
                 Logout
               </span>
             )}

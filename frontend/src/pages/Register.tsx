@@ -4,6 +4,7 @@ import { toast } from "react-hot-toast";
 import { RegisterCredentials } from "../type/auth.types";
 import RegisterForm from "../components/RegisterForm";
 import { authService } from "../services/auth/auth.service";
+import { constants } from "../utils/constants";
 
 const Register = () => {
   const [formData, setFormData] = useState<RegisterCredentials>({
@@ -40,7 +41,7 @@ const Register = () => {
               },
             }
           )
-          navigate("/");
+          navigate(constants.ROUTES.HOME);
         }).finally(() => {
         });
       }

@@ -1,6 +1,7 @@
 // src/components/PrivateRoute.tsx
 import { Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { constants } from '../utils/constants';
 
 const PrivateRoute = () => {
   const { isAuthenticated, loading } = useAuth();
@@ -10,7 +11,7 @@ const PrivateRoute = () => {
   }
 
   if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to={constants.ROUTES.LOGIN} replace />;
   }
 
   return (

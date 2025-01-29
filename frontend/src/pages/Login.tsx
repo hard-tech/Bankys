@@ -4,6 +4,7 @@ import { toast } from "react-hot-toast";
 import { LoginCredentials } from "../type/auth.types";
 import LoginForm from "../components/LoginForm.tsx";
 import { authService } from "../services/auth/auth.service";
+import { constants } from "../utils/constants.ts";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -19,7 +20,8 @@ const Login = () => {
         },
       }
     ).then(() => {
-      navigate("/");
+      navigate(constants.ROUTES.HOME);
+      window.location.reload();
     });
   };
 

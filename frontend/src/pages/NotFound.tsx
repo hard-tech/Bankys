@@ -1,5 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { constants } from "../utils/constants";
 
 const NotFound: React.FC = () => {
   return (
@@ -12,7 +13,7 @@ const NotFound: React.FC = () => {
         </p>
         <Link
           className="mt-6 inline-block px-6 py-3 bg-blue-600 font-semibold rounded-md hover:bg-blue-700"
-          to="/"
+          to={constants.ROUTES.HOME}
         >
           <span className="text-white">
             Go to Homepage

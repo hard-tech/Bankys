@@ -12,6 +12,7 @@ import { AuthProvider } from "./context/AuthContext";
 import NavBar from "./components/NavBar";
 import SideBar from "./components/SideBar";
 import Layout from "./layouts/Layout";
+import { constants } from "./utils/constants";
 
 function App() {
   return (
@@ -21,7 +22,7 @@ function App() {
         <Routes>
           {/* Public Routes */}
           <Route
-            path="/login"
+            path={constants.ROUTES.LOGIN}
             element={
               <Layout>
                 <Login />
@@ -29,7 +30,7 @@ function App() {
             }
           />
           <Route
-            path="/register"
+            path={constants.ROUTES.REGISTER}
             element={
               <Layout>
                 <Register />
@@ -54,9 +55,9 @@ function App() {
           />
 
           {/* Private Routes */}
-          <Route path="/" element={<PrivateRoute />}>
+          <Route path={constants.ROUTES.HOME} element={<PrivateRoute />}>
             <Route
-              path="/profile"
+              path={constants.ROUTES.PROFILE}
               element={
                 <>
                   <SideBar />
