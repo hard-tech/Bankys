@@ -7,6 +7,7 @@ class TransactionType(str, Enum):
     DEPOSIT = "DEPOSIT"
     WITHDRAWAL = "WITHDRAWAL"
     TRANSFER = "TRANSFER"
+    CLOSING = "CLOSING"
 
 class TransactionStatus(str, Enum):
     PENDING = "PENDING"

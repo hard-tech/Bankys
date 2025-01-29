@@ -67,7 +67,7 @@ function App() {
               }
             />
             <Route
-              path={constants.ROUTES.TRANSACTIONS}
+              path={`${constants.ROUTES.TRANSACTIONS}/:iban`}
               element={
                 <>
                   <SideBar />

@@ -12,10 +12,25 @@ const Dashboard: React.FC = () => {
   useEffect(() => {
     api.get(endpoints.accounts.getAll).then((response) => {
         setAccounts(response.data);
-    }).catch((error) => {
+    }).catch(() => {
         toast.error("Erreur lors de la récupération des comptes");
     });
   }, []);
+
+  const handleCloseAccount = (iban: string) => {
+    toast.promise(
+      api.delete(endpoints.accounts.close(iban)),
+      {
+        loading: 'Closing account...',
+        success: 'Account closed successfully!',
+        error: (err) => {
+          return err.response?.data?.detail?.message || "An error occurred while closing the account.";
+        },
+      }
+    ).then(() => {
+      setAccounts(accounts.filter((account) => account.iban !== iban));
+    });
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-primary-50 to-white p-6">
@@ -23,7 +38,9 @@ const Dashboard: React.FC = () => {
         <div className="flex justify-between items-center mb-8">
           <div>
             <h1 className="text-3xl font-bold text-primary-900">Mes comptes</h1>
-            <p className="text-neutral-600 mt-1">Total des actifs : 12 345€</p>
+            <p className="text-neutral-600 mt-1">
+              Total des actifs : {accounts.reduce((total, account) => total + account.balance, 0)}€
+            </p>
           </div>
           <button className="bg-secondary-500 text-white px-6 py-2 rounded-lg hover:bg-secondary-600 transition-colors duration-300">
             Ajouter un compte
@@ -37,6 +54,7 @@ const Dashboard: React.FC = () => {
               title={account.account_name}
               balance={String(account.balance)}
               iban={account.iban}
+              onCloseAccount={handleCloseAccount}
             />
           ))}
         </div>

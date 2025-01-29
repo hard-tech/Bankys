@@ -6,6 +6,9 @@ from app.models.account import Account
 from app.utils.exceptions import CustomHTTPException
 import random
 import string
+from app.models.transaction import Transaction, TransactionType, TransactionStatus
+from sqlalchemy.orm import Session
+from datetime import datetime
 
 def generate_iban(session: Session) -> str:
     while True:
@@ -51,16 +54,16 @@ class AccountService:
                 error_code="CREATE_ACCOUNT_ERROR"
             )
 
-    def close_account(self, account_id: int, user_id: int, session: Session) -> Account:
+    def close_account(self, account_iban: int, user_id: int, session: Session) -> Account:
         try:
-            # Récupérer le compte en fonction de l'ID
-            account = session.query(Account).filter_by(id=account_id).first()
+            # Récupérer le compte en fonction de l'IBAN
+            account = session.query(Account).filter_by(iban=account_iban).first()
 
             # Vérifier si le compte existe
             if not account:
                 raise CustomHTTPException(
                     status_code=status.HTTP_404_NOT_FOUND,
-                    detail=f"Le compte avec l'ID {account_id} n'existe pas.",
+                    detail=f"Le compte avec l'ID {account_iban} n'existe pas.",
                     error_code="ACCOUNT_NOT_FOUND"
                 )
 
@@ -112,16 +115,37 @@ class AccountService:
                     error_code="MAIN_ACCOUNT_NOT_FOUND"
                 )
 
+            # Ensure IBANs are not null
+            if not account.iban or not main_account.iban:
+                raise CustomHTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="IBANs ne peuvent pas être null.",
+                    error_code="NULL_IBAN_ERROR"
+                )
             # Transférer le balance du compte à fermer vers le compte principal
             main_account.balance += account.balance
+
+            # Crée une transaction de clôture
+            transaction = Transaction(
+                account_from_iban=account.iban,
+                account_to_iban=main_account.iban,
+                user_id=account.user_id,
+                amount=account.balance,
+                type=TransactionType.CLOSING,
+                status=TransactionStatus.COMPLETED,
+                created_at=datetime.utcnow()
+            )
+
             account.balance = 0
             # Mettre à jour le statut du compte à False
             account.actived = False
 
             session.add(account)
             session.add(main_account)
+            session.add(transaction)
             session.commit()
             session.refresh(account)
+            session.refresh(transaction)
 
             return account
         except CustomHTTPException as e:
@@ -211,7 +235,7 @@ class AccountService:
                         detail="Ce compte est clôturé et ne peut pas être consulté.",
                         error_code="ACCOUNT_CLOSED"
                     )
-                
+
                 # Vérifier si le compte appartient à l'utilisateur connecté
                 if not account.user_id == user_id:
                     raise CustomHTTPException(

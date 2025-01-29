@@ -43,13 +43,13 @@ def get_accounts(session=Depends(get_session), user_id=Depends(user_service_inst
             error_code="GET_ACCOUNTS_ERROR"
         )
 
-@router.delete("/close/{account_request}")
-def close_account(account_request: int, session=Depends(get_session), user_id=Depends(user_service_instance_auth.get_current_user_id)):
+@router.delete("/close/{account_iban}")
+def close_account(account_iban: str, session=Depends(get_session), user_id=Depends(user_service_instance_auth.get_current_user_id)):
     """
     Ferme le compte spécifié par l'ID.
     """
     try:
-        return account_service_instance.close_account(account_request, user_id, session)
+        return account_service_instance.close_account(account_iban, user_id, session)
     except CustomHTTPException as e:
         raise e
     except Exception as e:

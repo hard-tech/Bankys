@@ -8,6 +8,7 @@ export interface AccountCardProps {
   title: string;
   balance: string;
   iban: string;
+  onCloseAccount: (iban: string) => void;
 }
 
 export interface Account {
