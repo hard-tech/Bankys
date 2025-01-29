@@ -1,29 +1,25 @@
-
-import { useLocalStorage } from '../../hooks/useLocalStorage';
 import { LoginCredentials, RegisterCredentials, User } from '../../type/auth.types';
 import api from '../api/axios.config';
 
 
 export const authService = {
-  async login(credentials: LoginCredentials) {
+  async login(credentials: LoginCredentials): Promise<void> {
     try {
       const response = await api.post('/auth/login', credentials);
-      const { token, user } = response.data;
-      useLocalStorage('token', token);
-      return user;
+      const { token } = response.data;
+      window.localStorage.setItem('token', token);
+      return Promise.resolve();
     } catch (error) {
-      throw error;
+      return Promise.reject(error); // Rejette la promesse avec l'erreur
     }
   },
 
-  async register(credentials: RegisterCredentials) {
+  async register(credentials: RegisterCredentials): Promise<void> {
     try {
-      const response = await api.post('/auth/register', credentials);
-      const { token, user } = response.data;
-      useLocalStorage('token', token);
-      return user;
+      await api.post('/auth/register', credentials);
+      return Promise.resolve(); // Résout la promesse
     } catch (error) {
-      throw error;
+      return Promise.reject(error); // Rejette la promesse avec l'erreur
     }
   },
 
