@@ -133,6 +133,7 @@ class AccountService:
                 amount=account.balance,
                 type=TransactionType.CLOSING,
                 status=TransactionStatus.COMPLETED,
+                transaction_note="Transfert du solde du compte fermé vers le compte principal",
                 created_at=datetime.utcnow()
             )
 
@@ -153,7 +154,7 @@ class AccountService:
         except Exception as e:
             raise CustomHTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail="Erreur lors de la fermeture du compte",
+                detail="Erreur lors de la fermeture du compte"+ str(e),
                 error_code="CLOSE_ACCOUNT_ERROR"
             )
     def get_accounts_of_user(self, user_id: int, session: Session) -> Get_Accounts:
