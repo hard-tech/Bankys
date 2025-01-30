@@ -22,3 +22,8 @@ export interface User {
     user: User;
     token: string;
   }
+
+  export interface ChangePasswordCredentials {
+    oldPassword: string;
+    newPassword: string;
+  }

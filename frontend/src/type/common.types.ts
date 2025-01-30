@@ -13,7 +13,17 @@ export interface AccountCardProps {
 
 export interface Account {
   id: string;
-  account_name: string;
+  name: string;
   balance: number;
   iban: string;
+  main: boolean;
+  actived: boolean;
+}
+
+export interface AddAccountModalProps {
+  isModalOpen: boolean;
+  setIsModalOpen: (open: boolean) => void;
+  newAccountName: string;
+  setNewAccountName: (name: string) => void;
+  handleAddAccount: () => void;
 }

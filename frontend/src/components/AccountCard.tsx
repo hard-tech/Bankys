@@ -1,13 +1,16 @@
+import React, { useState } from "react";
 import { BsThreeDotsVertical } from "react-icons/bs";
 import { AccountCardProps } from "../type/common.types";
 import { Link } from "react-router-dom";
 import { constants } from "../utils/constants";
-import { Menu, MenuItem, IconButton } from "@mui/material";
-import { useState } from "react";
+import { Menu, MenuItem, IconButton, Chip } from "@mui/material";
 
 const AccountCard: React.FC<AccountCardProps> = ({ title, balance, iban, onCloseAccount }) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
+
+  // Simuler un type de compte aléatoire
+  const randomType = Math.random() < 0.5 ? "savings" : "current";
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
@@ -25,7 +28,9 @@ const AccountCard: React.FC<AccountCardProps> = ({ title, balance, iban, onClose
   return (
     <div className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow duration-300 border border-neutral-200">
       <div className="flex justify-between items-start mb-4">
-        <h3 className="text-lg font-semibold text-primary-800">{title}</h3>
+        <div>
+          <h3 className="text-lg font-semibold text-primary-800">{title}</h3>
+        </div>
         <IconButton
           onClick={handleClick}
           className="text-neutral-500 hover:text-primary-600 transition-colors"
@@ -53,7 +58,7 @@ const AccountCard: React.FC<AccountCardProps> = ({ title, balance, iban, onClose
       </div>
       <div className="mb-4">
         <span className="text-2xl font-bold text-primary-900">{balance}€</span>
-        <p className="text-sm text-neutral-500 mt-1">{iban}</p>
+        <p className="text-sm text-neutral-500 mt-1">IBAN: {iban}</p>
       </div>
       <div className="flex gap-4 pt-4 border-t border-neutral-200">
         <Link
