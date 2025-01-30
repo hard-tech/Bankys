@@ -27,9 +27,22 @@ class AccountService:
         try:
             # Créer un compte principal avec un balance initial de 100
             account = Account(balance=100, iban=generate_iban(session), user_id=user_id, status=True, main=True, name="Principal")
+            transaction = Transaction(
+                type=TransactionType.DEPOSIT,
+                status=TransactionStatus.COMPLETED,
+                amount=100,
+                account_from_iban="Banque",
+                account_to_iban=account.iban,
+                date=datetime.now(),
+                transaction_note="Cadeau de bienvenue",
+                user_id=user_id
+            )
+
+            session.add(transaction)
             session.add(account)
             session.commit()
             session.refresh(account)
+            session.refresh(transaction)
             return account
         except Exception as e:
 
