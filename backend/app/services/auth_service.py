@@ -285,4 +285,13 @@ class UserService:
                 error_code="CHANGE_PASSWORD_ERROR"
             )
 
+    def verify_password(self, user_id: int, account_password: str, session: Session):
+        user = session.query(User).filter(User.id == user_id).first()
+        if not user or not verify_password(account_password, user.password):
+            raise CustomHTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Mot de passe incorrect.",
+                error_code="INVALID_PASSWORD"
+            )
+
 user_service_instance_auth = UserService()

@@ -25,9 +25,12 @@ const AccountPage: React.FC = () => {
     });
   };
 
-  const handleCloseAccount = (iban: string) => {
+  const handleCloseAccount = (iban: string, password: string) => {
     toast.promise(
-      api.delete(endpoints.accounts.close(iban)),
+      api.delete(endpoints.accounts.close, { data: { 
+        account_iban: iban,
+        account_password: password, // Replace with actual account password
+       } }),
       {
         loading: 'Fermeture du compte...',
         success: 'Compte fermé avec succès !',

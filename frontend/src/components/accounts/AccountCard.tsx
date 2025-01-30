@@ -3,10 +3,13 @@ import { BsThreeDotsVertical } from "react-icons/bs";
 import { AccountCardProps } from "../../type/common.types";
 import { Link } from "react-router-dom";
 import { constants } from "../../utils/constants"; // Corrected path
-import { Menu, MenuItem, IconButton } from "@mui/material";
+import { Menu, MenuItem, IconButton, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Button } from "@mui/material";
+import toast from "react-hot-toast";
 
 const AccountCard: React.FC<AccountCardProps> = ({ title, balance, iban, onCloseAccount }) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [password, setPassword] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const open = Boolean(anchorEl);
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -17,9 +20,20 @@ const AccountCard: React.FC<AccountCardProps> = ({ title, balance, iban, onClose
     setAnchorEl(null);
   };
 
-  const handleCloseAccount = () => {
+  const handleCloseAccount = async () => {
+    try {
+      // Call API to verify password
+      onCloseAccount(iban, password);
+    } catch (error) {
+      toast.error("Mot de passe incorrect.");
+    } finally {
+      setIsModalOpen(false);
+    }
+  };
+
+  const handleOpenModal = () => {
+    setIsModalOpen(true);
     handleClose();
-    onCloseAccount(iban);
   };
 
   return (
@@ -48,8 +62,8 @@ const AccountCard: React.FC<AccountCardProps> = ({ title, balance, iban, onClose
             horizontal: "right",
           }}
         >
-          <MenuItem onClick={handleCloseAccount} className="text-red-600 hover:bg-red-50">
-            Clôturer le compte
+          <MenuItem onClick={handleOpenModal} className="text-red-600 hover:bg-red-50">
+            <span className="text-red-500">Clôturer le compte</span>
           </MenuItem>
         </Menu>
       </div>
@@ -59,12 +73,37 @@ const AccountCard: React.FC<AccountCardProps> = ({ title, balance, iban, onClose
       </div>
       <div className="flex gap-4 pt-4 border-t border-neutral-200">
         <Link
-          to={`${constants.ROUTES.TRANSACTIONS}/${iban}`}
+          to={`${constants.ROUTES.TRANSACTIONS}?iban=${iban}`}
           className="text-sm text-primary-600 hover:text-primary-800 font-medium"
         >
           Transactions
         </Link>
       </div>
+
+      {/* Password Confirmation Modal */}
+      <Dialog open={isModalOpen} onClose={() => setIsModalOpen(false)}>
+        <DialogTitle>Confirmer la clôture du compte</DialogTitle>
+        <DialogContent>
+          <TextField
+            autoFocus
+            margin="dense"
+            label="Mot de passe"
+            type="password"
+            fullWidth
+            variant="standard"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setIsModalOpen(false)} color="primary">
+            Annuler
+          </Button>
+          <Button onClick={handleCloseAccount} color="primary">
+            Confirmer
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 };

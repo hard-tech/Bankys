@@ -8,7 +8,7 @@ export const endpoints = {
     accounts: {
         create: '/account/create',
         getAll: '/account/get/all',
-        close: (accountRequest: string) => `/account/close/${accountRequest}`,
+        close:  '/account/close',
         info: '/account/info',
     },
     transactions: {

@@ -4,6 +4,7 @@ from app.services.account_service import account_service_instance
 from app.services.auth_service import user_service_instance_auth
 from app.utils.exceptions import CustomHTTPException
 from app.schemas.account import AccountIdRequest, CreateAccountRequest
+from pydantic import BaseModel
 
 router = APIRouter()
 
@@ -43,13 +44,25 @@ def get_accounts(session=Depends(get_session), user_id=Depends(user_service_inst
             error_code="GET_ACCOUNTS_ERROR"
         )
 
-@router.delete("/close/{account_iban}")
-def close_account(account_iban: str, session=Depends(get_session), user_id=Depends(user_service_instance_auth.get_current_user_id)):
+class CloseAccountRequest(BaseModel):
+    account_iban: str
+    account_password: str
+
+@router.delete("/close")
+def close_account(
+    request: CloseAccountRequest,
+    session=Depends(get_session),
+    user_id=Depends(user_service_instance_auth.get_current_user_id)
+):
     """
-    Ferme le compte spécifié par l'ID.
+    Ferme le compte spécifié par l'IBAN après vérification du mot de passe.
     """
     try:
-        return account_service_instance.close_account(account_iban, user_id, session)
+        # Verify the password
+        user_service_instance_auth.verify_password(user_id, request.account_password, session)
+
+        # Close the account
+        return account_service_instance.close_account(request.account_iban, user_id, session)
     except CustomHTTPException as e:
         raise e
     except Exception as e:

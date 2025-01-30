@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Modal, Box, TextField, Button, Select, MenuItem, FormControl, InputLabel, IconButton, Typography } from "@mui/material";
-import { AddAccountModalProps } from "../type/common.types";
+import { AddAccountModalProps } from "../../type/common.types";
 import CloseIcon from '@mui/icons-material/Close';
 import SavingsIcon from '@mui/icons-material/Savings';
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
