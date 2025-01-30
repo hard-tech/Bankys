@@ -52,6 +52,7 @@ const Register = () => {
 
   return (
     <div className="max-w-md mx-auto my-10">
+      <RegisterForm formData={formData} setFormData={setFormData} />
     </div>
   );
 };

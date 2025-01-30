@@ -11,6 +11,7 @@ class Account_Add_Money(BaseModel):
     account_iban_from: str
     account_iban_to: str
     amount: float
+    transaction_note: str
 
 class Account_Transfer_Money(BaseModel):
     account_id: int

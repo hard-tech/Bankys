@@ -128,6 +128,7 @@ class TransactionService:
             transaction = Transaction(
                 account_to_iban=account_to.iban if account_to else None,
                 account_from_iban=account_from.iban if account_from else None,
+                transaction_note=addMoney.transaction_note,
                 user_id=user_id,
                 amount=addMoney.amount,
                 type=type
@@ -282,6 +283,7 @@ class TransactionService:
                 user_id=transaction.user_id,
                 amount=transaction.amount,
                 type=transaction.type,
+                transaction_note=transaction.transaction_note,
                 status=TransactionStatus.REJECTED,
                 created_at=transaction.created_at,
                 updated_at=datetime.utcnow()

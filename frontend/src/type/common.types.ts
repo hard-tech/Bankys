@@ -31,3 +31,29 @@ export interface AddAccountModalProps {
 export interface LayoutProps {
   children: React.ReactNode;
 }
+
+export interface Transaction {
+  id: number;
+  account_to_iban: string;
+  account_from_iban: string;
+  created_at: Date;
+  updated_at: Date;
+  type: TransactionType;
+  amount: number;
+  user_id: number;
+  status: TransactionStatus;
+  transaction_note: string;
+}
+
+enum TransactionType {
+  DEPOSIT = "DEPOSIT",
+  WITHDRAWAL = "WITHDRAWAL",
+  TRANSFER = "TRANSFER",
+  CLOSING = "CLOSING"
+}
+
+enum TransactionStatus {
+  PENDING = "PENDING",
+  COMPLETED = "COMPLETED",
+  REJECTED = "REJECTED"
+}

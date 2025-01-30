@@ -3,7 +3,7 @@ from sqlmodel import Session
 from app.schemas.transaction import DepositRequest, WithdrawalRequest, TransferRequest
 from app.database.session import get_session
 from app.services.transaction_service import transaction_service_instance
-from app.models.transaction import Transaction, TransactionType
+from app.models.transaction import TransactionType
 from app.services.auth_service import user_service_instance_auth
 from app.utils.exceptions import CustomHTTPException
 from app.schemas.account import Account_Add_Money
@@ -16,7 +16,12 @@ def add_money(request: DepositRequest, session=Depends(get_session), user_id=Dep
     Dépose de l'argent sur le compte spécifié par l'IBAN.
     """
     try:
-        deposit = Account_Add_Money(account_iban_from=request.account_iban, account_iban_to=request.account_iban, amount=request.amount)
+        deposit = Account_Add_Money(
+            account_iban_from=request.account_iban,
+            account_iban_to=request.account_iban,
+            amount=request.amount,
+            transaction_note=request.transaction_note  # Utilisation de transaction_note
+        )
         return transaction_service_instance.transfert_money(user_id, deposit, TransactionType.DEPOSIT, session)
     except CustomHTTPException as e:
         raise e
@@ -33,7 +38,12 @@ def withdraw_money(request: WithdrawalRequest, session=Depends(get_session), use
     Retire de l'argent du compte spécifié par l'IBAN.
     """
     try:
-        withdrawal = Account_Add_Money(account_iban_from=request.account_iban, account_iban_to=request.account_iban, amount=request.amount)
+        withdrawal = Account_Add_Money(
+            account_iban_from=request.account_iban,
+            account_iban_to=request.account_iban,
+            amount=request.amount,
+            transaction_note=request.transaction_note  # Utilisation de transaction_note
+        )
         return transaction_service_instance.transfert_money(user_id, withdrawal, TransactionType.WITHDRAWAL, session)
     except CustomHTTPException as e:
         raise e
@@ -50,7 +60,12 @@ def transfer_money(request: TransferRequest, session=Depends(get_session), user_
     Transfère de l'argent d'un compte à un autre.
     """
     try:
-        transfer = Account_Add_Money(account_iban_from=request.account_iban_from, account_iban_to=request.account_iban_to, amount=request.amount)
+        transfer = Account_Add_Money(
+            account_iban_from=request.account_iban_from,
+            account_iban_to=request.account_iban_to,
+            amount=request.amount,
+            transaction_note=request.transaction_note  # Utilisation de transaction_note
+        )
         return transaction_service_instance.transfert_money(user_id, transfer, TransactionType.TRANSFER, session)
     except CustomHTTPException as e:
         raise e
