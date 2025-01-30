@@ -11,6 +11,7 @@ import PrivateRoute from "./components/PrivateRoute";
 import { AuthProvider } from "./context/AuthContext";
 import SideBar from "./components/SideBar";
 import Layout from "./layouts/Layout";
+import CrmLayout from "./layouts/CrmLayout.tsx";
 import { constants } from "./utils/constants";
 import Dashboard from "./pages/Dashboard";
 import Transaction from "./pages/Transaction";
@@ -60,37 +61,33 @@ function App() {
             <Route
               path={constants.ROUTES.DASHBOARD}
               element={
-                <>
-                  <SideBar />
+                <CrmLayout>
                   <Dashboard />
-                </>
+                </CrmLayout>
               }
             />
             <Route
               path={`${constants.ROUTES.TRANSACTIONS}/:iban`}
               element={
-                <>
-                  <SideBar />
+                <CrmLayout>
                   <Transaction />
-                </>
+                </CrmLayout>
               }
             />
             <Route
               path={constants.ROUTES.ACCOUNTS}
               element={
-                <>
-                  <SideBar />
+                <CrmLayout>
                   <Account />
-                </>
+                </CrmLayout>
               }
             />
             <Route
               path={constants.ROUTES.PROFILE}
               element={
-                <>
-                  <SideBar />
+                <CrmLayout>
                   <Profile />
-                </>
+                </CrmLayout>
               }
             />
             

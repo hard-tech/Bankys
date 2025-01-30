@@ -15,9 +15,7 @@ const PrivateRoute = () => {
   }
 
   return (
-    <div className='w-full flex items-center'>
       <Outlet />
-    </div>
   );
 };
 

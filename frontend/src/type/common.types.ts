@@ -27,3 +27,7 @@ export interface AddAccountModalProps {
   setNewAccountName: (name: string) => void;
   handleAddAccount: () => void;
 }
+
+export interface LayoutProps {
+  children: React.ReactNode;
+}

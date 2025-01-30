@@ -18,7 +18,11 @@ import { constants } from '../utils/constants';
 import Logo from '../assets/Bankys-Logo-removebg-preview.png';
 
 
-const SideBar = () => {
+type SideBarProps = {
+  setIsSidebarOpen: (isOpen: boolean) => void;
+};
+
+const SideBar = ({ setIsSidebarOpen }: SideBarProps) => {
   const [isOpen, setIsOpen] = useState(true);
   const [activeItem, setActiveItem] = useState('Home');
   const navigate = useNavigate();
@@ -32,6 +36,7 @@ const SideBar = () => {
 
   const toggleSidebar = () => {
     setIsOpen(!isOpen);
+    setIsSidebarOpen(!isOpen);
   };
 
   return (
