@@ -61,16 +61,19 @@ const AccountsList = () => {
   if (error) return <p className="account-error">{error}</p>;
 
   return (
-    <section className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-6">
-      {/* Formulaire de création */}
-      <div>
+    <section className="relative flex flex-col items-center justify-center min-h-screen bg-gray-100 p-6">
+      {/* Conteneur du titre et du bouton */}
+      <div className="absolute top-4 w-full px-6 flex justify-between items-center">
+        {/* Titre en haut à gauche */}
+        <h2 className="text-5xl font-bold">Mes Comptes</h2>
+
+        {/* Bouton en haut à droite */}
         <AccountForm formData={formData} setFormData={setFormData} />
       </div>
 
-      <h2 className="text-2xl font-bold mt-6">Mes Comptes</h2>
-
+      {/* Contenu principal */}
       {accounts.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full max-w-4xl mt-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full max-w-4xl mt-20">
           {accounts.map((account) => (
             <div key={account.id} className="bg-white p-4 rounded-lg shadow-md">
               <AccountsUser
@@ -83,7 +86,7 @@ const AccountsList = () => {
           ))}
         </div>
       ) : (
-        <p className="text-gray-500 mt-4">Aucun compte trouvé.</p>
+        <p className="text-gray-500 mt-20">Aucun compte trouvé.</p>
       )}
     </section>
   );
