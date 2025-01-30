@@ -1,16 +1,13 @@
 import React, { useState } from "react";
 import { BsThreeDotsVertical } from "react-icons/bs";
-import { AccountCardProps } from "../type/common.types";
+import { AccountCardProps } from "../../type/common.types";
 import { Link } from "react-router-dom";
-import { constants } from "../utils/constants";
-import { Menu, MenuItem, IconButton, Chip } from "@mui/material";
+import { constants } from "../../utils/constants"; // Corrected path
+import { Menu, MenuItem, IconButton } from "@mui/material";
 
 const AccountCard: React.FC<AccountCardProps> = ({ title, balance, iban, onCloseAccount }) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
-
-  // Simuler un type de compte aléatoire
-  const randomType = Math.random() < 0.5 ? "savings" : "current";
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
@@ -57,7 +54,7 @@ const AccountCard: React.FC<AccountCardProps> = ({ title, balance, iban, onClose
         </Menu>
       </div>
       <div className="mb-4">
-        <span className="text-2xl font-bold text-primary-900">{balance}€</span>
+        <span className="text-2xl font-bold text-primary-900">{parseFloat(balance).toFixed(2)}€</span>
         <p className="text-sm text-neutral-500 mt-1">IBAN: {iban}</p>
       </div>
       <div className="flex gap-4 pt-4 border-t border-neutral-200">

@@ -1,141 +1,206 @@
+// src/pages/TransactionPage.tsx
 import { useEffect, useState } from "react";
-import TransactionItem from "../components/TransactionItem";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Account, Transaction, TransactionStatus } from "../type/common.types";
 import api from "../services/api/axios.config";
 import { endpoints } from "../services/api/endpoints";
+import { toast } from "react-hot-toast";
+import TransactionHeader from "../components/transactions/TransactionHeader";
+import TransactionSearch from "../components/transactions/TransactionSearch";
+import TransactionFilters from "../components/transactions/TransactionFilters";
+import TransactionTabs from "../components/transactions/TransactionTabs";
+import TransactionList from "../components/transactions/TransactionList";
+import LoadingSpinner from "../components/common/LoadingSpinner";
 
 const TransactionPage = () => {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedMonth, setSelectedMonth] = useState('Janvier 2025');
+  // États
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedMonth, setSelectedMonth] = useState("all");
   const [transactions, setTransactions] = useState<Transaction[] | null>(null);
   const [accounts, setAccounts] = useState<Account[] | null>(null);
-  const [selectedAccount, setSelectedAccount] = useState<string>('all');
+  const [selectedAccount, setSelectedAccount] = useState<string>("all");
+  const [activeTab, setActiveTab] = useState<"all" | "income" | "expense">(
+    "all"
+  );
+  const [isLoading, setIsLoading] = useState(true);
 
+  // Hooks
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  // Effets
   useEffect(() => {
-    const fetchTransactions = async () => {
+    const fetchData = async () => {
+      setIsLoading(true);
       try {
-        const request = await api.get(endpoints.transactions.getAll);
-        const { data } = request;
-        setTransactions(data);
+        const params = new URLSearchParams(location.search);
+        const accountIban = params.get("iban");
+        const month = params.get("month") || "all";
+
+        const [transactionsRes, accountsRes] = await Promise.all([
+          api.get(
+            accountIban
+              ? `${endpoints.transactions.getAll}?account=${accountIban}`
+              : endpoints.transactions.getAll
+          ),
+          api.get(endpoints.accounts.getAll),
+        ]);
+
+        setTransactions(transactionsRes.data);
+        setAccounts(accountsRes.data);
+        setSelectedMonth(month);
+        if (accountIban) setSelectedAccount(accountIban);
       } catch (error) {
-        console.error('Error fetching transactions:', error);
+        toast.error("Erreur lors du chargement des données");
+      } finally {
+        setIsLoading(false);
       }
     };
 
-    const fetchAccounts = async () => {
-      try {
-        const request = await api.get(endpoints.accounts.getAll);
-        const { data } = request;
-        setAccounts(data);
-      } catch (error) {
-        console.error('Error fetching accounts:', error);
-      }
+    fetchData();
+  }, [location.search]);
+
+  // Gestionnaires d'événements
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
+  };
+
+  const handleAccountChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const iban = e.target.value;
+    setSelectedAccount(iban);
+    const params = new URLSearchParams(location.search);
+
+    if (iban === "all") {
+      params.delete("iban");
+    } else {
+      params.set("iban", iban);
     }
 
-    fetchTransactions();
-    fetchAccounts();
-  }, []);
+    navigate({ search: params.toString() });
+  };
 
-  if (!transactions) {
-    return <p className="text-center p-8 text-gray-500">Chargement des transactions...</p>;
+  const handleMonthChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const month = e.target.value;
+    setSelectedMonth(month);
+    const params = new URLSearchParams(location.search);
+
+    if (month === "all") {
+      params.delete("month");
+    } else {
+      params.set("month", month);
+    }
+
+    navigate({ search: params.toString() });
+  };
+
+  const handleDownloadStatement = async () => {
+    try {
+      toast.success("Téléchargement du relevé en cours...");
+      // Logique de téléchargement à implémenter
+    } catch (error) {
+      toast.error("Erreur lors du téléchargement du relevé");
+    }
+  };
+
+  // Fonctions utilitaires
+  const getAvailableMonths = () => {
+    if (!transactions) return [];
+
+    const months = transactions.map((transaction) => {
+      const date = new Date(transaction.created_at);
+      return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(
+        2,
+        "0"
+      )}`;
+    });
+
+    return [...new Set(months)].sort().reverse();
+  };
+
+  // Calculs dérivés
+  const totalBalance =
+    selectedAccount === "all"
+      ? accounts
+          ?.reduce((sum, account) => sum + account.balance, 0)
+          .toFixed(2) || "0.00"
+      : accounts
+          ?.find((account) => account.iban === selectedAccount)
+          ?.balance.toFixed(2) || "0.00";
+
+  const pendingAmount =
+    selectedAccount === "all"
+      ? transactions
+          ?.filter((t) => t.status === TransactionStatus.PENDING)
+          .reduce((sum, t) => sum + t.amount, 0)
+          .toFixed(2) || "0.00"
+      : transactions
+          ?.filter(
+            (t) =>
+              t.status === TransactionStatus.PENDING &&
+              (t.account_from_iban === selectedAccount ||
+                t.account_to_iban === selectedAccount)
+          )
+          .reduce((sum, t) => sum + t.amount, 0)
+          .toFixed(2) || "0.00";
+
+  const filteredTransactions =
+    transactions?.filter((transaction) => {
+      const matchesSearch =
+        transaction.transaction_note
+          .toLowerCase()
+          .includes(searchQuery.toLowerCase()) ||
+        transaction.amount.toString().includes(searchQuery);
+
+      const matchesAccount =
+        selectedAccount === "all" ||
+        transaction.account_from_iban === selectedAccount ||
+        transaction.account_to_iban === selectedAccount;
+
+      const transactionDate = new Date(transaction.created_at);
+      const transactionMonth = `${transactionDate.getFullYear()}-${String(
+        transactionDate.getMonth() + 1
+      ).padStart(2, "0")}`;
+      const matchesMonth =
+        selectedMonth === "all" || transactionMonth === selectedMonth;
+
+      const matchesType =
+        activeTab === "all" ||
+        (activeTab === "income" && transaction.amount > 0) ||
+        (activeTab === "expense" && transaction.amount < 0);
+
+      return matchesSearch && matchesAccount && matchesMonth && matchesType;
+    }) || null;
+
+  if (isLoading) {
+    return <LoadingSpinner />;
   }
-
-  if (!accounts) {
-    return <p className="text-center p-8 text-gray-500">Chargement des comptes...</p>;
-  }
-
-  const filteredTransactions = transactions.filter(transaction => {
-    const matchesSearch = transaction.transaction_note.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesAccount = selectedAccount === 'all' || transaction.id === parseInt(selectedAccount, 10);
-    // Add logic to filter by month if needed
-    return matchesSearch && matchesAccount;
-  });
-
-  const pendingAmount = transactions
-    .filter(transaction => transaction.status === TransactionStatus.PENDING)
-    .reduce((total, transaction) => total + transaction.amount, 0);
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-6">
-      {/* En-tête */}
-      <div className="flex justify-between items-center mb-8">
-        <select 
-          value={selectedAccount}
-          onChange={(e) => setSelectedAccount(e.target.value)}
-          className="px-4 py-2 border border-gray-300 rounded-lg bg-white"
-        >
-          <option value="all">Tous mes comptes</option>
-          {accounts.map(account => (
-            <option key={account.id} value={account.id}>{account.name}</option>
-          ))}
-        </select>
+    <div className="max-w-7xl mx-auto px-4 py-6 space-y-6">
+      <TransactionHeader
+        selectedAccount={selectedAccount}
+        accounts={accounts}
+        totalBalance={totalBalance}
+        pendingAmount={pendingAmount}
+        onAccountChange={handleAccountChange}
+        onTransferClick={() => navigate("/transfer")}
+      />
 
-        <div className="text-center">
-          <h1 className="text-3xl font-bold text-gray-900">
-            {accounts.reduce((total, account) => total + account.balance, 0)}€
-          </h1>
-          <p className="text-sm text-gray-500">En attente : {pendingAmount}€</p>
-        </div>
+      <TransactionSearch
+        searchQuery={searchQuery}
+        onSearchChange={handleSearch}
+      />
 
-        <button className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors">
-          Faire un virement
-        </button>
-      </div>
+      <TransactionFilters
+        selectedMonth={selectedMonth}
+        availableMonths={getAvailableMonths()}
+        onMonthChange={handleMonthChange}
+        onDownloadClick={handleDownloadStatement}
+      />
 
-      {/* Barre de recherche */}
-      <div className="mb-6">
-        <input 
-          type="text"
-          placeholder="Rechercher une transaction"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-        />
-      </div>
+      <TransactionTabs activeTab={activeTab} onTabChange={setActiveTab} />
 
-      {/* Filtres */}
-      <div className="flex justify-between items-center mb-6">
-        <select 
-          value={selectedMonth}
-          onChange={(e) => setSelectedMonth(e.target.value)}
-          className="px-4 py-2 border border-gray-300 rounded-lg bg-white"
-        >
-          <option>Janvier 2025</option>
-          {/* Add more months as needed */}
-        </select>
-
-        <button className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 flex items-center gap-2">
-          <span>Télécharger un relevé</span>
-        </button>
-      </div>
-
-      {/* Onglets */}
-      <div className="flex space-x-4 border-b border-gray-200 mb-6">
-        <button className="px-4 py-2 border-b-2 border-indigo-600 text-indigo-600">
-          Transactions
-        </button>
-        <button className="px-4 py-2 text-gray-500 hover:text-gray-700">
-          Recettes
-        </button>
-        <button className="px-4 py-2 text-gray-500 hover:text-gray-700">
-          Dépenses
-        </button>
-      </div>
-
-      {/* Liste des transactions */}
-      <div className="bg-white rounded-lg shadow">
-        <h2 className="p-4 text-lg font-medium border-b border-gray-200">
-          En cours
-        </h2>
-        <div className="divide-y divide-gray-200">
-          {filteredTransactions.map((transaction, index) => (
-            <TransactionItem
-              key={index}
-              {...transaction}
-            />
-          ))}
-        </div>
-      </div>
+      <TransactionList transactions={filteredTransactions} />
     </div>
   );
 };

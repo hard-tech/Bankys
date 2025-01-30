@@ -2,7 +2,19 @@ import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
-import { Button, Typography, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from "@mui/material";
+import { 
+  Button, 
+  Typography, 
+  Dialog, 
+  DialogActions, 
+  DialogContent, 
+  DialogContentText, 
+  DialogTitle,
+  Paper,
+  Avatar,
+  Divider
+} from "@mui/material";
+import { LockOutlined, PersonOutline, EmailOutlined } from '@mui/icons-material';
 import api from "../services/api/axios.config";
 import { endpoints } from "../services/api/endpoints";
 import { authService } from "../services/auth/auth.service";
@@ -11,8 +23,8 @@ import { ChangePasswordCredentials } from "../type/auth.types";
 
 const Profile = () => {
   const { user } = useAuth();
-  const [open, setOpen] = useState(false); // État pour gérer le modal
-  const [formValues, setFormValues] = useState<ChangePasswordCredentials | null>(null); // Stocker les valeurs du formulaire
+  const [open, setOpen] = useState(false);
+  const [formValues, setFormValues] = useState<ChangePasswordCredentials | null>(null);
 
   const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_])[a-zA-Z\d\W_]{8,}$/;
   const validationSchema = Yup.object({
@@ -31,7 +43,7 @@ const Profile = () => {
 
   const handlePasswordChange = () => {
     if (!formValues) return;
-  
+    
     return toast.promise(
       api.post(endpoints.auth.changePassword, {
         current_password: formValues.oldPassword,
@@ -51,68 +63,143 @@ const Profile = () => {
           setOpen(false);
           return errorMessage;
         },
-      },
-      {
-        success: {
-          duration: 3000,
-        },
-        error: {
-          duration: 4000,
-        },
       }
     );
   };
-  
 
   return (
-    <div className="flex w-full items-center justify-center flex-col p-6">
-      <h1 className="text-3xl font-bold mb-4">Mon Profil</h1>
-      <div className="bg-white shadow-md rounded-lg p-6 w-full max-w-md">
-        <Typography variant="h6">Informations Personnelles</Typography>
-        <div className="mt-2 mb-4">
-          <p><strong>Email :</strong> {user?.email}</p>
-          <p><strong>Nom :</strong> {user?.last_name}</p>
-          <p><strong>Prénom :</strong> {user?.first_name}</p>
-        </div>
+    <div className="min-h-screen bg-gradient-to-br py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-3xl mx-auto">
+        <Paper elevation={3} className="rounded-2xl overflow-hidden">
+          {/* Header Section */}
+          <div className="bg-gradient-to-r from-indigo-600 to-blue-600 px-8 py-12 text-white text-center">
+            <Avatar
+              className="mx-auto mb-4 w-24 h-24 border-4 border-white shadow-lg"
+              src={`https://ui-avatars.com/api/?name=${user?.first_name}+${user?.last_name}&background=random`}
+            />
+            <Typography variant="h4" className="font-bold mb-2">
+              {user?.first_name} {user?.last_name}
+            </Typography>
+            <Typography variant="body1" className="opacity-90">
+              {user?.email}
+            </Typography>
+          </div>
 
-        <Formik
-          initialValues={{ oldPassword: "", newPassword: "", confirmPassword: "" }}
-          validationSchema={validationSchema}
-          onSubmit={(values) => {
-            setFormValues(values);
-            setOpen(true); // Afficher le modal
-          }}
-        >
-          <Form className="space-y-4">
-            <Typography variant="h6">Changer le mot de passe</Typography>
-            <div>
-              <Field name="oldPassword" type="password" placeholder="Mot de passe actuel" className="w-full px-3 py-2 border rounded-md" />
-              <ErrorMessage name="oldPassword" component="div" className="text-red-500" />
+          {/* Content Section */}
+          <div className="p-8">
+            <div className="mb-8">
+              <Typography variant="h6" className="text-gray-700 font-semibold mb-4">
+                Informations Personnelles
+              </Typography>
+              <br />
+              <div className="space-y-3">
+                <div className="flex items-center text-gray-600">
+                  <PersonOutline className="mr-2" />
+                  <span className="font-medium">Nom complet:</span>
+                  <span className="ml-2">{user?.first_name} {user?.last_name}</span>
+                </div>
+                <div className="flex items-center text-gray-600">
+                  <EmailOutlined className="mr-2" />
+                  <span className="font-medium">Email:</span>
+                  <span className="ml-2">{user?.email}</span>
+                </div>
+              </div>
             </div>
-            <div>
-              <Field name="newPassword" type="password" placeholder="Nouveau mot de passe" className="w-full px-3 py-2 border rounded-md" />
-              <ErrorMessage name="newPassword" component="div" className="text-red-500" />
+
+            <Divider className="my-6" />
+
+            {/* Password Change Form */}
+            <div className="mt-8">
+              <Typography variant="h6" className="text-gray-700 font-semibold mb-4 space-y-1  flex items-center">
+                <LockOutlined className="mr-2" />
+                Changer le mot de passe
+              </Typography>
+              <br />
+              <Formik
+                initialValues={{ oldPassword: "", newPassword: "", confirmPassword: "" }}
+                validationSchema={validationSchema}
+                onSubmit={(values) => {
+                  setFormValues(values);
+                  setOpen(true);
+                }}
+              >
+                <Form className="space-y-4">
+                  <div className="space-y-4">
+                    <div>
+                      <Field
+                        name="oldPassword"
+                        type="password"
+                        placeholder="Mot de passe actuel"
+                        className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition duration-200"
+                      />
+                      <ErrorMessage name="oldPassword" component="div" className="text-red-500 text-sm mt-1" />
+                    </div>
+                    
+                    <div>
+                      <Field
+                        name="newPassword"
+                        type="password"
+                        placeholder="Nouveau mot de passe"
+                        className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition duration-200"
+                      />
+                      <ErrorMessage name="newPassword" component="div" className="text-red-500 text-sm mt-1" />
+                    </div>
+                    
+                    <div>
+                      <Field
+                        name="confirmPassword"
+                        type="password"
+                        placeholder="Confirmer le nouveau mot de passe"
+                        className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition duration-200"
+                      />
+                      <ErrorMessage name="confirmPassword" component="div" className="text-red-500 text-sm mt-1" />
+                    </div>
+                  </div>
+
+                  <Button
+                    type="submit"
+                    variant="contained"
+                    className="w-full bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 text-white py-3 rounded-lg transition duration-200 transform hover:scale-[1.02]"
+                  >
+                    Mettre à jour le mot de passe
+                  </Button>
+                </Form>
+              </Formik>
             </div>
-            <div>
-              <Field name="confirmPassword" type="password" placeholder="Confirmer le nouveau mot de passe" className="w-full px-3 py-2 border rounded-md" />
-              <ErrorMessage name="confirmPassword" component="div" className="text-red-500" />
-            </div>
-            <Button type="submit" variant="contained" color="primary" className="w-full">
-              Mettre à jour le mot de passe
-            </Button>
-          </Form>
-        </Formik>
+          </div>
+        </Paper>
       </div>
 
-      {/* MODAL DE CONFIRMATION */}
-      <Dialog open={open} onClose={() => setOpen(false)}>
-        <DialogTitle>Confirmer le changement de mot de passe</DialogTitle>
-        <DialogContent>
-          <DialogContentText>Êtes-vous sûr de vouloir modifier votre mot de passe ? Cette action vous déconnectera.</DialogContentText>
+      {/* Confirmation Dialog */}
+      <Dialog
+        open={open}
+        onClose={() => setOpen(false)}
+        PaperProps={{
+          className: "rounded-lg"
+        }}
+      >
+        <DialogTitle className="bg-gradient-to-r from-indigo-600 to-blue-600 text-white">
+          Confirmer le changement de mot de passe
+        </DialogTitle>
+        <DialogContent className="mt-4">
+          <DialogContentText>
+            Êtes-vous sûr de vouloir modifier votre mot de passe ? Cette action vous déconnectera.
+          </DialogContentText>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setOpen(false)} color="secondary">Annuler</Button>
-          <Button onClick={handlePasswordChange} color="primary" variant="contained">Confirmer</Button>
+        <DialogActions className="p-4">
+          <Button 
+            onClick={() => setOpen(false)} 
+            className="text-gray-600 hover:bg-gray-100"
+          >
+            Annuler
+          </Button>
+          <Button
+            onClick={handlePasswordChange}
+            variant="contained"
+            className="bg-gradient-to-r from-indigo-600 to-blue-600"
+          >
+            Confirmer
+          </Button>
         </DialogActions>
       </Dialog>
     </div>

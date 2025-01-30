@@ -1,11 +1,11 @@
 // Account.tsx
 import React, { useEffect, useState } from "react";
-import AccountCard from "../components/AccountCard";
+import AccountCard from "../components/accounts/AccountCard";
 import api from "../services/api/axios.config";
 import { endpoints } from "../services/api/endpoints";
 import toast from "react-hot-toast";
 import { Button } from "@mui/material";
-import AddAccountModal from "../components/AddAccountModal";
+import AddAccountModal from "../components/accounts/AddAccountModal";
 import { Account } from "../type/common.types";
 
 const AccountPage: React.FC = () => {
@@ -69,7 +69,7 @@ const AccountPage: React.FC = () => {
           <div>
             <h1 className="text-3xl font-bold text-primary-900">Mes comptes</h1>
             <p className="text-neutral-600 mt-1">
-              Total des actifs : {accounts.reduce((total, account) => total + account.balance, 0)}€
+              Total des actifs : {accounts.reduce((total, account) => total + account.balance, 0).toFixed(2)}€
             </p>
           </div>
           <Button 
