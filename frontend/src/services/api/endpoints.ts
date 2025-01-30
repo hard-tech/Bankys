@@ -3,6 +3,7 @@ export const endpoints = {
         login: '/auth/login',
         register: '/auth/register',
         me: '/auth/me',
+        changePassword: '/auth/change/password',
     },
     accounts: {
         create: '/account/create',

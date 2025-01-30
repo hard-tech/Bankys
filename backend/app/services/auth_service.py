@@ -254,4 +254,35 @@ class UserService:
                 error_code="GET_USER_ERROR"
             )
 
+    def change_password(self, current_password: str, new_password: str, user_id: int, session: Session):
+        """
+        Change le mot de passe de l'utilisateur connecté.
+        """
+        try:
+            user = self.get_user_from_db(user_id, session)
+
+            # Vérifier que le mot de passe actuel est correct
+            if not verify_password(current_password, user.password):
+                raise CustomHTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Mot de passe actuel incorrect",
+                    error_code="INVALID_CURRENT_PASSWORD"
+                )
+
+            # Hacher le nouveau mot de passe
+            new_hashed_password = get_password_hash(new_password)
+
+            # Mettre à jour le mot de passe de l'utilisateur
+            user.password = new_hashed_password
+            session.commit()
+        except CustomHTTPException as e:
+            raise e
+        except Exception as e:
+            session.rollback()
+            raise CustomHTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Erreur lors de la modification du mot de passe",
+                error_code="CHANGE_PASSWORD_ERROR"
+            )
+
 user_service_instance_auth = UserService()

@@ -2,6 +2,8 @@ import { useAuth } from '../context/AuthContext';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import { Button, Typography } from '@mui/material';
+import api from '../services/api/axios.config';
+import { endpoints } from '../services/api/endpoints';
 
 const Profile = () => {
   const { user } = useAuth();
@@ -23,7 +25,10 @@ const Profile = () => {
 
   const handlePasswordChange = (values: { currentPassword: string; newPassword: string; confirmPassword: string }) => {
     // Logic to handle password change
-    console.log('Password change submitted', values);
+    api.post(endpoints.auth.changePassword, {
+      current_password: values.currentPassword,
+      new_password: values.newPassword 
+    })
   };
   return (
     <div className='flex w-full items-center justify-center flex-col p-6'>
