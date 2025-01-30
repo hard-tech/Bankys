@@ -183,7 +183,6 @@ const TransactionPage = () => {
         totalBalance={totalBalance}
         pendingAmount={pendingAmount}
         onAccountChange={handleAccountChange}
-        onTransferClick={() => navigate("/transfer")}
       />
 
       <TransactionSearch
