@@ -86,7 +86,8 @@ const AccountsList = () => {
                 <p className="text-gray-500 mt-4">Aucun compte trouvé.</p>
             )}
         </section>
-    );    
+    );
+    
 };
 
 export default AccountsList;
