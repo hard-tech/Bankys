@@ -7,15 +7,16 @@ import api from "../services/api/axios.config";
 import { endpoints } from "../services/api/endpoints";
 import { authService } from "../services/auth/auth.service";
 import toast from "react-hot-toast";
+import { ChangePasswordCredentials } from "../type/auth.types";
 
 const Profile = () => {
   const { user } = useAuth();
   const [open, setOpen] = useState(false); // État pour gérer le modal
-  const [formValues, setFormValues] = useState(null); // Stocker les valeurs du formulaire
+  const [formValues, setFormValues] = useState<ChangePasswordCredentials | null>(null); // Stocker les valeurs du formulaire
 
   const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_])[a-zA-Z\d\W_]{8,}$/;
   const validationSchema = Yup.object({
-    currentPassword: Yup.string().required("Mot de passe actuel requis"),
+    oldPassword: Yup.string().required("Mot de passe actuel requis"),
     newPassword: Yup.string()
       .min(8, "Le mot de passe doit contenir au moins 8 caractères")
       .required("Le nouveau mot de passe est requis")
@@ -28,29 +29,40 @@ const Profile = () => {
       .required("Veuillez confirmer votre mot de passe"),
   });
 
-  const handlePasswordChange = async () => {
-    try {
-      if (!formValues) return;
-      
-      await api.post(endpoints.auth.changePassword, {
-        current_password: formValues.currentPassword,
+  const handlePasswordChange = () => {
+    if (!formValues) return;
+  
+    return toast.promise(
+      api.post(endpoints.auth.changePassword, {
+        current_password: formValues.oldPassword,
         new_password: formValues.newPassword,
-      });
-
-      toast.success("Mot de passe changé avec succès. Vous allez être déconnecté.", {
-        duration: 3000,
-      });
-
-      setTimeout(() => {
-        authService.logout();
-      }, 3000);
-    } catch (error) {
-      console.error("Erreur lors du changement de mot de passe :", error);
-      toast.error("Une erreur est survenue lors du changement de mot de passe");
-    } finally {
-      setOpen(false); // Fermer le modal
-    }
+      }),
+      {
+        loading: 'Modification du mot de passe en cours...',
+        success: () => {
+          setTimeout(() => {
+            authService.logout();
+          }, 3000);
+          return 'Mot de passe changé avec succès. Vous allez être déconnecté.';
+        },
+        error: (err) => {
+          const errorMessage = err.response?.data?.detail?.message || 
+                             'Erreur lors de la modification du mot de passe';
+          setOpen(false);
+          return errorMessage;
+        },
+      },
+      {
+        success: {
+          duration: 3000,
+        },
+        error: {
+          duration: 4000,
+        },
+      }
+    );
   };
+  
 
   return (
     <div className="flex w-full items-center justify-center flex-col p-6">
@@ -64,7 +76,7 @@ const Profile = () => {
         </div>
 
         <Formik
-          initialValues={{ currentPassword: "", newPassword: "", confirmPassword: "" }}
+          initialValues={{ oldPassword: "", newPassword: "", confirmPassword: "" }}
           validationSchema={validationSchema}
           onSubmit={(values) => {
             setFormValues(values);
@@ -74,8 +86,8 @@ const Profile = () => {
           <Form className="space-y-4">
             <Typography variant="h6">Changer le mot de passe</Typography>
             <div>
-              <Field name="currentPassword" type="password" placeholder="Mot de passe actuel" className="w-full px-3 py-2 border rounded-md" />
-              <ErrorMessage name="currentPassword" component="div" className="text-red-500" />
+              <Field name="oldPassword" type="password" placeholder="Mot de passe actuel" className="w-full px-3 py-2 border rounded-md" />
+              <ErrorMessage name="oldPassword" component="div" className="text-red-500" />
             </div>
             <div>
               <Field name="newPassword" type="password" placeholder="Nouveau mot de passe" className="w-full px-3 py-2 border rounded-md" />
