@@ -4,6 +4,8 @@ import * as Yup from 'yup';
 import { Button, Typography } from '@mui/material';
 import api from '../services/api/axios.config';
 import { endpoints } from '../services/api/endpoints';
+import { authService } from '../services/auth/auth.service';
+import toast from 'react-hot-toast';
 
 const Profile = () => {
   const { user } = useAuth();
@@ -23,12 +25,30 @@ const Profile = () => {
       .required("Confirm password is required"),
   });
 
-  const handlePasswordChange = (values: { currentPassword: string; newPassword: string; confirmPassword: string }) => {
-    // Logic to handle password change
-    api.post(endpoints.auth.changePassword, {
-      current_password: values.currentPassword,
-      new_password: values.newPassword 
-    })
+  const handlePasswordChange = async (values: { currentPassword: string; newPassword: string; confirmPassword: string }) => {
+    try {
+      await api.post(endpoints.auth.changePassword, {
+        current_password: values.currentPassword,
+        new_password: values.newPassword 
+      });
+  
+      // Afficher un message de succès avec toast
+      toast.success("Mot de passe changé avec succès. Vous allez être déconnecté.", {
+        duration: 3000, // Toast visible pendant 3 secondes
+      });
+  
+      // Ajouter un délai avant la déconnexion
+      setTimeout(() => {
+        authService.logout();
+      }, 3000); // Déconnexion après 3
+  
+    } catch (error) {
+      console.error("Erreur lors du changement de mot de passe :", error);
+  
+      // Afficher un message d'erreur avec toast
+      toast.error("Une erreur est survenue lors du changement de mot de passe");
+
+    }
   };
   return (
     <div className='flex w-full items-center justify-center flex-col p-6'>
