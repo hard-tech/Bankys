@@ -1,16 +1,25 @@
 // hooks/useAuth.ts
 import { useState, useEffect } from 'react';
+import { authService } from '../services/auth/auth.service';
 
 export const useAuth = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [user, setUser] = useState(null);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // TODO: Code à supprimer
-    setIsAuthenticated(false);
-    setUser(null);
+    const checkAuth = async () => {
+      try {
+        const user = await authService.getCurrentUser();
+        setIsAuthenticated(!!user);
+      } catch (error) {
+        setIsAuthenticated(false);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    checkAuth();
   }, []);
 
-  // Logique d'authentification
-  return { isAuthenticated, user };
+  return { isAuthenticated, loading };
 };
