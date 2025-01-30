@@ -1,3 +1,4 @@
+from app.models.transaction import TransactionType
 from pydantic import BaseModel
 from datetime import datetime as dateTime
 from app.schemas.account import Account_Info
@@ -34,6 +35,6 @@ class Transaction(BaseModel):
     transaction_id: int
     account_from: Account_Info
     account_to: Account_Info
-    type: str
+    type: TransactionType
     amount: float
     created_at: dateTime
