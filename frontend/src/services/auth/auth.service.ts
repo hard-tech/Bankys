@@ -28,6 +28,7 @@ export const authService = {
   async logout() {
     try {
       localStorage.removeItem(constants.STORAGE_KEYS.TOKEN);
+      window.location.reload();
       return true;
     } catch (error) {
       throw error;
