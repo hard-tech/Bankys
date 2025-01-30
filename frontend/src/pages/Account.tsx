@@ -27,7 +27,7 @@ const AccountsList = () => {
     };
 
     fetchAccounts();
-  }, []);
+  }, [accounts]);
 
   useEffect(() => {
     const addAccount = async () => {
