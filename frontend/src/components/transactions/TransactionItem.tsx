@@ -21,8 +21,8 @@ const TransactionItem: React.FC<TransactionItemProps> = ({ id, amount, transacti
         <p className="font-medium">{transaction_note}</p>
         <p className="text-sm text-gray-500">ID: {id}</p>
       </div>
-      <div className="font-bold">
-        {amount.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}
+      <div className={"font-bold " + (amount < 0 ? "text-red-500" : "text-green-500")}>
+        {(amount < 0 ? "-" : "+")}{Math.abs(amount).toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}
       </div>
     </div>
   );
