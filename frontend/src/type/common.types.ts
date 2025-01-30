@@ -45,14 +45,14 @@ export interface Transaction {
   transaction_note: string;
 }
 
-enum TransactionType {
+export enum TransactionType {
   DEPOSIT = "DEPOSIT",
   WITHDRAWAL = "WITHDRAWAL",
   TRANSFER = "TRANSFER",
   CLOSING = "CLOSING"
 }
 
-enum TransactionStatus {
+export enum TransactionStatus {
   PENDING = "PENDING",
   COMPLETED = "COMPLETED",
   REJECTED = "REJECTED"
