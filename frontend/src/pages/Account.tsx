@@ -5,7 +5,7 @@ import AccountsUser from "../components/AccountsUser";
 import AccountForm from "../components/AccountCreate";
 import { toast } from "react-hot-toast";
 
-const AccountsList = () => {
+const Account = () => {
   const [formData, setFormData] = useState<AccountFormValues>({
     name: "",
     type: "",
@@ -92,4 +92,4 @@ const AccountsList = () => {
   );
 };
 
-export default AccountsList;
+export default Account;

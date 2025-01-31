@@ -34,6 +34,7 @@ class Get_Accounts(BaseModel):
     sold: float
     iban: str
     name: str
+    main: bool
    
 class AccountIdRequest(BaseModel):
     account_id: int

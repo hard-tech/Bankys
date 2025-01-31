@@ -143,7 +143,8 @@ class AccountService:
                         id=account.id,
                         sold=account.sold,
                         iban=account.iban,
-                        name=account.name
+                        name=account.name,
+                        main=account.main
                     )
                     for account in accounts
                 ]
