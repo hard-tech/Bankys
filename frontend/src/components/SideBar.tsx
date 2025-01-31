@@ -5,35 +5,46 @@ import {
   AiOutlineSetting,
   AiOutlineMessage,
   AiOutlineLogout,
-  AiOutlineMenu
+  AiOutlineMenu,
+  AiFillDollarCircle,
+  AiOutlineBank,
+  AiTwotoneBank
 } from 'react-icons/ai';
+import { IoStatsChart } from "react-icons/io5";
+import { MenuItem } from '../type/common.types';
+import { authService } from '../services/auth/auth.service';
+import { Link, useNavigate } from 'react-router-dom';
+import { constants } from '../utils/constants';
+import Logo from '../assets/Bankys-Logo-removebg-preview.png';
 
-interface MenuItem {
-  title: string;
-  icon: JSX.Element;
-  path: string;
-}
 
-const SideBar = () => {
+type SideBarProps = {
+  setIsSidebarOpen: (isOpen: boolean) => void;
+};
+
+const SideBar = ({ setIsSidebarOpen }: SideBarProps) => {
   const [isOpen, setIsOpen] = useState(true);
   const [activeItem, setActiveItem] = useState('Home');
-
-  const menuItems: MenuItem[] = [ // TODO: mettre les items dans le fichier constants.ts
-    { title: 'Home', icon: <AiOutlineHome size={24} />, path: '/' },
-    { title: 'Profile', icon: <AiOutlineUser size={24} />, path: '/profile' },
-    { title: 'Messages', icon: <AiOutlineMessage size={24} />, path: '/messages' },
-    { title: 'Settings', icon: <AiOutlineSetting size={24} />, path: '/settings' },
+  const navigate = useNavigate();
+  const menuItems: MenuItem[] = [
+    { title: "Page d'acceuil", icon: <AiOutlineHome size={24} />, path: constants.ROUTES.HOME },
+    { title: 'Dashboard', icon: <IoStatsChart size={24} />, path: constants.ROUTES.DASHBOARD },
+    { title: 'Transactions', icon: <AiFillDollarCircle size={24} />, path: constants.ROUTES.TRANSACTIONS },
+    { title: 'Mes comptes', icon: <AiTwotoneBank size={24} />, path: constants.ROUTES.ACCOUNTS },
+    { title: 'Profile', icon: <AiOutlineUser size={24} />, path: constants.ROUTES.PROFILE },
+    { title: 'Beneficiaire', icon: <AiOutlineUser size={24} />, path: constants.ROUTES.BENEFICIAIRES },
   ];
 
   const toggleSidebar = () => {
     setIsOpen(!isOpen);
+    setIsSidebarOpen(!isOpen);
   };
 
   return (
-    <div className="relative">
+    <div className="flex">
       {/* Toggle Button */}
       <button
-        className="fixed top-4 left-4 z-50 lg:hidden p-2 rounded-md bg-gray-800 text-white"
+        className="fixed top-4 left-4 z-50  p-2 rounded-md bg-gray-800 text-white"
         onClick={toggleSidebar}
       >
         <AiOutlineMenu size={24} />
@@ -41,21 +52,22 @@ const SideBar = () => {
 
       {/* Sidebar */}
       <div
-        className={`fixed block top-0 left-0 h-screen 
+        className={`flex flex-col flex-shrink-0 h-screen 
         ${isOpen ? 'w-64' : 'w-20'} 
-        bg-gray-900 text-white transition-all duration-300 
-        ${!isOpen && 'items-center'} z-40`}
+        bg-gray-900 text-white transition-all duration-300`}
       >
         {/* Logo Section */}
         <div className="flex items-center justify-center h-20 border-b border-gray-800">
-          <h1 className={`text-white font-bold ${!isOpen && 'hidden'}`}>
-            LOGO
-          </h1>
+          <span className={`text-white font-bold ${!isOpen && 'hidden'} flex items-center space-x-4 text-2xl font-bold ms-12 mb-2`}>
+            <span>BANKYS</span>
+            <img src={Logo} alt="Logo" className="h-12" />
+          </span>
         </div>
 
         {/* Menu Items */}
-        <div className="px-4 py-6">
+        <div className="flex-grow px-4 py-6">
           {menuItems.map((item, index) => (
+            <Link to={item.path} className="ml-3 text-gray-300 ">
             <div
               key={index}
               className={`flex items-center cursor-pointer
@@ -69,16 +81,15 @@ const SideBar = () => {
                 {item.icon}
               </div>
               {isOpen && (
-                <span className="ml-3 text-gray-300">
-                  {item.title}
-                </span>
-              )}
+                  <span className="ml-3">{item.title}</span>
+                )}
             </div>
+                </Link>
           ))}
         </div>
 
         {/* Logout Section */}
-        <div className="absolute bottom-0 w-full px-4 pb-6">
+        <div className="px-4 pb-6" onClick={() => {authService.logout(); navigate(constants.ROUTES.LOGIN)}}>
           <div
             className={`flex items-center cursor-pointer
               ${!isOpen ? 'justify-center' : 'justify-start'}
@@ -95,6 +106,11 @@ const SideBar = () => {
             )}
           </div>
         </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="flex-grow">
+        {/* Votre contenu principal ici */}
       </div>
     </div>
   );

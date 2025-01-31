@@ -20,13 +20,18 @@ export const constants = {
     LOGIN: "/login",
     REGISTER: "/register",
     PROFILE: "/profile",
+    DASHBOARD: "/dashboard",
+    TRANSACTIONS: "/transactions",
+    ACCOUNTS: "/accounts",
+    BENEFICIAIRES:"/beneficiaires",
+    VIREMENTS: "/virement",
   },
 
   MENU_ITEMS: [
-    { title: "Home", path: "/" },
-    { title: "Login", path: "/login" },
-    { title: "Register", path: "/register" },
-    { title: "Profile", path: "/profile" },
+    { title: "Home", path: "/", needAuth: false },
+    { title: "Login", path: "/login", needAuth: false },
+    { title: "Register", path: "/register", needAuth: false },
+    { title: "Tableau de board", path: "/dashboard", needAuth: true },
   ],
 
   BREAKPOINTS: {
