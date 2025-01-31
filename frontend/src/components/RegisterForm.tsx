@@ -21,6 +21,8 @@ import {
 import * as Yup from "yup";
 import { Formik, Form } from "formik";
 import { RegisterCredentials } from "../type/auth.types";
+import { Link } from "react-router-dom";
+import { constants } from "../utils/constants";
 
 const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_])[a-zA-Z\d\W_]{8,}$/;
 const validationSchema = Yup.object().shape({
@@ -213,9 +215,9 @@ const RegisterForm = ({ formData, setFormData }: RegisterFormProps) => {
             <div className="text-center mt-4">
               <Typography variant="body2" className="text-gray-600">
                 Vous avez déjà un compte ?{' '}
-                <a href="#" className="text-indigo-600 hover:text-indigo-500 font-medium">
+                <Link to={constants.ROUTES.LOGIN} className="text-indigo-600 hover:text-indigo-500 font-medium">
                   Se connecter
-                </a>
+                </Link>
               </Typography>
             </div>
           </Form>

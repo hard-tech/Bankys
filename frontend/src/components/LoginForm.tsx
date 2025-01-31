@@ -18,6 +18,8 @@ import {
 import * as Yup from "yup";
 import { Formik, Form } from "formik";
 import { LoginCredentials } from "../type/auth.types";
+import { Link } from "react-router-dom";
+import { constants } from "../utils/constants";
 
 const validationSchema = Yup.object().shape({
   email: Yup.string()
@@ -135,9 +137,9 @@ const LoginForm = ({ handelSubmit }: LoginFormProps) => {
             <div className="text-center mt-4">
               <Typography variant="body2" className="text-gray-600">
                 Vous n'avez pas de compte ?{' '}
-                <a href="#" className="text-indigo-600 hover:text-indigo-500 font-medium">
+                <Link to={constants.ROUTES.REGISTER} className="text-indigo-600 hover:text-indigo-500 font-medium">
                   Créer un compte
-                </a>
+                </Link>
               </Typography>
             </div>
           </Form>
