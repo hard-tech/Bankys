@@ -180,8 +180,9 @@ class AccountService:
                     Get_Accounts(
                         id=account.id,
                         balance=account.balance,
-                        name=account.name,
                         iban=account.iban,
+                        name=account.name,
+                        main=account.main
                     )
                     for account in accounts
                 ]

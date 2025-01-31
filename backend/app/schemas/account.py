@@ -35,6 +35,7 @@ class Get_Accounts(BaseModel):
     id: int | None
     balance: float
     iban: str
+    main: bool
     name: str
    
 class AccountIdRequest(BaseModel):
