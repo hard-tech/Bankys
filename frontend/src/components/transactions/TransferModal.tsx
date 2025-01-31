@@ -1,7 +1,7 @@
 // src/components/modals/TransferModal.tsx
 import { Dialog, Transition } from '@headlessui/react';
 import { Fragment, useState } from 'react';
-import { Account, TransactionType } from '../../type/common.types';
+import { Account } from '../../type/common.types';
 import { toast } from 'react-hot-toast';
 import api from '../../services/api/axios.config';
 import { endpoints } from '../../services/api/endpoints';
@@ -29,17 +29,22 @@ const TransferModal = ({ isOpen, onClose, accounts, selectedAccount }: TransferM
     e.preventDefault();
     
     try {
+      // Déterminer le bon IBAN destinataire selon le type de transfert
+      const toAccount = transferType === 'internal' ? 
+        formData.toAccount : 
+        formData.beneficiaryIban;
+  
       const response = await api.post(endpoints.transactions.transfer, {
         account_iban_from: formData.fromAccount,
-        account_iban_to: formData.toAccount, // TODO : cette valeur es vide la corriger !!!!!!
+        account_iban_to: toAccount,
         amount: Number(formData.amount),
         transaction_note: formData.description,
       });
-
-      const transactionId = response.data.id;
-      toast.success('Virement effectué avec succès');
-      onClose();
   
+      const transactionId = response.data.id;
+      onClose(); // Fermer la modal d'abord
+  
+      // Afficher le toast avec option d'annulation
       toast.custom(
         (t) => (
           <div className={`${
@@ -47,11 +52,14 @@ const TransferModal = ({ isOpen, onClose, accounts, selectedAccount }: TransferM
           } max-w-md w-full bg-white shadow-lg rounded-lg pointer-events-auto flex ring-1 ring-black ring-opacity-5`}>
             <div className="flex-1 w-0 p-4">
               <div className="flex items-center">
-                <div className="ml-3 flex-1">
+                <div className="flex-1">
                   <p className="text-sm font-medium text-gray-900">
                     Transaction en cours
                   </p>
                   <p className="mt-1 text-sm text-gray-500">
+                    {transferType === 'internal' ? 'Virement interne' : 'Virement externe'}
+                  </p>
+                  <p className="text-sm text-gray-600">
                     Montant: {Number(formData.amount).toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}
                   </p>
                 </div>
@@ -60,12 +68,14 @@ const TransferModal = ({ isOpen, onClose, accounts, selectedAccount }: TransferM
             <div className="flex border-l border-gray-200">
               <button
                 onClick={async () => {
-                    await api.delete(endpoints.transactions.cancel(transactionId)).then(() => {
-                      toast.success('Transaction annulée');
-                    }).catch(() => {
-                      toast.error('Impossible d\'annuler la transaction');
-                    });
-                  toast.dismiss(t.id);
+                  try {
+                    await api.delete(endpoints.transactions.cancel(transactionId));
+                    toast.success('Transaction annulée avec succès');
+                  } catch (error) {
+                    toast.error('Impossible d\'annuler la transaction');
+                  } finally {
+                    toast.dismiss(t.id);
+                  }
                 }}
                 className="w-full border border-transparent rounded-none rounded-r-lg p-4 flex items-center justify-center text-sm font-medium text-indigo-600 hover:text-indigo-500 focus:outline-none"
               >
@@ -79,8 +89,6 @@ const TransferModal = ({ isOpen, onClose, accounts, selectedAccount }: TransferM
           position: 'top-center',
         }
       );
-  
-      onClose();
     } catch (error: any) {
       const errorMessage = error.response?.data?.message || 
                           error.response?.data?.error || 
@@ -93,6 +101,7 @@ const TransferModal = ({ isOpen, onClose, accounts, selectedAccount }: TransferM
       });
     }
   };
+  
   
 
   return (
@@ -193,7 +202,7 @@ const TransferModal = ({ isOpen, onClose, accounts, selectedAccount }: TransferM
                       </div>
                     ) : (
                       <>
-                        <div>
+                        {/* <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">
                             Nom du bénéficiaire
                           </label>
@@ -204,14 +213,14 @@ const TransferModal = ({ isOpen, onClose, accounts, selectedAccount }: TransferM
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500"
                             required
                           />
-                        </div>
+                        </div> */}
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">
                             IBAN du bénéficiaire
                           </label>
                           <input
                             type="text"
-                            value={formData.beneficiaryName}
+                            value={formData.beneficiaryIban}
                             onChange={(e) => setFormData({...formData, beneficiaryIban: e.target.value})}
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500"
                             required

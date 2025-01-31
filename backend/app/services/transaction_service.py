@@ -195,8 +195,7 @@ class TransactionService:
             # Récupérer uniquement les transactions de type TRANSFER associées aux comptes de l'utilisateur
             transactions = session.query(Transaction).filter(
                 ((Transaction.account_from_iban.in_(user_accounts)) |
-                 (Transaction.account_to_iban.in_(user_accounts))) 
-                #  & (Transaction.type == TransactionType.TRANSFER) # TODO: À supprimer si vous souhaitez récupérer toutes les transactions (les transactions de dépôt, et de retrait) car ont ne savait pas le besoin exacte
+                 (Transaction.account_to_iban.in_(user_accounts)))
             ).order_by(Transaction.created_at.desc()).all()
 
             return transactions

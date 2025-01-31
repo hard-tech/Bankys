@@ -14,7 +14,6 @@ import CrmLayout from "./layouts/CrmLayout.tsx";
 import { constants } from "./utils/constants";
 import Dashboard from "./pages/Dashboard";
 import TransactionPage from "./pages/Transaction";
-import TransactionDetail from "./pages/TransactionDetail";
 import Account from "./pages/Account";
 
 function App() {
@@ -71,14 +70,6 @@ function App() {
               element={
                 <CrmLayout>
                   <TransactionPage />
-                </CrmLayout>
-              }
-            />
-                        <Route
-              path={`${constants.ROUTES.TRANSACTIONS}/:iban`}
-              element={
-                <CrmLayout>
-                  <TransactionDetail />
                 </CrmLayout>
               }
             />
