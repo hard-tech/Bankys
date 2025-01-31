@@ -25,13 +25,6 @@ export const constants = {
     ACCOUNTS: "/accounts",
   },
 
-  MENU_ITEMS: [
-    { title: "Home", path: "/", needAuth: false },
-    { title: "Login", path: "/login", needAuth: false },
-    { title: "Register", path: "/register", needAuth: false },
-    { title: "Tableau de board", path: "/dashboard", needAuth: true },
-  ],
-
   BREAKPOINTS: {
     sm: 640,
     md: 768,

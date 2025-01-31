@@ -1,22 +1,18 @@
 import { useState } from 'react';
-import { 
-  AiOutlineHome,
-  AiOutlineUser,
-  AiOutlineSetting,
-  AiOutlineMessage,
-  AiOutlineLogout,
-  AiOutlineMenu,
-  AiFillDollarCircle,
-  AiOutlineBank,
-  AiTwotoneBank
-} from 'react-icons/ai';
-import { IoStatsChart } from "react-icons/io5";
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { MenuItem } from '../type/common.types';
 import { authService } from '../services/auth/auth.service';
-import { Link, useNavigate } from 'react-router-dom';
 import { constants } from '../utils/constants';
 import Logo from '../assets/Bankys-Logo-removebg-preview.png';
-
+import {
+  Home,
+  Dashboard,
+  AccountBalance,
+  Person,
+  Menu,
+  Logout,
+  Payment
+} from '@mui/icons-material';
 
 type SideBarProps = {
   setIsSidebarOpen: (isOpen: boolean) => void;
@@ -24,14 +20,35 @@ type SideBarProps = {
 
 const SideBar = ({ setIsSidebarOpen }: SideBarProps) => {
   const [isOpen, setIsOpen] = useState(true);
-  const [activeItem, setActiveItem] = useState('Home');
+  const location = useLocation();
   const navigate = useNavigate();
+
   const menuItems: MenuItem[] = [
-    { title: "Page d'acceuil", icon: <AiOutlineHome size={24} />, path: constants.ROUTES.HOME },
-    { title: 'Dashboard', icon: <IoStatsChart size={24} />, path: constants.ROUTES.DASHBOARD },
-    { title: 'Transactions', icon: <AiFillDollarCircle size={24} />, path: constants.ROUTES.TRANSACTIONS },
-    { title: 'Mes comptes', icon: <AiTwotoneBank size={24} />, path: constants.ROUTES.ACCOUNTS },
-    { title: 'Profile', icon: <AiOutlineUser size={24} />, path: constants.ROUTES.PROFILE },
+    { 
+      title: "Page d'accueil", 
+      icon: <Home />, 
+      path: constants.ROUTES.HOME 
+    },
+    { 
+      title: 'Dashboard', 
+      icon: <Dashboard />, 
+      path: constants.ROUTES.DASHBOARD 
+    },
+    { 
+      title: 'Transactions', 
+      icon: <Payment />, 
+      path: constants.ROUTES.TRANSACTIONS 
+    },
+    { 
+      title: 'Mes comptes', 
+      icon: <AccountBalance />, 
+      path: constants.ROUTES.ACCOUNTS 
+    },
+    { 
+      title: 'Profile', 
+      icon: <Person />, 
+      path: constants.ROUTES.PROFILE 
+    },
   ];
 
   const toggleSidebar = () => {
@@ -39,77 +56,78 @@ const SideBar = ({ setIsSidebarOpen }: SideBarProps) => {
     setIsSidebarOpen(!isOpen);
   };
 
+  const isActiveRoute = (path: string) => location.pathname === path;
+
   return (
-    <div className="flex">
-      {/* Toggle Button */}
-      <button
-        className="fixed top-4 left-4 z-50  p-2 rounded-md bg-gray-800 text-white"
-        onClick={toggleSidebar}
-      >
-        <AiOutlineMenu size={24} />
-      </button>
-
-      {/* Sidebar */}
+    <div className="flex h-screen">
       <div
-        className={`flex flex-col flex-shrink-0 h-screen 
-        ${isOpen ? 'w-64' : 'w-20'} 
-        bg-gray-900 text-white transition-all duration-300`}
+        className={`
+          fixed inset-y-0 left-0
+          flex flex-col
+          ${isOpen ? 'w-64' : 'w-20'}
+          bg-[#1a1f2e]
+          transition-all duration-300
+          z-50
+        `}
       >
-        {/* Logo Section */}
-        <div className="flex items-center justify-center h-20 border-b border-gray-800">
-          <span className={`text-white font-bold ${!isOpen && 'hidden'} flex items-center space-x-4 text-2xl font-bold ms-12 mb-2`}>
-            <span>BANKYS</span>
-            <img src={Logo} alt="Logo" className="h-12" />
-          </span>
-        </div>
-
-        {/* Menu Items */}
-        <div className="flex-grow px-4 py-6">
-          {menuItems.map((item, index) => (
-            <Link to={item.path} className="ml-3 text-gray-300 ">
-            <div
-              key={index}
-              className={`flex items-center cursor-pointer
-                ${!isOpen ? 'justify-center' : 'justify-start'}
-                p-3 mb-4 rounded-lg hover:bg-gray-800
-                ${activeItem === item.title ? 'bg-gray-800' : ''}
-                transition-all duration-200`}
-              onClick={() => setActiveItem(item.title)}
-            >
-              <div className="text-gray-300">
-                {item.icon}
-              </div>
-              {isOpen && (
-                  <span className="ml-3">{item.title}</span>
-                )}
-            </div>
-                </Link>
-          ))}
-        </div>
-
-        {/* Logout Section */}
-        <div className="px-4 pb-6" onClick={() => {authService.logout(); navigate(constants.ROUTES.LOGIN)}}>
-          <div
-            className={`flex items-center cursor-pointer
-              ${!isOpen ? 'justify-center' : 'justify-start'}
-              p-3 rounded-lg hover:bg-gray-800
-              transition-all duration-200`}
+        {/* Header */}
+        <div className="flex items-center h-16 px-4">
+          <button
+            onClick={toggleSidebar}
+            className="p-2 rounded-lg text-gray-400 hover:bg-gray-800"
           >
-            <div className="text-gray-300">
-              <AiOutlineLogout size={24} />
+            <img src={Logo} alt="Bankys" className="h-8 w-8" />
+          </button>
+          {isOpen && (
+            <div className="flex items-center ml-4 space-x-3">
+              {/* <img src={Logo} alt="Bankys" className="h-8 w-8" /> */}
+              <span className="text-white text-2xl font-bold">BANKYS</span>
             </div>
-            {isOpen && (
-              <span className="ml-3 text-gray-300">
-                Logout
-              </span>
-            )}
-          </div>
+          )}
+        </div>
+
+        {/* Navigation */}
+        <nav className="flex-1 px-2 py-4 space-y-1">
+          {menuItems.map((item) => (
+            <Link
+              key={item.path}
+              to={item.path}
+              className={`
+                flex items-center px-3 py-2 rounded-lg
+                transition-colors duration-200
+                ${isActiveRoute(item.path)
+                  ? 'bg-indigo-600 text-white'
+                  : 'text-gray-400 hover:bg-gray-800 hover:text-white'}
+              `}
+            >
+              <span className="text-xl">{item.icon}</span>
+              {isOpen && <span className="ml-4">{item.title}</span>}
+            </Link>
+          ))}
+        </nav>
+
+        {/* Logout */}
+        <div className="p-2">
+          <button
+            onClick={() => {
+              authService.logout();
+              navigate(constants.ROUTES.LOGIN);
+            }}
+            className="
+              flex items-center w-full px-3 py-2 rounded-lg
+              text-gray-400 hover:bg-gray-800 hover:text-white
+              transition-colors duration-200
+            "
+          >
+            <Logout />
+            {isOpen && <span className="ml-4">Logout</span>}
+          </button>
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="flex-grow">
-        {/* Votre contenu principal ici */}
+      {/* Main Content Spacer */}
+      <div className={`flex-1 ${isOpen ? 'ml-64' : 'ml-20'} transition-all duration-300`}>
+        {/* Content goes here */}
       </div>
     </div>
   );

@@ -11,13 +11,6 @@ export interface User {
     password: string;
   }
   
-  export interface RegisterCredentials {
-    email: string;
-    password: string;
-    first_name: string;
-    last_name: string;
-  }
-  
   export interface AuthResponse {
     user: User;
     token: string;
@@ -26,4 +19,12 @@ export interface User {
   export interface ChangePasswordCredentials {
     oldPassword: string;
     newPassword: string;
+  }
+
+  export interface RegisterCredentials {
+    email: string;
+    password: string;
+    confirm_password: string;
+    first_name: string;
+    last_name: string;
   }
