@@ -24,6 +24,7 @@ const Login = () => {
           error: "Une erreur est survenue lors de la connexion.",
         });
         navigate("/");
+        window.location.reload();
       } catch (error) {
         console.error("Erreur de connexion :", error);
       } finally {
@@ -41,7 +42,7 @@ const Login = () => {
 
         {/* Formulaire avec espacement entre chaque champ */}
         <div className="space-y-4">
-          <LoginForm formData={formData} setFormData={setFormData} />
+        <LoginForm formData={formData} setFormData={setFormData} onSubmit={handleLogin} />
         </div>
 
         {loading && (

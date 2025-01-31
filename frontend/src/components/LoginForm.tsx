@@ -12,16 +12,17 @@ const validationSchema = Yup.object().shape({
 interface LoginFormProps {
   formData: LoginCredentials;
   setFormData: React.Dispatch<React.SetStateAction<LoginCredentials>>;
+  onSubmit: () => void; // Ajout de cette prop
 }
 
-const LoginForm = ({ formData, setFormData }: LoginFormProps) => {
+const LoginForm = ({ formData, setFormData, onSubmit }: LoginFormProps) => {
   return (
     <Formik
       initialValues={formData}
       validationSchema={validationSchema}
       onSubmit={(values) => {
         setFormData(values);
-        // Ajoutez ici la logique supplémentaire, comme l'envoi des données à un serveur
+        onSubmit();
         console.log("Form submitted", values);
       }}
     >

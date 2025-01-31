@@ -1,5 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { constants } from "../utils/constants";
 
 const Home: React.FC = () => {
   return (
@@ -27,7 +28,7 @@ const Home: React.FC = () => {
 
         {/* Bouton Explore */}
         <Link
-          to="/account"
+          to={constants.ROUTES.ACCOUNTS}
           className="mt-6 inline-block px-6 py-3 bg-indigo-600 text-white text-lg font-semibold rounded-lg hover:bg-indigo-700 transition-transform transform hover:scale-105 shadow-md"
         >
           Explorer mes comptes
