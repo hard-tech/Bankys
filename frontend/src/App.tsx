@@ -17,14 +17,14 @@ function App() {
       <Toaster />
       <Layout>
         <Routes>
-          <Route index element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/account" element={<Account />} />
-          <Route path="/transaction" element={<Transaction />} />
-          <Route path="/beneficiaire" element={<Beneficiaire />} />
-          <Route path="/virement" element={<Virement />} />
           <Route path="/" element={<PrivateRoute />}>
+            <Route index element={<Home />} />
+            <Route path="/account" element={<Account />} />
+            <Route path="/transaction" element={<Transaction />} />
+            <Route path="/beneficiaire" element={<Beneficiaire />} />
+            <Route path="/virement" element={<Virement />} />
             {
 
         }
