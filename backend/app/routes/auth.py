@@ -1,8 +1,9 @@
 from fastapi import APIRouter, Depends, status
 from app.services.auth_service import user_service_instance_auth
 from app.database.session import get_session
-from app.schemas.user import User_Register, User_Without_Password, User_login
+from app.schemas.user import User_Register, User_Without_Password, User_login, ChangePassword
 from app.utils.exceptions import CustomHTTPException
+
 
 router = APIRouter()
 
@@ -53,3 +54,27 @@ def me(user=Depends(user_service_instance_auth.get_current_user)):
             error_code="USER_NOT_AUTHENTICATED"
         )
     return user
+
+@router.post("/change/password")
+def change_password(request: ChangePassword, user_id=Depends(user_service_instance_auth.get_current_user_id), session=Depends(get_session)):
+    """
+    Change le mot de passe de l'utilisateur actuel.
+    """
+    try:
+        if not user_id:
+            raise CustomHTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Utilisateur non authentifié",
+                error_code="USER_NOT_AUTHENTICATED"
+            )
+
+        user_service_instance_auth.change_password(request.current_password ,request.new_password, user_id, session)
+        return {"message": "Mot de passe modifié avec succès."}
+    except CustomHTTPException as e:
+        raise e
+    except Exception as e:
+        raise CustomHTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Erreur lors de la modification du mot de passe." + str(e),
+            error_code="CHANGE_PASSWORD_ERROR"
+        )

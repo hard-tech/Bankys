@@ -24,6 +24,7 @@ const Login = () => {
           error: "Une erreur est survenue lors de la connexion.",
         });
         navigate("/");
+        window.location.reload();
       } catch (error) {
         console.error("Erreur de connexion :", error);
       } finally {
