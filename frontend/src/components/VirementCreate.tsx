@@ -118,10 +118,11 @@ const VirementForm = () => {
                 }}
             >
                 {({ isSubmitting }) => (
-                    <Form className="space-y-6 w-full max-w-md bg-white p-6 rounded-lg shadow-md">
+                    <Form className="mt-20 space-y-6 w-full max-w-md bg-white p-6 rounded-lg shadow-md">
                         <Typography variant="h5" className="font-bold text-center text-gray-800">
-                            Effectuer un Virement
+                        💸 Effectuer un Virement 💸
                         </Typography>
+                        <br></br><br></br>
 
                         {/* Compte Source (Lecture seule) */}
                         <div>
