@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
-import { AiOutlineMenu, AiOutlineClose } from 'react-icons/ai';
-import { constants } from '../utils/constants';
-import Logo from '../assets/Bankys-Logo-removebg-preview.png';
+import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import { AiOutlineMenu, AiOutlineClose } from "react-icons/ai";
+import { constants } from "../utils/constants";
+import Logo from "../assets/Bankys-Logo-removebg-preview.png";
 
 const NavBar = () => {
   const [nav, setNav] = useState(false);
@@ -13,35 +14,41 @@ const NavBar = () => {
 
   useEffect(() => {
     const handleShadow = () => {
-      if (window.scrollY >= 90) {
-        setShadow(true);
-      } else {
-        setShadow(false);
-      }
+      setShadow(window.scrollY >= 90);
     };
-    window.addEventListener('scroll', handleShadow);
-    return () => window.removeEventListener('scroll', handleShadow);
+    window.addEventListener("scroll", handleShadow);
+    return () => window.removeEventListener("scroll", handleShadow);
   }, []);
 
   const menuItems = constants.MENU_ITEMS;
 
   return (
-    <div className={`w-full h-20 z-[100] ${
-      shadow ? 'shadow-xl' : ''
-    } bg-white`}>
+    <nav
+      className={`w-full h-20 z-50 fixed bg-white ${shadow ? "shadow-xl" : ""}`}
+    >
       <div className="flex justify-between items-center w-full h-full px-6 2xl:px-16">
-        <img src={Logo} alt="Logo" className="h-12 w-12" />
-        
+        {/* Logo cliquable vers l'accueil */}
+        <Link to="/">
+          <img
+            src={Logo}
+            alt="Bankys Logo"
+            className="h-12 w-12 cursor-pointer"
+          />
+        </Link>
+
         {/* Desktop Menu */}
-        <div className="hidden md:flex">
-          <ul className="hidden md:flex">
-            {menuItems.map((item, index) => (
-              <li key={index} className="ml-10 text-sm uppercase hover:text-gray-600">
+        <ul className="hidden md:flex space-x-10">
+          {menuItems.map((item, index) => (
+            <li key={index}>
+              <Link
+                to={item.path}
+                className="text-sm uppercase font-medium text-gray-700 hover:text-indigo-600 transition"
+              >
                 {item.title}
-              </li>
-            ))}
-          </ul>
-        </div>
+              </Link>
+            </li>
+          ))}
+        </ul>
 
         {/* Mobile Menu Icon */}
         <div onClick={handleNav} className="md:hidden cursor-pointer">
@@ -49,35 +56,43 @@ const NavBar = () => {
         </div>
       </div>
 
-      {/* Mobile Menu */}
-      <div className={
-        nav 
-          ? 'md:hidden fixed left-0 top-0 w-full h-screen bg-black/70' 
-          : ''
-      }>
-        <div className={
-          nav
-            ? 'fixed left-0 top-0 w-[75%] sm:w-[60%] md:w-[45%] h-screen bg-white p-10 ease-in duration-500'
-            : 'fixed left-[-100%] top-0 p-10 ease-in duration-500'
-        }>
-          <div className="flex w-full items-center justify-between">
-            <h1 className="font-bold text-2xl">LOGO</h1>
-            <div onClick={handleNav} className="rounded-full shadow-lg shadow-gray-400 p-3 cursor-pointer">
-              <AiOutlineClose />
-            </div>
-          </div>
-          <div className="py-4 flex flex-col">
-            <ul className="uppercase">
-              {menuItems.map((item, index) => (
-                <li key={index} className="py-4 text-sm hover:text-gray-600">
-                  {item.title}
-                </li>
-              ))}
-            </ul>
-          </div>
+      {/* Mobile Menu Overlay */}
+      {nav && (
+        <div
+          className="md:hidden fixed left-0 top-0 w-full h-screen bg-black/70"
+          onClick={handleNav}
+        />
+      )}
+
+      {/* Mobile Menu Content */}
+      <div
+        className={`fixed left-0 top-0 w-3/4 sm:w-1/2 md:w-1/3 h-screen bg-white p-10 transform ${
+          nav ? "translate-x-0" : "-translate-x-full"
+        } transition-transform duration-500`}
+      >
+        <div className="flex justify-between items-center">
+          <h1 className="text-2xl font-bold text-indigo-600">Bankys</h1>
+          <AiOutlineClose
+            size={25}
+            className="cursor-pointer"
+            onClick={handleNav}
+          />
         </div>
+        <ul className="mt-6 space-y-4">
+          {menuItems.map((item, index) => (
+            <li key={index}>
+              <Link
+                to={item.path}
+                className="block text-lg text-gray-800 hover:text-indigo-600 transition"
+                onClick={handleNav}
+              >
+                {item.title}
+              </Link>
+            </li>
+          ))}
+        </ul>
       </div>
-    </div>
+    </nav>
   );
 };
 
