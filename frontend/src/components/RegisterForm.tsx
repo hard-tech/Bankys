@@ -15,6 +15,9 @@ const validationSchema = Yup.object().shape({
       regex,
       "Password must contain at least one uppercase letter, one lowercase letter, and one number, and one special character"
     ),
+  confirm_password: Yup.string()
+    .oneOf([Yup.ref("password")], "Les mots de passe doivent correspondre")
+    .required("La confirmation du mot de passe est requise"),
   first_name: Yup.string().required("Prénom requis"),
   last_name: Yup.string().required("Nom requis"),
 });
@@ -95,6 +98,22 @@ const RegisterForm = ({ formData, setFormData }: RegisterFormProps) => {
               component={Typography}
             />
           </div>
+
+          <div>
+            <Field
+              name="confirm_password"
+              type="password"
+              as={Input}
+              className="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              placeholder="Confirmer mot de passe"
+            />
+            <ErrorMessage
+              className="text-red-500"
+              name="confirm_password"
+              component={Typography}
+            />
+          </div>
+
         </div>
 
         <div>
