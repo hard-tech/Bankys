@@ -33,3 +33,27 @@ export interface AccountFormValues {
   name: string;
   type: "Compte courant" | "Épargne" | "";
 }
+export interface TransactionUser {
+  id: number;
+  user_id: number;
+  account_to: AccountUser;
+  type: string;
+  amount: number;
+  created_at: Date;
+  user: string | undefined;
+  status: string;
+}
+export interface BeneficiaireUser {
+  id: number;
+  iban: string;
+  name: string;
+}
+export interface BeneficiaireFormValues {
+name: string;
+iban: string;
+}
+
+export interface VirementFormValues {
+  name: string;
+  amount: number;
+  }

@@ -8,5 +8,5 @@ class Get_Beneficiaires(BaseModel):
     date : datetime
 
 class BeneficiaireCreateRequest(BaseModel):
-    account_id_to: int
-    beneficiary_name: str
+    iban: str
+    name: str

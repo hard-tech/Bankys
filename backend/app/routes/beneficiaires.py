@@ -13,7 +13,7 @@ def create_beneficiaire(request: BeneficiaireCreateRequest, user_id_envoyeur=Dep
     Crée un nouveau bénéficiaire pour l'utilisateur actuel.
     """
     try:
-        return beneficiaire_service_instance.create_beneficiaire(user_id_envoyeur, request.beneficiary_name, request.account_id_to, session)
+        return beneficiaire_service_instance.create_beneficiaire(user_id_envoyeur, request.name, request.iban, session)
     except CustomHTTPException as e:
         raise e
     except Exception as e:

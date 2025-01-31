@@ -10,8 +10,8 @@ class BeneficiaireService:
     def create_beneficiaire(
         self, 
         user_id_envoyeur: int, 
-        beneficiary_name: str, 
-        account_id_to: int, 
+        name: str, 
+        iban: int, 
         session: Session
     ) -> Beneficiaire:
         try:
@@ -25,11 +25,11 @@ class BeneficiaireService:
                 )
 
             # Vérifie si le compte receveur existe
-            account_receveur = session.query(Account).filter_by(id=account_id_to).first()
+            account_receveur = session.query(Account).filter_by(iban=iban).first()
             if not account_receveur:
                 raise CustomHTTPException(
                     status_code=status.HTTP_404_NOT_FOUND,
-                    detail=f"Le compte receveur avec ID {account_id_to} n'existe pas.",
+                    detail=f"Le compte receveur avec l'Iban {iban} n'existe pas.",
                     error_code="ACCOUNT_NOT_FOUND"
                 )
 
@@ -76,7 +76,7 @@ class BeneficiaireService:
             beneficiaire = Beneficiaire(
                 beneficiary_receiver=account_receveur.user_id,
                 beneficiary_sender=user_id_envoyeur,
-                name_beneficiary_receiver=beneficiary_name,
+                name_beneficiary_receiver=name,
                 iban_receveur=iban_receveur
             )
             session.add(beneficiaire)
