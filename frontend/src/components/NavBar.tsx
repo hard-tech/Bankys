@@ -23,9 +23,7 @@ const NavBar = () => {
   const menuItems = constants.MENU_ITEMS;
 
   return (
-    <nav
-      className={`w-full h-20 z-50 fixed bg-white ${shadow ? "shadow-xl" : ""}`}
-    >
+    <nav className={`w-full h-20 z-50 bg-white ${shadow ? "shadow-xl" : ""}`}>
       <div className="flex justify-between items-center w-full h-full px-6 2xl:px-16">
         {/* Logo cliquable vers l'accueil */}
         <Link to="/">

@@ -19,7 +19,7 @@ const Beneficiaire = () => {
         const response = await api.get<AccountUser[]>("/account/get/all");
         setAccounts(response.data);
       } catch (err) {
-        setError("Erreur lors du chargement des comptes");
+        console.error("Erreur lors du chargement des comptes", err);
       } finally {
         setLoading(false);
       }
@@ -30,38 +30,47 @@ const Beneficiaire = () => {
   useEffect(() => {
     const fetchBeneficiaires = async () => {
       try {
-        const response = await api.get<BeneficiaireUser[]>("/beneficiaires/get/all");
+        const response = await api.get<BeneficiaireUser[]>(
+          "/beneficiaires/get/all"
+        );
         setBeneficiaires(response.data);
       } catch (err) {
-        setError("Erreur lors du chargement des bénéficiaires");
+        console.error("Erreur lors du chargement des bénéficiaires", err);
       } finally {
         setLoading(false);
       }
     };
     fetchBeneficiaires();
-  }, []);
+  }, [beneficiaires]);
 
-  if (loading) return <p className="text-center text-gray-500">Chargement des données...</p>;
+  if (loading)
+    return (
+      <p className="text-center text-gray-500">Chargement des données...</p>
+    );
   if (error) return <p className="text-center text-red-500">{error}</p>;
 
   return (
     <section className="flex flex-col items-center min-h-screen bg-gray-100 py-12 px-6">
       <div className="flex justify-between w-full max-w-4xl items-center mb-8">
-        <h2 className="text-3xl font-bold text-gray-800">Gestion des Bénéficiaires</h2>
+        <h2 className="text-3xl font-bold text-gray-800">
+          Gestion des Bénéficiaires
+        </h2>
         <BeneficiaireForm setBeneficiaires={setBeneficiaires} />
       </div>
 
       {/* Section Comptes bancaires */}
       <div className="w-full max-w-4xl">
-        <h3 className="text-2xl font-semibold text-gray-700 mb-4">💳 Mes Comptes Bancaires</h3>
+        <h3 className="text-2xl font-semibold text-gray-700 mb-4">
+          💳 Mes Comptes Bancaires
+        </h3>
         {accounts.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             {accounts.map((account) => (
               <div
-              key={account.id}
-              className="bg-white p-6 rounded-lg shadow-md border-l-4 border-blue-500 cursor-pointer hover:shadow-lg transition"
-              onClick={() => navigate(`/virement?iban=${account.iban}`)} // 🔹 Redirection avec IBAN
-            >
+                key={account.id}
+                className="bg-white p-6 rounded-lg shadow-md border-l-4 border-blue-500 cursor-pointer hover:shadow-lg transition"
+                onClick={() => navigate(`/virement?iban=${account.iban}`)} // 🔹 Redirection avec IBAN
+              >
                 <AccountsBeneficiaire
                   id={account.id}
                   name={account.name}
@@ -78,7 +87,9 @@ const Beneficiaire = () => {
 
       {/* Section Bénéficiaires */}
       <div className="w-full max-w-4xl mt-12">
-        <h3 className="text-2xl font-semibold text-gray-700 mb-4">🏦 Bénéficiaires Ajoutés</h3>
+        <h3 className="text-2xl font-semibold text-gray-700 mb-4">
+          🏦 Bénéficiaires Ajoutés
+        </h3>
         {beneficiaires.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             {beneficiaires.map((beneficiaire) => (
@@ -96,7 +107,9 @@ const Beneficiaire = () => {
             ))}
           </div>
         ) : (
-          <p className="text-gray-500 text-center">Aucun bénéficiaire trouvé.</p>
+          <p className="text-gray-500 text-center">
+            Aucun bénéficiaire trouvé.
+          </p>
         )}
       </div>
     </section>
