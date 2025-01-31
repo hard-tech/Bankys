@@ -142,7 +142,8 @@ class TransactionService:
                 session.refresh(account_to)
 
             # Retourner les informations du compte mis à jour
-            return account_service_instance.get_infos_account(addMoney.account_iban_to if account_to else addMoney.account_iban_from, session)
+            # return account_service_instance.get_infos_account(addMoney.account_iban_to if account_to else addMoney.account_iban_from, session)
+            return transaction_service_instance.get_transaction(transaction.id, session, user_id)
 
         except CustomHTTPException as e:
             raise e
@@ -222,7 +223,7 @@ class TransactionService:
             if transaction.type!= TransactionType.TRANSFER:
                 raise CustomHTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
-                    detail="La transaction ne peut pas être annulée car c'est un dépôt ou un retrait.",
+                    detail="La transaction ne peut pas être annulée car c'est un dépôt ou un retrait." + str(transaction.type),
                     error_code="INVALID_TRANSACTION_TYPE"
                 )
 
@@ -244,7 +245,7 @@ class TransactionService:
             if transaction.status != TransactionStatus.PENDING:
                 raise CustomHTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
-                    detail="La transaction ne peut pas être annulée car elle n'est pas en état PENDING.",
+                    detail="La transaction ne peut pas être annulée car elle n'est pas en état PENDING." + str(transaction.status),
                     error_code="TRANSACTION_NOT_PENDING"
                 )
 
