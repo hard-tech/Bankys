@@ -1,6 +1,6 @@
-from typing import List
+from typing import List, Optional
 from fastapi import status
-from sqlmodel import Session
+from sqlmodel import Session, select
 from app.models.account import Account
 from app.models.transaction import Transaction, TransactionType, TransactionStatus
 from app.schemas.account import Account_Add_Money, Account_Info
@@ -36,6 +36,25 @@ async def refresh_transactions():
         await asyncio.sleep(15)
 
 class TransactionService:
+
+    def user_owns_account(self, user_id: int, iban: str, session: Session) -> bool:
+        """Vérifie si l'utilisateur est propriétaire du compte."""
+        account = session.exec(select(Account).where(Account.iban == iban, Account.user_id == user_id)).first()
+        return account is not None
+
+    def get_transactions_for_statement(self, iban: str, month: Optional[str], session: Session) -> List[Transaction]:
+        """Récupère les transactions pour un relevé de compte."""
+        query = select(Transaction).where(
+            (Transaction.account_from_iban == iban) | (Transaction.account_to_iban == iban)
+        ).order_by(Transaction.created_at)
+
+        if month:
+            start_date = datetime.strptime(f"{month}-01", "%Y-%m-%d")
+            end_date = (start_date.replace(month=start_date.month % 12 + 1, day=1) - timedelta(days=1))
+            query = query.where(Transaction.created_at.between(start_date, end_date))
+
+        transactions = session.exec(query).all()
+        return transactions
 
     def transfert_money(self, user_id: int, transfer: Account_Add_Money, type: TransactionType, session: Session) -> Account_Info:
         try:

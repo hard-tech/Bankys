@@ -10,6 +10,7 @@ import TransactionFilters from "../components/transactions/TransactionFilters";
 import TransactionTabs from "../components/transactions/TransactionTabs";
 import TransactionList from "../components/transactions/TransactionList";
 import LoadingSpinner from "../components/common/LoadingSpinner";
+import { saveAs } from 'file-saver';
 
 const TransactionPage = () => {
   // States
@@ -91,10 +92,38 @@ const TransactionPage = () => {
 
   const handleDownloadStatement = async () => {
     try {
-      toast.success("Téléchargement du relevé en cours...");
-      // Implement download logic here
+      // Vérifier si un compte spécifique est sélectionné
+      if (selectedAccount === "all") {
+        toast.error("Veuillez sélectionner un compte spécifique pour télécharger le relevé.");
+        return;
+      }
+      toast.loading("Préparation du relevé en cours...");
+
+      // Préparer les paramètres pour la requête
+      const params = new URLSearchParams();
+      params.append("iban", selectedAccount);
+      if (selectedMonth !== "all") {
+        params.append("month", selectedMonth);
+      }
+
+      // Faire la requête à l'API pour obtenir les données du relevé
+      const response = await api.get(`${endpoints.transactions.downloadStatement(selectedAccount)}`, {
+        responseType: 'blob'
+      });
+
+      // Créer un nom de fichier basé sur la date actuelle et l'IBAN du compte
+      const date = new Date();
+      const fileName = `releve_${selectedAccount}_${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}.csv`;
+
+      // Télécharger le fichier
+      saveAs(new Blob([response.data]), fileName);
+
+      toast.dismiss();
+      toast.success("Relevé téléchargé avec succès");
     } catch (error) {
+      toast.dismiss();
       toast.error("Erreur lors du téléchargement du relevé");
+      console.error("Erreur de téléchargement:", error);
     }
   };
 
