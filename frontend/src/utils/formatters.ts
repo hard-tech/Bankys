@@ -6,6 +6,9 @@ export const formatters = {
       day: "2-digit",
       month: "2-digit",
       year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
     }).format(new Date(date));
   },
 
@@ -40,5 +43,10 @@ export const formatters = {
   // Format nombre
   number: (value: number): string => {
     return new Intl.NumberFormat("fr-FR").format(value);
+  },
+
+  // Format IBAN
+  formatIBAN: (iban: string): string => {
+    return iban.replace(/(.{4})/g, "$1 ");
   },
 };
