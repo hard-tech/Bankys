@@ -42,9 +42,10 @@ const Beneficiary = () => {
     <div className="max-w-4xl mx-auto px-4 py-8">
       <div className="space-y-8">
         <BeneficiaryForm onSuccess={() => window.location.reload()} />
-        <BeneficiaryList 
+        <BeneficiaryList
           beneficiaries={beneficiaries} 
           onDelete={handleDelete} 
+          onTransfer={(data: any) => console.log(data)}
         />
       </div>
     </div>

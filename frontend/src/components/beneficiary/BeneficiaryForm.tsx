@@ -36,7 +36,7 @@ const BeneficiaryForm = ({ onSuccess }: BeneficiaryFormProps) => {
       setFormData({ name: '', iban: '' });
       onSuccess();
     } catch (error: any) {
-      toast.error(error.response?.data?.message || error.message);
+      toast.error(error.response?.data?.detail.message || error.message);
     } finally {
       setIsSubmitting(false);
     }

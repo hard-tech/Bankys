@@ -43,27 +43,40 @@ const LoginForm = ({ handelSubmit }: LoginFormProps) => {
     const savedPassword = localStorage.getItem(constants.STORAGE_KEYS.SAVED_PASSWORD) || '';
     const savedRememberMe = localStorage.getItem(constants.STORAGE_KEYS.SAVED_REMEMBER_ME) === 'true';
 
-  return (
-    <Paper elevation={3} className="w-full max-w-md mx-auto p-8 rounded-xl">
-      <div className="text-center mb-8">
-        <Typography variant="h4" className="text-gray-800 font-bold mb-2">
-          Connexion
-        </Typography>
-        <Typography variant="body1" className="text-gray-600">
-          Connectez-vous à votre compte Bankys
-        </Typography>
-      </div>
+    const handleFormSubmit = (values: LoginCredentials) => {
+      if (values.rememberMe) {
+        localStorage.setItem(constants.STORAGE_KEYS.SAVED_EMAIL, values.email);
+        localStorage.setItem(constants.STORAGE_KEYS.SAVED_PASSWORD, values.password);
+        localStorage.setItem(constants.STORAGE_KEYS.SAVED_REMEMBER_ME, 'true');
+      } else {
+        localStorage.removeItem(constants.STORAGE_KEYS.SAVED_EMAIL);
+        localStorage.removeItem(constants.STORAGE_KEYS.SAVED_PASSWORD);
+        localStorage.removeItem(constants.STORAGE_KEYS.SAVED_REMEMBER_ME);
+      }
+      handelSubmit(values);
+    };
 
-      <Formik
-        initialValues={
-          {
-            email: savedEmail,
-            password: savedPassword,
-            rememberMe: savedRememberMe,
+    return (
+      <Paper elevation={3} className="w-full max-w-md mx-auto p-8 rounded-xl">
+        <div className="text-center mb-8">
+          <Typography variant="h4" className="text-gray-800 font-bold mb-2">
+            Connexion
+          </Typography>
+          <Typography variant="body1" className="text-gray-600">
+            Connectez-vous à votre compte Bankys
+          </Typography>
+        </div>
+
+        <Formik
+          initialValues={
+            {
+              email: savedEmail,
+              password: savedPassword,
+              rememberMe: savedRememberMe,
+            }
           }
-        }
-        validationSchema={validationSchema}
-        onSubmit={handelSubmit}
+          validationSchema={validationSchema}
+          onSubmit={handleFormSubmit}
       >
         {({ errors, touched, handleChange, handleBlur, values }) => (
           <Form className="space-y-6">
