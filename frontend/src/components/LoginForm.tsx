@@ -7,7 +7,8 @@ import {
   InputAdornment, 
   IconButton,
   Paper,
-  Typography
+  Typography,
+  Checkbox
 } from "@mui/material";
 import { 
   Visibility, 
@@ -37,6 +38,11 @@ interface LoginFormProps {
 const LoginForm = ({ handelSubmit }: LoginFormProps) => {
   const [showPassword, setShowPassword] = useState(false);
 
+    // Retrieve saved credentials from local storage
+    const savedEmail = localStorage.getItem(constants.STORAGE_KEYS.SAVED_EMAIL) || '';
+    const savedPassword = localStorage.getItem(constants.STORAGE_KEYS.SAVED_PASSWORD) || '';
+    const savedRememberMe = localStorage.getItem(constants.STORAGE_KEYS.SAVED_REMEMBER_ME) === 'true';
+
   return (
     <Paper elevation={3} className="w-full max-w-md mx-auto p-8 rounded-xl">
       <div className="text-center mb-8">
@@ -49,7 +55,13 @@ const LoginForm = ({ handelSubmit }: LoginFormProps) => {
       </div>
 
       <Formik
-        initialValues={{ email: "", password: "" }}
+        initialValues={
+          {
+            email: savedEmail,
+            password: savedPassword,
+            rememberMe: savedRememberMe,
+          }
+        }
         validationSchema={validationSchema}
         onSubmit={handelSubmit}
       >
@@ -114,8 +126,11 @@ const LoginForm = ({ handelSubmit }: LoginFormProps) => {
 
             <div className="flex items-center justify-between text-sm">
               <label className="flex items-center">
-                <input
-                  type="checkbox"
+                <Checkbox
+                  id="rememberMe"
+                  name="rememberMe"
+                  checked={values.rememberMe}
+                  onChange={handleChange}
                   className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
                 />
                 <span className="ml-2 text-gray-600">Se souvenir de moi</span>

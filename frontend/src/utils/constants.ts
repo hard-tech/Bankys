@@ -13,6 +13,9 @@ export const constants = {
     TOKEN: "auth_token",
     USER: "user_data",
     THEME: "app_theme",
+    SAVED_EMAIL: "savedEmail",
+    SAVED_PASSWORD: "savedPassword",
+    SAVED_REMEMBER_ME: "savedRememberMe",
   },
 
   ROUTES: {

@@ -10,6 +10,14 @@ const Login = () => {
   const navigate = useNavigate();
 
   const handelSubmit = async (data: LoginCredentials) => {
+    console.log(data);
+
+    if(data.rememberMe) {
+      localStorage.setItem(constants.STORAGE_KEYS.SAVED_EMAIL, data.email);
+      localStorage.setItem(constants.STORAGE_KEYS.SAVED_PASSWORD, data.password);
+      localStorage.setItem(constants.STORAGE_KEYS.SAVED_REMEMBER_ME, 'true');
+    }
+    
     await toast.promise(
       authService.login(data),
       {

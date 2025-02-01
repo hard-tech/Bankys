@@ -37,10 +37,10 @@ async def refresh_transactions():
 
 class TransactionService:
 
-    def transfert_money(self, user_id: int, addMoney: Account_Add_Money, type: TransactionType, session: Session) -> Account_Info:
+    def transfert_money(self, user_id: int, transfer: Account_Add_Money, type: TransactionType, session: Session) -> Account_Info:
         try:
             # Vérifier si le montant est positif
-            if addMoney.amount <= 0:
+            if transfer.amount <= 0:
                 raise CustomHTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
                     detail="Le montant doit être positif.",
@@ -52,11 +52,11 @@ class TransactionService:
 
             # Vérifier le type de transaction et récupérer le compte source si nécessaire
             if type in [TransactionType.TRANSFER, TransactionType.WITHDRAWAL]:
-                account_from = session.query(Account).filter_by(iban=addMoney.account_iban_from).first()
+                account_from = session.query(Account).filter_by(iban=transfer.account_iban_from).first()
                 if not account_from:
                     raise CustomHTTPException(
                         status_code=status.HTTP_404_NOT_FOUND,
-                        detail=f"Le compte source, avec l'ID {addMoney.account_iban_from} n'existe pas.",
+                        detail=f"Le compte source, avec l'ID {transfer.account_iban_from} n'existe pas.",
                         error_code="SOURCE_ACCOUNT_NOT_FOUND"
                     )
                 if not account_from.actived:
@@ -65,7 +65,7 @@ class TransactionService:
                         detail="Le compte source n'est pas actif.",
                         error_code="SOURCE_ACCOUNT_INACTIVE"
                     )
-                if account_from.balance < addMoney.amount:
+                if account_from.balance < transfer.amount:
                     raise CustomHTTPException(
                         status_code=status.HTTP_400_BAD_REQUEST,
                         detail="Fonds insuffisants sur le compte source.",
@@ -80,11 +80,11 @@ class TransactionService:
 
             # Récupérer le compte destinataire si nécessaire
             if type in [TransactionType.TRANSFER, TransactionType.DEPOSIT]:
-                account_to = session.query(Account).filter_by(iban=addMoney.account_iban_to).first()
+                account_to = session.query(Account).filter_by(iban=transfer.account_iban_to).first()
                 if not account_to:
                     raise CustomHTTPException(
                         status_code=status.HTTP_404_NOT_FOUND,
-                        detail=f"Le compte destinataire, avec l'ID {addMoney.account_iban_to} n'existe pas.",
+                        detail=f"Le compte destinataire, avec l'ID {transfer.account_iban_to} n'existe pas.",
                         error_code="DESTINATION_ACCOUNT_NOT_FOUND"
                     )
                 if not account_to.actived:
@@ -111,12 +111,12 @@ class TransactionService:
 
             # Effectuer la transaction en fonction du type
             if type == TransactionType.DEPOSIT:
-                account_to.balance += addMoney.amount
+                account_to.balance += transfer.amount
             elif type == TransactionType.WITHDRAWAL:
-                account_from.balance -= addMoney.amount
+                account_from.balance -= transfer.amount
             elif type == TransactionType.TRANSFER:
-                account_from.balance -= addMoney.amount
-                account_to.balance += addMoney.amount
+                account_from.balance -= transfer.amount
+                account_to.balance += transfer.amount
 
             # Ajouter les comptes modifiés à la session
             if account_from:
@@ -126,23 +126,21 @@ class TransactionService:
 
             # Enregistrer la transaction pour la traçabilité
             transaction = Transaction(
-                account_to_iban=account_to.iban if account_to else None,
                 account_from_iban=account_from.iban if account_from else None,
-                transaction_note=addMoney.transaction_note,
+                account_to_iban=account_to.iban if account_to else None,
+                transaction_note=transfer.transaction_note,
                 user_id=user_id,
-                amount=addMoney.amount,
+                amount=transfer.amount,
                 type=type
             )
 
             session.add(transaction)
             session.commit()
 
-            # Actualiser le compte destinataire si nécessaire
-            if account_to:
-                session.refresh(account_to)
+            session.refresh(account_from)
+            session.refresh(account_to)
 
             # Retourner les informations du compte mis à jour
-            # return account_service_instance.get_infos_account(addMoney.account_iban_to if account_to else addMoney.account_iban_from, session)
             return transaction_service_instance.get_transaction(transaction.id, session, user_id)
 
         except CustomHTTPException as e:
@@ -187,25 +185,69 @@ class TransactionService:
                 detail="Erreur lors de la récupération de la transaction.",
                 error_code="GET_TRANSACTION_ERROR"
             )
+    
     def get_transactions_by_user(self, user_id: int, session: Session) -> List[Transaction]:
         try:
-            # Récupérer les IBANs des comptes de l'utilisateur
-            user_accounts = session.query(Account.iban).filter_by(user_id=user_id).subquery()
+            # Retrieve IBANs of the user's accounts
+            user_accounts = session.query(Account.iban).filter(Account.user_id == user_id).all()
+            user_account_ibans = [account.iban for account in user_accounts]
 
-            # Récupérer uniquement les transactions de type TRANSFER associées aux comptes de l'utilisateur
-            transactions = session.query(Transaction).filter(
-                ((Transaction.account_from_iban.in_(user_accounts)) |
-                 (Transaction.account_to_iban.in_(user_accounts)))
+            # Fetch all transactions involving the user's accounts
+            transactions_from = session.query(Transaction).filter(
+                (Transaction.account_from_iban.in_(user_account_ibans))
             ).order_by(Transaction.created_at.desc()).all()
 
-            return transactions
+            transactions_to = session.query(Transaction).filter(
+                (Transaction.account_to_iban.in_(user_account_ibans))
+            ).order_by(Transaction.created_at.desc()).all()
+
+            # Process transactions to ensure correct representation
+            processed_transactions = []
+
+            for transaction in transactions_from:
+                processed_transactions.append(
+                    Transaction(
+                        id=transaction.id,
+                        account_to_iban=transaction.account_to_iban,
+                        type=transaction.type,
+                        transaction_note=transaction.transaction_note,
+                        updated_at=transaction.updated_at,
+                        amount=-transaction.amount,
+                        user_id=transaction.user_id,
+                        account_from_iban=transaction.account_from_iban,
+                        status=transaction.status,
+                        created_at=transaction.created_at
+                    )
+                )
+            
+            for transaction in transactions_to:
+                processed_transactions.append(
+                    Transaction(
+                        id=transaction.id,
+                        account_to_iban=transaction.account_to_iban,
+                        type=transaction.type,
+                        transaction_note=transaction.transaction_note,
+                        updated_at=transaction.updated_at,
+                        amount=transaction.amount,
+                        user_id=transaction.user_id,
+                        account_from_iban=transaction.account_from_iban,
+                        status=transaction.status,
+                        created_at=transaction.created_at
+                    )
+                )
+
+            # for transaction in transactions_to:
+
+            # Return processed transactions sorted by creation date
+            return sorted(processed_transactions, key=lambda x: x.created_at, reverse=True)
 
         except Exception as e:
             raise CustomHTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail="Erreur lors de la récupération des transactions de l'utilisateur.",
+                detail="Error retrieving user transactions: " + str(e),
                 error_code="GET_USER_TRANSACTIONS_ERROR"
             )
+    
     def cancel_transaction(self, user_id: int, transaction_id: int, session: Session) -> str:
         try:
             # Récupérer la transaction
