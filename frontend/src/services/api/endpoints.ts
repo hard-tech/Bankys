@@ -20,9 +20,10 @@ export const endpoints = {
         cancel: (transactionId: number) => `/transactions/cancel/${transactionId}`,
         downloadStatement: (iban: string) => `/transactions/download-statement/${iban}`,
     },
-    beneficiaires: {
+    beneficiaries: {
         create: '/beneficiaires/create',
         getAll: '/beneficiaires/get/all',
+        delete: (beneficiaryId: number) => `/beneficiaires/delete/${beneficiaryId}`,
     }
 };
   

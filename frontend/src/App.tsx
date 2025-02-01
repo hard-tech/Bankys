@@ -15,6 +15,7 @@ import { constants } from "./utils/constants";
 import Dashboard from "./pages/Dashboard";
 import TransactionPage from "./pages/Transaction";
 import Account from "./pages/Account";
+import Beneficiary from "./pages/Beneficiary.tsx";
 
 function App() {
   return (
@@ -89,7 +90,14 @@ function App() {
                 </CrmLayout>
               }
             />
-            
+            <Route
+              path={constants.ROUTES.BENEFICIAIRES}
+              element={
+                <CrmLayout>
+                  <Beneficiary />
+                </CrmLayout>
+              }
+            />
             {/* Add more private routes here */}
           </Route>
         </Routes>

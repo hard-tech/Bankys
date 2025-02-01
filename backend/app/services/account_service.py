@@ -11,15 +11,30 @@ from sqlalchemy.orm import Session
 from datetime import datetime
 
 def generate_iban(session: Session) -> str:
-    while True:
-        # Générer une chaîne aléatoire de type IBAN avec un préfixe fixe et des caractères alphanumériques aléatoires
-        prefix = "FR"
-        random_part = ''.join(random.choices(string.digits, k=20))
-        iban = f"{prefix}{random_part}"
+    prefix = "FR"
+    check_digits = "00"
+    bank_code = "12345"  # Code bancaire fictif, à remplacer par un vrai code
+    branch_code = "67890"  # Code guichet fictif, à remplacer par un vrai code
 
+    max_attempts = 100
+    for _ in range(max_attempts):
+        # Générer une partie aléatoire pour le numéro de compte (11 chiffres)
+        account_number = ''.join(random.choices(string.digits, k=11))
+
+        # Construire l'IBAN
+        iban = f"{prefix}{check_digits}{bank_code}{branch_code}{account_number}"
+
+        # Calculer les chiffres de contrôle
+        iban_numeric = int((iban[4:] + iban[:4]).translate(str.maketrans('ABCDEFGHIJKLMNOPQRSTUVWXYZ', '12345678912345678923456789')))
+        check_digits = f"{98 - (iban_numeric % 97):02d}"
+
+        # Construire l'IBAN final
+        final_iban = f"{prefix}{check_digits}{bank_code}{branch_code}{account_number}"
         # Vérifier si l'IBAN existe déjà dans la base de données
-        if not session.query(Account).filter_by(iban=iban).first():
-            return iban
+        if not session.query(Account).filter_by(iban=final_iban).first():
+            return final_iban
+
+    raise ValueError("Impossible de générer un IBAN unique après plusieurs tentatives")
 
 class AccountService:
 

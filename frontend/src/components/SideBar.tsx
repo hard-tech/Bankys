@@ -4,6 +4,7 @@ import { MenuItem } from '../type/common.types';
 import { authService } from '../services/auth/auth.service';
 import { constants } from '../utils/constants';
 import Logo from '../assets/Bankys-Logo-removebg-preview.png';
+import { FaUserFriends } from 'react-icons/fa';
 import {
   Home,
   Dashboard,
@@ -43,6 +44,11 @@ const SideBar = ({ setIsSidebarOpen }: SideBarProps) => {
       title: 'Mes comptes', 
       icon: <AccountBalance />, 
       path: constants.ROUTES.ACCOUNTS 
+    },
+    {
+      title: 'Beneficiaires',
+      icon: <FaUserFriends />,
+      path: constants.ROUTES.BENEFICIAIRES
     },
     { 
       title: 'Profile', 

@@ -26,6 +26,7 @@ export const constants = {
     DASHBOARD: "/dashboard",
     TRANSACTIONS: "/transactions",
     ACCOUNTS: "/accounts",
+    BENEFICIAIRES: "/beneficiaries",
   },
 
   BREAKPOINTS: {

@@ -45,6 +45,12 @@ export interface Transaction {
   transaction_note: string;
 }
 
+export interface Beneficiary {
+  id: number;
+  name: string;
+  iban: string;
+}
+
 export enum TransactionType {
   DEPOSIT = "DEPOSIT",
   WITHDRAWAL = "WITHDRAWAL",
