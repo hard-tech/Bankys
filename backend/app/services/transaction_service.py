@@ -56,7 +56,7 @@ class TransactionService:
                 if not account_from:
                     raise CustomHTTPException(
                         status_code=status.HTTP_404_NOT_FOUND,
-                        detail=f"Le compte source, avec l'ID {transfer.account_iban_from} n'existe pas.",
+                        detail=f"Le compte source, avec l'IBAN: '{transfer.account_iban_from}' n'existe pas.",
                         error_code="SOURCE_ACCOUNT_NOT_FOUND"
                     )
                 if not account_from.actived:
@@ -84,7 +84,7 @@ class TransactionService:
                 if not account_to:
                     raise CustomHTTPException(
                         status_code=status.HTTP_404_NOT_FOUND,
-                        detail=f"Le compte destinataire, avec l'ID {transfer.account_iban_to} n'existe pas.",
+                        detail=f"Le compte destinataire, avec l'IBAN: '{transfer.account_iban_to}' n'existe pas.",
                         error_code="DESTINATION_ACCOUNT_NOT_FOUND"
                     )
                 if not account_to.actived:

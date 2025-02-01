@@ -1,4 +1,3 @@
-// src/components/modals/TransferModal.tsx
 import { Dialog, Transition } from '@headlessui/react';
 import { Fragment, useState } from 'react';
 import { Account } from '../../type/common.types';
@@ -14,94 +13,101 @@ interface TransferModalProps {
 }
 
 const TransferModal = ({ isOpen, onClose, accounts, selectedAccount }: TransferModalProps) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     fromAccount: selectedAccount || '',
     toAccount: '',
     amount: '',
     description: '',
-    beneficiaryName: '',
     beneficiaryIban: ''
   });
-  
   const [transferType, setTransferType] = useState<'internal' | 'external'>('internal');
+
+  const resetForm = () => {
+    setFormData({
+      fromAccount: selectedAccount || '',
+      toAccount: '',
+      amount: '',
+      description: '',
+      beneficiaryIban: ''
+    });
+    setTransferType('internal');
+  };
+
+  const handleClose = () => {
+    resetForm();
+    onClose();
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+    setIsSubmitting(true);
+
     try {
-      // Déterminer le bon IBAN destinataire selon le type de transfert
-      const toAccount = transferType === 'internal' ? 
-        formData.toAccount : 
-        formData.beneficiaryIban;
-  
+      const toAccount =
+        transferType === 'internal' ? formData.toAccount : formData.beneficiaryIban;
+
+      // Validation
+      if (!formData.fromAccount || !toAccount) {
+        throw new Error('Veuillez sélectionner les comptes émetteur et destinataire.');
+      }
+      if (formData.fromAccount === toAccount) {
+        throw new Error('Le compte émetteur et le compte destinataire doivent être différents.');
+      }
+      if (!formData.amount || Number(formData.amount) <= 0) {
+        throw new Error('Le montant doit être supérieur à zéro.');
+      }
+
+      // API Request
       const response = await api.post(endpoints.transactions.transfer, {
         account_iban_from: formData.fromAccount,
         account_iban_to: toAccount,
         amount: Number(formData.amount),
-        transaction_note: formData.description,
+        transaction_note: formData.description
       });
-  
-      const transactionId = response.data.id;
-      onClose(); // Fermer la modal d'abord
-  
-      // Afficher le toast avec option d'annulation
-      toast.custom(
-        (t) => (
-          <div className={`${
-            t.visible ? 'animate-enter' : 'animate-leave'
-          } max-w-md w-full bg-white shadow-lg rounded-lg pointer-events-auto flex ring-1 ring-black ring-opacity-5`}>
-            <div className="flex-1 w-0 p-4">
-              <div className="flex items-center">
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-gray-900">
-                    Transaction en cours
-                  </p>
-                  <p className="mt-1 text-sm text-gray-500">
-                    {transferType === 'internal' ? 'Virement interne' : 'Virement externe'}
-                  </p>
-                  <p className="text-sm text-gray-600">
-                    Montant: {Number(formData.amount).toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}
-                  </p>
-                </div>
-              </div>
-            </div>
-            <div className="flex border-l border-gray-200">
-              <button
-                onClick={async () => {
-                  try {
-                    await api.delete(endpoints.transactions.cancel(transactionId));
-                    toast.success('Transaction annulée avec succès');
-                  } catch (error) {
-                    toast.error('Impossible d\'annuler la transaction');
-                  } finally {
-                    toast.dismiss(t.id);
-                  }
-                }}
-                className="w-full border border-transparent rounded-none rounded-r-lg p-4 flex items-center justify-center text-sm font-medium text-indigo-600 hover:text-indigo-500 focus:outline-none"
-              >
-                Annuler
-              </button>
-            </div>
+
+      toast.success('Transaction effectuée avec succès.');
+      handleClose();
+
+      // Show success toast with undo option
+      toast.custom((t) => (
+        <div className="max-w-md w-full bg-white shadow-lg rounded-lg pointer-events-auto flex ring-1 ring-black ring-opacity-5">
+          <div className="flex-1 w-0 p-4">
+            <p className="text-sm font-medium text-gray-900">Transaction en cours</p>
+            <p className="mt-1 text-sm text-gray-500">{formData.description}</p>
+            <p className="text-sm text-gray-600">
+              Montant :{' '}
+              {Number(formData.amount).toLocaleString('fr-FR', {
+                style: 'currency',
+                currency: 'EUR'
+              })}
+            </p>
           </div>
-        ),
-        {
-          duration: 5000,
-          position: 'top-center',
-        }
-      );
+          <div className="flex border-l border-gray-200">
+            <button
+              onClick={async () => {
+                try {
+                  await api.delete(endpoints.transactions.cancel(response.data.id));
+                  toast.success('Transaction annulée avec succès.');
+                } catch (error) {
+                  toast.error("Impossible d'annuler la transaction.");
+                } finally {
+                  toast.dismiss(t.id);
+                }
+              }}
+              className="w-full border border-transparent rounded-r-lg p-4 flex items-center justify-center text-sm font-medium text-indigo-600 hover:text-indigo-500 focus:outline-none"
+            >
+              Annuler
+            </button>
+          </div>
+        </div>
+      ));
     } catch (error: any) {
-      const errorMessage = error.response?.data?.message || 
-                          error.response?.data?.error || 
-                          error.response?.data?.detail || 
-                          'Erreur lors du virement';
-      
-      toast.error(errorMessage, {
-        duration: 4000,
-        position: 'top-center',
-      });
+      toast.error(error.response?.data?.detail.message || 'Erreur lors du virement.');
+    } finally {
+      setIsSubmitting(false);
     }
   };
-  
   
 
   return (

@@ -76,7 +76,7 @@ class AccountService:
             if not account:
                 raise CustomHTTPException(
                     status_code=status.HTTP_404_NOT_FOUND,
-                    detail=f"Le compte avec l'ID {account_iban} n'existe pas.",
+                    detail=f"Le compte avec l'IBAN: '{account_iban}' n'existe pas.",
                     error_code="ACCOUNT_NOT_FOUND"
                 )
 
