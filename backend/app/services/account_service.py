@@ -19,7 +19,7 @@ def generate_iban(session: Session) -> str:
     max_attempts = 100
     for _ in range(max_attempts):
         # Générer une partie aléatoire pour le numéro de compte (11 chiffres)
-        account_number = ''.join(random.choices(string.digits, k=11))
+        account_number = ''.join(random.choices(string.digits, k=13))
 
         # Construire l'IBAN
         iban = f"{prefix}{check_digits}{bank_code}{branch_code}{account_number}"

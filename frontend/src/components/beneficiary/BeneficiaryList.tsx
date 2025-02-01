@@ -1,15 +1,15 @@
 import { FiUser, FiTrash2, FiSend } from 'react-icons/fi';
-import { Beneficiary, Account } from '../../type/common.types';
+import { Beneficiary, Account, TransferFormData } from '../../type/common.types';
 import { useState } from 'react';
 import TransferModalBeneficiary from './TransferModalBeneficiary';
+import { formatters } from '../../utils/formatters';
 
 interface BeneficiaryListProps {
   beneficiaries: Beneficiary[];
   onDelete: (id: number) => void;
-  onTransfer: (data: any) => void;
 }
 
-const BeneficiaryList = ({ beneficiaries, onDelete, onTransfer }: BeneficiaryListProps) => {
+const BeneficiaryList = ({ beneficiaries, onDelete }: BeneficiaryListProps) => {
   const [isTransferModalOpen, setIsTransferModalOpen] = useState(false);
   const [selectedBeneficiary, setSelectedBeneficiary] = useState<Beneficiary | null>(null);
 
@@ -23,9 +23,6 @@ const BeneficiaryList = ({ beneficiaries, onDelete, onTransfer }: BeneficiaryLis
     setSelectedBeneficiary(null);
   };
 
-  const handleTransfer = (data: any) => {
-    onTransfer({ ...data, beneficiary: selectedBeneficiary });
-  };
   return (
     <>
       <div className="bg-white rounded-lg shadow-md overflow-hidden">
@@ -50,7 +47,7 @@ const BeneficiaryList = ({ beneficiaries, onDelete, onTransfer }: BeneficiaryLis
                     onClick={() => handlePrepareTransfer(beneficiary)}
                   >
                     <h3 className="font-medium text-gray-900">{beneficiary.name}</h3>
-                    <p className="text-sm text-gray-500 font-mono">{beneficiary.iban}</p>
+                    <span className="text-sm text-gray-500 font-mono">{formatters.formatIBAN(beneficiary.iban)}</span>
                   </div>
                   <div className="flex items-center">
                     <button
@@ -80,7 +77,6 @@ const BeneficiaryList = ({ beneficiaries, onDelete, onTransfer }: BeneficiaryLis
           isOpen={isTransferModalOpen}
           onClose={closeTransferModal}
           beneficiary={selectedBeneficiary}
-          onTransfer={handleTransfer}
         />
       )}
     </>

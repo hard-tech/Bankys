@@ -16,7 +16,7 @@ const BeneficiaryForm = ({ onSuccess }: BeneficiaryFormProps) => {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const isValidIBAN = (iban: string) => /^[A-Z]{2}\d{23}$/.test(iban);
+  const isValidIBAN = (iban: string) => /^[A-Z]{2}\d{25}$/.test(iban);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

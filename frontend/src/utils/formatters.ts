@@ -46,7 +46,17 @@ export const formatters = {
   },
 
   // Format IBAN
+  // Format IBAN
   formatIBAN: (iban: string): string => {
-    return iban.replace(/(.{4})/g, "$1 ");
+    // Supprimer tous les espaces existants et convertir en majuscules
+    const cleanIban = iban.replace(/\s/g, '').toUpperCase();
+
+    // Vérifier si l'IBAN est au format français (27 caractères)
+    if (cleanIban.length !== 27 || !cleanIban.startsWith('FR')) {
+      return cleanIban; // Retourner l'IBAN non formaté si le format n'est pas valide
+    }
+
+    // Formater l'IBAN
+    return cleanIban.replace(/^(.{4})(.{4})(.{4})(.{4})(.{4})(.{4})(.{3})$/, '$1 $2 $3 $4 $5 $6 $7');
   },
 };

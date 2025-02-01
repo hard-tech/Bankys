@@ -51,6 +51,13 @@ export interface Beneficiary {
   iban: string;
 }
 
+export interface TransferFormData {
+  account_iban_from: string;
+  account_iban_to: string;
+  amount: number;
+  transaction_note: string;
+}
+
 export enum TransactionType {
   DEPOSIT = "DEPOSIT",
   WITHDRAWAL = "WITHDRAWAL",
