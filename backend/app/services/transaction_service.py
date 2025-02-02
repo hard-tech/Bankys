@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List, Optional, Union
 from fastapi import status
 from sqlmodel import Session, select
 from typing import Dict, List
@@ -267,7 +267,7 @@ class TransactionService:
                 error_code="GET_USER_TRANSACTIONS_ERROR"
             )
 
-    def get_transaction_stats(self, user_id: int, session: Session) -> Dict[str, Dict[str, List[float]]]:
+    def get_transaction_stats(self, user_id: int, session: Session) -> Dict[str, Dict[str, List[Union[float, str]]]]:
         # Récupérer tous les comptes actifs de l'utilisateur
         user_accounts = session.query(Account).filter(Account.user_id == user_id, Account.actived == True).all()
 
@@ -283,6 +283,7 @@ class TransactionService:
             transactions_input = []
             transactions_output = []
             sold = []
+            dates = []  # Nouveau tableau pour stocker les dates
             balance = 0
 
             for transaction in all_transactions:
@@ -301,11 +302,13 @@ class TransactionService:
                     continue
 
                 sold.append(float(balance))
+                dates.append(transaction.created_at.isoformat())  # Ajouter la date de la transaction
 
             stats[account.iban] = {
                 "transactionsInput": transactions_input,
                 "transactionsOutput": transactions_output,
-                "sold": sold
+                "sold": sold,
+                "dates": dates  # Ajouter les dates au dictionnaire de statistiques
             }
 
         return stats
