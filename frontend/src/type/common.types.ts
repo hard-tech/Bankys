@@ -84,5 +84,6 @@ export interface TransactionStats {
     transactionsOutput: number[];
     sold: number[];
     dates: Date[]; // Ajout d'un tableau de dates pour chaque transaction
+    types: TransactionType[];
   };
 }

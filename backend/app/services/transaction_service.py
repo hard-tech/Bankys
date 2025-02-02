@@ -308,7 +308,8 @@ class TransactionService:
                 "transactionsInput": transactions_input,
                 "transactionsOutput": transactions_output,
                 "sold": sold,
-                "dates": dates  # Ajouter les dates au dictionnaire de statistiques
+                "dates": dates,  # Ajouter les dates au dictionnaire de statistiques
+                "types": [transaction.type for transaction in all_transactions]
             }
 
         return stats

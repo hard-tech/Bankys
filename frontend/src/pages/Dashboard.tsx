@@ -7,6 +7,7 @@ import api from '../services/api/axios.config';
 import { TransactionStats } from '../type/common.types';
 import toast from 'react-hot-toast';
 import { endpoints } from '../services/api/endpoints';
+import { formatters } from '../utils/formatters';
 
 const Dashboard: React.FC = () => {
   const [selectedAccount, setSelectedAccount] = useState<string | null>(null);
@@ -60,7 +61,7 @@ const Dashboard: React.FC = () => {
       />
       {selectedAccount && currentStats ? (
         <>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mt-6">
             {/* Sold */}
             <div>
               <h2 className="text-xl font-bold mb-2">Solde</h2>
@@ -80,6 +81,20 @@ const Dashboard: React.FC = () => {
               <h2 className="text-xl font-bold mb-2">Sorties</h2>
               {currentStats.transactionsOutput.map((t, i) => (
                 <div className='text-purple-500' key={i}>{t}</div>
+              ))}
+            </div>
+            {/* Date */}
+            <div>
+              <h2 className="text-xl font-bold mb-2">Date</h2>
+              {currentStats.dates.map((d, i) => (
+                <div className='text-gray-500' key={i}>{formatters.dateTime(d)}</div>
+              ))}
+            </div>
+            {/* Type */}
+            <div>
+              <h2 className="text-xl font-bold mb-2">Type</h2>
+              {currentStats.types.map((t, i) => (
+                <div className='text-yellow-500' key={i}>{t}</div>
               ))}
             </div>
           </div>
