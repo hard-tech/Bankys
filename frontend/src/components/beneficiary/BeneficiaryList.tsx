@@ -1,5 +1,5 @@
 import { FiUser, FiTrash2, FiSend } from 'react-icons/fi';
-import { Beneficiary, Account, TransferFormData } from '../../type/common.types';
+import { Beneficiary } from '../../type/common.types';
 import { useState } from 'react';
 import TransferModalBeneficiary from './TransferModalBeneficiary';
 import { formatters } from '../../utils/formatters';

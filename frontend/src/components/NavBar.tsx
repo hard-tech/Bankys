@@ -1,10 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { 
   Home,
   Dashboard,
-  AccountBalance,
-  Payment,
   Person,
   Menu,
   Close,

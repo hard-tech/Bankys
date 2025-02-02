@@ -10,6 +10,7 @@ const Register = () => {
   const [formData, setFormData] = useState<RegisterCredentials>({
     email: "",
     password: "",
+    confirm_password: "",
     first_name: "",
     last_name: "",
   });
@@ -32,7 +33,7 @@ const Register = () => {
           }
         ).then(() => {
           toast.promise(
-            authService.login({ email: formData.email, password: formData.password }),
+            authService.login({ email: formData.email, password: formData.password, rememberMe: false }),
             {
               loading: 'Logging in...',
               success: 'Login successful!',

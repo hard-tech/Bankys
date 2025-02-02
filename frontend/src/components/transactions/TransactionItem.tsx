@@ -1,6 +1,6 @@
 import React from 'react';
 import { Transaction, TransactionStatus, TransactionType } from '../../type/common.types';
-import { AiOutlineArrowRight, AiOutlineShoppingCart, AiOutlineBank, AiOutlineArrowUp, AiOutlineArrowDown } from 'react-icons/ai';
+import { AiOutlineArrowRight, AiOutlineShoppingCart, AiOutlineArrowUp, AiOutlineArrowDown } from 'react-icons/ai';
 import { formatters } from '../../utils/formatters';
 
 interface TransactionItemProps extends Transaction {}

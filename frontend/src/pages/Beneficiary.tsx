@@ -5,7 +5,7 @@ import { endpoints } from '../services/api/endpoints';
 import BeneficiaryForm from '../components/beneficiary/BeneficiaryForm';
 import BeneficiaryList from '../components/beneficiary/BeneficiaryList';
 import LoadingSpinner from '../components/common/LoadingSpinner';
-import type { Beneficiary, TransferFormData } from '../type/common.types';
+import type { Beneficiary } from '../type/common.types';
 
 const Beneficiary = () => {
   const [beneficiaries, setBeneficiaries] = useState<Beneficiary[]>([]);

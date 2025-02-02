@@ -10,7 +10,6 @@ import {
   Dashboard,
   AccountBalance,
   Person,
-  Menu,
   Logout,
   Payment
 } from '@mui/icons-material';

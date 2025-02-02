@@ -266,6 +266,7 @@ const TransferModal = ({ isOpen, onClose, accounts, selectedAccount }: TransferM
                     <div className="flex justify-end space-x-3 mt-6">
                       <button
                         type="button"
+                        disabled={isSubmitting}
                         onClick={onClose}
                         className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200"
                       >
@@ -275,7 +276,9 @@ const TransferModal = ({ isOpen, onClose, accounts, selectedAccount }: TransferM
                         type="submit"
                         className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700"
                       >
-                        Effectuer le virement
+                      {isSubmitting
+                        ? "Transfert en cours..."
+                        : "Effectuer le virement"}
                       </button>
                     </div>
                   </form>
