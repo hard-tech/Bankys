@@ -1,5 +1,3 @@
-"use client";
-
 import React, { useEffect, useState } from 'react';
 import AccountSelector from '../components/dashboard/AccountSelector';
 import { useAuth } from '../context/AuthContext';
@@ -7,11 +5,12 @@ import api from '../services/api/axios.config';
 import { TransactionStats } from '../type/common.types';
 import toast from 'react-hot-toast';
 import { endpoints } from '../services/api/endpoints';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { formatters } from '../utils/formatters';
+import DashboardCharts from '../components/dashboard/DashboardCharts';
 
 const Dashboard: React.FC = () => {
   const [selectedAccount, setSelectedAccount] = useState<string | null>(null);
+  const [selectedMonth, setSelectedMonth] = useState<string>('all');
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [stats, setStats] = useState<TransactionStats | undefined>(undefined);
   const [currentStats, setCurrentStats] = useState<TransactionStats[string] | undefined>(undefined);
@@ -53,93 +52,57 @@ const Dashboard: React.FC = () => {
   }
 
   const prepareChartData = (stats: TransactionStats[string]) => {
-    return stats.dates.map((date, index) => ({
-      date: formatters.dateTime(date),
-      solde: stats.sold[index],
-      entrees: stats.transactionsInput[index],
-      sorties: stats.transactionsOutput[index],
-    }));
+
+    return stats.dates.map((date, index) => {
+      const formattedDate = new Date(date);
+      return {
+        date: formatters.dateTime(formattedDate),
+        fullDate: formattedDate,
+        solde: stats.sold[index],
+        entrees: stats.transactionsInput[index],
+        sorties: stats.transactionsOutput[index],
+      };
+    }).filter(data => {
+      if (selectedMonth === 'all') return true;
+      const [month, year] = selectedMonth.split('-');
+      return data.fullDate.getMonth() === parseInt(month) - 1 &&
+             data.fullDate.getFullYear() === parseInt(year);
+    });
   };
 
+  const generateMonthOptions = () => {
+    const options = [{ value: 'all', label: 'Tous les mois' }];
+    const currentDate = new Date();
+    for (let i = 0; i < 12; i++) {
+      const date = new Date(currentDate.getFullYear(), currentDate.getMonth() - i, 1);
+      const value = `${String(date.getMonth() + 1).padStart(2, '0')}-${date.getFullYear()}`;
+      const label = date.toLocaleString('fr-FR', { month: 'long', year: 'numeric' });
+      options.push({ value, label });
+    }
+    return options;
+  };
   return (
     <div className="p-6">
       <h1 className="text-3xl font-bold mb-6">Mon dashboard</h1>
-      <AccountSelector
-        accounts={accounts}
-        selectedAccount={selectedAccount}
-        onSelectAccount={setSelectedAccount}
-      />
-      
+      <div className="flex flex-col md:flex-row justify-between items-center mb-6">
+        <AccountSelector
+          accounts={accounts}
+          selectedAccount={selectedAccount}
+          onSelectAccount={setSelectedAccount}
+        />
+        <select
+          className="mt-4 md:mt-0 p-2 border rounded"
+          value={selectedMonth}
+          onChange={(e) => setSelectedMonth(e.target.value)}
+        >
+          {generateMonthOptions().map(option => (
+            <option key={option.value} value={option.value}>{option.label}</option>
+          ))}
+        </select>
+      </div>
+
       {selectedAccount && currentStats ? (
-        <div className="mt-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-            {/* Graphique Solde */}
-            <div className="bg-white p-4 rounded-lg shadow">
-              <h2 className="text-xl font-bold mb-4">Solde</h2>
-              <div className="h-[200px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={prepareChartData(currentStats)}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="date" />
-                    <YAxis />
-                    <Tooltip />
-                    <Line type="monotone" dataKey="solde" stroke="#8884d8" />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
-
-            {/* Graphique Entrées */}
-            <div className="bg-white p-4 rounded-lg shadow">
-              <h2 className="text-xl font-bold mb-4">Entrées</h2>
-              <div className="h-[200px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={prepareChartData(currentStats)}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="date" />
-                    <YAxis />
-                    <Tooltip />
-                    <Line type="monotone" dataKey="entrees" stroke="#4CAF50" />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
-
-            {/* Graphique Sorties */}
-            <div className="bg-white p-4 rounded-lg shadow">
-              <h2 className="text-xl font-bold mb-4">Sorties</h2>
-              <div className="h-[200px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={prepareChartData(currentStats)}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="date" />
-                    <YAxis />
-                    <Tooltip />
-                    <Line type="monotone" dataKey="sorties" stroke="#f44336" />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
-          </div>
-
-          {/* Graphique combiné */}
-          <div className="bg-white p-4 rounded-lg shadow mt-6">
-            <h2 className="text-xl font-bold mb-4">Flux de trésorerie</h2>
-            <div className="h-[300px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={prepareChartData(currentStats)}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="date" />
-                  <YAxis />
-                  <Tooltip />
-                  <Line type="monotone" dataKey="solde" stroke="#8884d8" name="Solde" />
-                  <Line type="monotone" dataKey="entrees" stroke="#4CAF50" name="Entrées" />
-                  <Line type="monotone" dataKey="sorties" stroke="#f44336" name="Sorties" />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-        </div>
+        <DashboardCharts currentStats={currentStats} prepareChartData={prepareChartData} />
       ) : (
         <div className="mt-6">Veuillez sélectionner un compte pour afficher le tableau de bord.</div>
       )}
