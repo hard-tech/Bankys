@@ -66,7 +66,7 @@ const AccountPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen w-full bg-gradient-to-b from-primary-50 to-white">
+    <div className="min-h-screen w-full bg-gradient-to-b">
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <div>

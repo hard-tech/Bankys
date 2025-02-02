@@ -28,6 +28,7 @@ const AccountCard: React.FC<AccountCardProps> = ({ title, balance, iban, onClose
       toast.error("Mot de passe incorrect.");
     } finally {
       setIsModalOpen(false);
+      setPassword("");
     }
   };
 
