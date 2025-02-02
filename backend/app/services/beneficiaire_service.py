@@ -29,7 +29,7 @@ class BeneficiaireService:
             if not account_receveur:
                 raise CustomHTTPException(
                     status_code=status.HTTP_404_NOT_FOUND,
-                    detail=f"Le compte receveur avec ID {account_id_to} n'existe pas.",
+                    detail=f"Le compte receveur avec IBAN {iban} n'existe pas.",
                     error_code="ACCOUNT_NOT_FOUND"
                 )
 
@@ -120,6 +120,38 @@ class BeneficiaireService:
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail="Erreur lors de la récupération des bénéficiaires",
                 error_code="GET_BENEFICIARIES_ERROR"
+            )
+        
+    def delete_beneficiaire(self, user_id: int, beneficiaire_id: int, session: Session) -> bool:
+        try:
+            # Vérifie si le bénéficiaire existe
+            beneficiaire = session.query(Beneficiaire).filter_by(id=beneficiaire_id).first()
+            if not beneficiaire:
+                raise CustomHTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail=f"Le bénéficiaire avec ID {beneficiaire_id} n'existe pas.",
+                    error_code="BENEFICIARY_NOT_FOUND"
+                )
+
+            # Vérifie si le bénéficiaire appartient à l'utilisateur
+            if beneficiaire.beneficiary_sender != user_id:
+                raise CustomHTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="Vous n'êtes pas autorisé à supprimer ce bénéficiaire.",
+                    error_code="UNAUTHORIZED_TO_DELETE_BENEFICIARY"
+                )
+
+            # Supprime le bénéficiaire
+            session.delete(beneficiaire)
+            session.commit()
+            return True
+        except CustomHTTPException as e:
+            raise e
+        except Exception as e:
+            raise CustomHTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Erreur lors de la suppression du bénéficiaire",
+                error_code="DELETE_BENEFICIARY_ERROR"
             )
 
 beneficiaire_service_instance = BeneficiaireService()

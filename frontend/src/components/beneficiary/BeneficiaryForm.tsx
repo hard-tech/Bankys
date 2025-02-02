@@ -23,6 +23,7 @@ const BeneficiaryForm = ({ onSuccess }: BeneficiaryFormProps) => {
     setIsSubmitting(true);
 
     try {
+      formData.iban = formData.iban.replace(/\s/g, '');
       if (!isValidIBAN(formData.iban)) {
         throw new Error('IBAN invalide - Format attendu : FR76 1234 5678 9123 4567 8901 234');
       }

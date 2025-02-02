@@ -6,6 +6,7 @@ import BeneficiaryForm from '../components/beneficiary/BeneficiaryForm';
 import BeneficiaryList from '../components/beneficiary/BeneficiaryList';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import type { Beneficiary } from '../type/common.types';
+import toast from 'react-hot-toast';
 
 const Beneficiary = () => {
   const [beneficiaries, setBeneficiaries] = useState<Beneficiary[]>([]);
@@ -26,12 +27,12 @@ const Beneficiary = () => {
   }, []);
 
   const handleDelete = async (id: number) => {
-    try {
-      await api.delete(endpoints.beneficiaries.delete(id));
-      setBeneficiaries(beneficiaries.filter(b => b.id !== id));
-    } catch (error) {
-      console.error('Erreur lors de la suppression:', error);
-    }
+    await api.delete(endpoints.beneficiaries.delete(id)).then(() => {
+      toast.success('Bénéficiaire supprimé avec succès');
+      setBeneficiaries(beneficiaries.filter((b) => b.id!== id));
+    }).catch((error) => {
+      toast.error(error.response.data.detail.message || 'Erreur lors de la suppression');
+    });
   };
 
   if (isLoading) {
