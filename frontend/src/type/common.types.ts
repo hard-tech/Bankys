@@ -58,6 +58,13 @@ export interface TransferFormData {
   transaction_note: string;
 }
 
+export interface Account {
+  id: string;
+  balance: number;
+  iban: string;
+  name: string;
+}
+
 export enum TransactionType {
   DEPOSIT = "DEPOSIT",
   WITHDRAWAL = "WITHDRAWAL",
@@ -69,4 +76,12 @@ export enum TransactionStatus {
   PENDING = "PENDING",
   COMPLETED = "COMPLETED",
   REJECTED = "REJECTED"
+}
+
+export interface TransactionStats {
+  [iban: string]: {
+    transactionsInput: number[];
+    transactionsOutput: number[];
+    sold: number[];
+  };
 }

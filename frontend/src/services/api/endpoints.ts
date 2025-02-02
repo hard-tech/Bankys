@@ -17,6 +17,7 @@ export const endpoints = {
         transfer: '/transactions/transfer',
         info: (transactionId: number) => `/transactions/info/${transactionId}`,
         getAll: '/transactions/get/all',
+        stats: '/transactions/get/stats',
         cancel: (transactionId: number) => `/transactions/cancel/${transactionId}`,
         downloadStatement: (iban: string) => `/transactions/download-statement/${iban}`,
     },

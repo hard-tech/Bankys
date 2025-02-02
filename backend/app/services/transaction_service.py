@@ -1,15 +1,15 @@
 from typing import List, Optional
 from fastapi import status
 from sqlmodel import Session, select
+from typing import Dict, List
+from datetime import datetime, timedelta
+from sqlalchemy.orm import Session
+import asyncio
+
 from app.models.account import Account
 from app.models.transaction import Transaction, TransactionType, TransactionStatus
 from app.schemas.account import Account_Add_Money, Account_Info
-from app.services.account_service import account_service_instance
 from app.utils.exceptions import CustomHTTPException
-
-import asyncio
-from datetime import datetime, timedelta
-from sqlalchemy.orm import Session
 from app.database.session import SessionLocal
 
 async def refresh_transactions():
@@ -266,7 +266,50 @@ class TransactionService:
                 detail="Error retrieving user transactions: " + str(e),
                 error_code="GET_USER_TRANSACTIONS_ERROR"
             )
-    
+
+    def get_transaction_stats(self, user_id: int, session: Session) -> Dict[str, Dict[str, List[float]]]:
+        # Récupérer tous les comptes actifs de l'utilisateur
+        user_accounts = session.query(Account).filter(Account.user_id == user_id, Account.actived == True).all()
+
+        # Récupérer toutes les transactions impliquant les comptes actifs de l'utilisateur
+        all_transactions = session.query(Transaction).filter(
+            (Transaction.account_from_iban.in_([account.iban for account in user_accounts])) |
+            (Transaction.account_to_iban.in_([account.iban for account in user_accounts]))
+        ).order_by(Transaction.created_at).all()
+
+        stats = {}
+
+        for account in user_accounts:
+            transactions_input = []
+            transactions_output = []
+            sold = []
+            balance = 0
+
+            for transaction in all_transactions:
+                if transaction.account_to_iban == account.iban:
+                    # Entrée d'argent
+                    balance += transaction.amount
+                    transactions_input.append(float(transaction.amount))
+                    transactions_output.append(0.0)
+                elif transaction.account_from_iban == account.iban:
+                    # Sortie d'argent
+                    balance -= transaction.amount
+                    transactions_input.append(0.0)
+                    transactions_output.append(float(transaction.amount))
+                else:
+                    # La transaction n'implique pas directement ce compte
+                    continue
+
+                sold.append(float(balance))
+
+            stats[account.iban] = {
+                "transactionsInput": transactions_input,
+                "transactionsOutput": transactions_output,
+                "sold": sold
+            }
+
+        return stats
+
     def cancel_transaction(self, user_id: int, transaction_id: int, session: Session) -> str:
         try:
             # Récupérer la transaction

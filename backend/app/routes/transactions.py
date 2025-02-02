@@ -121,6 +121,23 @@ def get_transactions_by_user(user_id=Depends(user_service_instance_auth.get_curr
             error_code="GET_ALL_TRANSACTIONS_ERROR"
         )
 
+@router.get("/get/stats")
+def get_transaction_stats(user_id=Depends(user_service_instance_auth.get_current_user_id), session=Depends(get_session)):
+    """
+    Récupère les statistiques de transactions pour un utilisateur spécifique.
+    """
+    try:
+        stats = transaction_service_instance.get_transaction_stats(user_id, session)
+        return stats
+    except CustomHTTPException as e:
+        raise e
+    except Exception as e:
+        raise CustomHTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Erreur lors de la récupération des statistiques de transactions: {str(e)}",
+            error_code="GET_STATS_ERROR"
+        )
+
 @router.delete("/cancel/{transaction_id}")
 def cancel_transaction(transaction_id: int, session: Session = Depends(get_session), user_id=Depends(user_service_instance_auth.get_current_user_id)):
     """
