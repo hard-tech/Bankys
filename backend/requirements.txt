@@ -1,4 +1,3 @@
-# Backend Requirements
 sqlmodel
 fastapi
 uvicorn

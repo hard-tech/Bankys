@@ -2,16 +2,21 @@ FROM python:3
 
 WORKDIR /app
 
-# # Create and activate virtual environment
-# RUN python3 -m venv .venv
-# ENV PATH="/app/.venv/bin:$PATH"
+# Mettre à jour pip avant de créer l'environnement virtuel
+RUN pip install --upgrade pip
 
-# Install dependencies
+# Créer et activer l'environnement virtuel
+RUN python -m venv /app/.venv
+ENV PATH="/app/.venv/bin:$PATH"
+
+# Copier le fichier requirements.txt
 COPY requirements.txt .
-RUN pip install -r requirements.txt
 
-# Copy the rest of the application
+# Installer les dépendances dans l'environnement virtuel
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copier le reste de l'application
 COPY . .
 
-# Run the application
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+# Lancer l'application avec uvicorn
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

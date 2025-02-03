@@ -1,27 +1,14 @@
-version: '3'
+version: '3.8'
 
 services:
-  backend:
-    build: ./backend
-    container_name: bankys_backend
-    ports:
-      - "8000:8000"
-    volumes:
-      - ./backend:/app
-    environment:
-      - DATABASE_URL=sqlite:///./bankys.db
-    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
-
   frontend:
-    build: ./frontend
-    container_name: bankys_frontend
-    ports:
-      - "80:80"
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
-      - ./frontend/nginx.conf:/etc/nginx/conf.d/default.conf
-    environment:
-      - VITE_API_URL=http://localhost:8000
-    depends_on:
-      - backend
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    image: registry.gitlab.com/hard-tech/bankys/frontend:latest
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    image: registry.gitlab.com/hard-tech/bankys/backend:latest

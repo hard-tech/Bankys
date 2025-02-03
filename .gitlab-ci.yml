@@ -1,0 +1,83 @@
+# Définition des variables globales
+variables:
+  DOCKER_TLS_CERTDIR: "/certs"
+  DOCKER_DRIVER: overlay2
+  DOCKER_HOST: tcp://docker:2376
+
+# Définition des stages
+stages:
+  - build
+  # - test
+  - deploy
+
+# Service Docker-in-Docker nécessaire pour build des images
+services:
+  - docker:dind
+
+# Configuration par défaut pour tous les jobs
+default:
+  image: docker:latest
+  before_script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+
+# Build Frontend
+build_frontend:
+  stage: build
+  script:
+    - docker build -t $CI_REGISTRY/hard-tech/bankys/frontend:$CI_COMMIT_SHA -t $CI_REGISTRY/hard-tech/bankys/frontend:latest -f frontend/Dockerfile .
+    - docker push $CI_REGISTRY/hard-tech/bankys/frontend:$CI_COMMIT_SHA
+    - docker push $CI_REGISTRY/hard-tech/bankys/frontend:latest
+  only:
+    changes:
+      - frontend/**/*
+      - .gitlab-ci.yml
+
+# Build Backend
+build_backend:
+  stage: build
+  script:
+    - docker build -t $CI_REGISTRY/hard-tech/bankys/backend:$CI_COMMIT_SHA -t $CI_REGISTRY/hard-tech/bankys/backend:latest -f backend/Dockerfile .
+    - docker push $CI_REGISTRY/hard-tech/bankys/backend:$CI_COMMIT_SHA
+    - docker push $CI_REGISTRY/hard-tech/bankys/backend:latest
+  only:
+    changes:
+      - backend/**/*
+      - .gitlab-ci.yml
+
+# # Tests Frontend
+# test_frontend:
+#   stage: test
+#   image: node:20
+#   script:
+#     - cd frontend
+#     - yarn install
+#     - yarn test
+#   only:
+#     changes:
+#       - frontend/**/*
+
+# # Tests Backend
+# test_backend:
+#   stage: test
+#   image: node:20
+#   script:
+#     - cd backend
+#     - yarn install
+#     - yarn test
+#   only:
+#     changes:
+#       - backend/**/*
+
+# Déploiement en production
+deploy_production:
+  stage: deploy
+  image: docker/compose:latest
+  variables:
+    DOCKER_HOST: tcp://docker:2376
+  script:
+    - docker-compose -f docker-compose.prod.yml pull
+    - docker-compose -f docker-compose.prod.yml up -d
+  only:
+    - main
+  environment:
+    name: production
