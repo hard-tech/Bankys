@@ -201,7 +201,6 @@ const RegisterForm = ({ formData, setFormData }: RegisterFormProps) => {
               }}
               className="bg-white"
             />
-
             <Button
               type="submit"
               variant="contained"
@@ -226,5 +225,4 @@ const RegisterForm = ({ formData, setFormData }: RegisterFormProps) => {
     </Paper>
   );
 };
-
 export default RegisterForm;

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { toast } from "react-hot-toast";
 import { RegisterCredentials } from "../type/auth.types";
 import RegisterForm from "../components/RegisterForm";
@@ -15,11 +15,11 @@ const Register = () => {
     last_name: "",
   });
 
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
     const registerUser = async () => {
-      
       if (formData.email && formData.password && formData.first_name && formData.last_name) {
         toast.promise(
           // api.post("/auth/register", formData),  
@@ -35,11 +35,9 @@ const Register = () => {
           toast.promise(
             authService.login({ email: formData.email, password: formData.password, rememberMe: false }),
             {
-              loading: 'Logging in...',
-              success: 'Login successful!',
-              error: (err) => {
-                return err.response?.data?.detail?.message || "An error occurred during login.";
-              },
+              loading: "Connexion en cours...",
+              success: "Connexion réussie !",
+              error: "Une erreur est survenue lors de la connexion.",
             }
           )
           navigate(constants.ROUTES.HOME);

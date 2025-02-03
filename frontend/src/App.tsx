@@ -1,6 +1,12 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { Toaster } from "react-hot-toast";
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import Home from "./pages/Home";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import NoPage from "./pages/NotFound";
+import PrivateRoute from "./components/PrivateRoute";
+import Layout from "./layouts/Layout";
+import { Toaster } from "react-hot-toast";
 
 import Home from "./pages/Home";
 import Login from "./pages/Login";
