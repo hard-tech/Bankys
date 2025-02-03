@@ -1,22 +1,46 @@
-import { Input, Button, Typography } from "@mui/material";
+"use client";
+
+import { useState } from "react";
+import { 
+  TextField, 
+  Button, 
+  InputAdornment, 
+  IconButton,
+  Paper,
+  Typography,
+  Grid
+} from "@mui/material";
+import { 
+  Visibility, 
+  VisibilityOff, 
+  Email, 
+  Lock,
+  Person,
+  PersonOutline
+} from '@mui/icons-material';
 import * as Yup from "yup";
-import { Formik, Form, Field, ErrorMessage } from "formik";
+import { Formik, Form } from "formik";
 import { RegisterCredentials } from "../type/auth.types";
+import { Link } from "react-router-dom";
+import { constants } from "../utils/constants";
 
 const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_])[a-zA-Z\d\W_]{8,}$/;
 const validationSchema = Yup.object().shape({
   email: Yup.string()
-    .email("Format de l'email invalide")
-    .required("Email requis"),
+    .email("Format d'email invalide")
+    .required("L'email est requis"),
   password: Yup.string()
-    .min(8, "Password must be at least 8 characters")
-    .required("Mot de passe requis")
+    .min(8, "Le mot de passe doit contenir au moins 8 caractères")
+    .required("Le mot de passe est requis")
     .matches(
       regex,
-      "Password must contain at least one uppercase letter, one lowercase letter, and one number, and one special character"
+      "Le mot de passe doit contenir au moins une majuscule, une minuscule, un chiffre et un caractère spécial"
     ),
-  first_name: Yup.string().required("Prénom requis"),
-  last_name: Yup.string().required("Nom requis"),
+  confirm_password: Yup.string()
+    .oneOf([Yup.ref("password")], "Les mots de passe doivent correspondre")
+    .required("La confirmation du mot de passe est requise"),
+  first_name: Yup.string().required("Le prénom est requis"),
+  last_name: Yup.string().required("Le nom est requis"),
 });
 
 interface RegisterFormProps {
@@ -25,90 +49,180 @@ interface RegisterFormProps {
 }
 
 const RegisterForm = ({ formData, setFormData }: RegisterFormProps) => {
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
   return (
-    <Formik
-      initialValues={formData}
-      validationSchema={validationSchema}
-      onSubmit={(values) => {
-        setFormData(values);
-        // Ajoutez ici la logique supplémentaire, comme l'envoi des données à un serveur
-        console.log("Form submitted", values);
-      }}
-    >
-      <Form className="mt-8 space-y-6">
-        <div className="space-y-4">
-          {" "}
-          {/* Ajout de l'espace entre les champs */}
-          <div>
-            <Field
-              name="first_name"
-              type="text"
-              as={Input}
-              className="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-              placeholder="Prénom"
-            />
-            <ErrorMessage
-              className="text-red-500"
-              name="first_name"
-              component={Typography}
-            />
-          </div>
-          <div>
-            <Field
-              name="last_name"
-              type="text"
-              as={Input}
-              className="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-              placeholder="Nom"
-            />
-            <ErrorMessage
-              className="text-red-500"
-              name="last_name"
-              component={Typography}
-            />
-          </div>
-          <div>
-            <Field
+    <Paper elevation={3} className="w-full max-w-2xl mx-auto p-8 rounded-xl">
+      <div className="text-center mb-8">
+        <Typography variant="h4" className="text-gray-800 font-bold mb-2">
+          Créer un compte
+        </Typography>
+        <Typography variant="body1" className="text-gray-600">
+          Rejoignez Bankys dès aujourd'hui
+        </Typography>
+      </div>
+
+      <Formik
+        initialValues={formData}
+        validationSchema={validationSchema}
+        onSubmit={(values) => {
+          setFormData(values);
+        }}
+      >
+        {({ errors, touched, handleChange, handleBlur, values, isValid }) => (
+          <Form className="space-y-6">
+            <Grid container spacing={3}>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  id="first_name"
+                  name="first_name"
+                  label="Prénom"
+                  value={values.first_name}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  error={touched.first_name && Boolean(errors.first_name)}
+                  helperText={touched.first_name && errors.first_name}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <Person className="text-gray-400" />
+                      </InputAdornment>
+                    ),
+                  }}
+                  className="bg-white"
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  id="last_name"
+                  name="last_name"
+                  label="Nom"
+                  value={values.last_name}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  error={touched.last_name && Boolean(errors.last_name)}
+                  helperText={touched.last_name && errors.last_name}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <PersonOutline className="text-gray-400" />
+                      </InputAdornment>
+                    ),
+                  }}
+                  className="bg-white"
+                />
+              </Grid>
+            </Grid>
+
+            <TextField
+              fullWidth
+              id="email"
               name="email"
               type="email"
-              as={Input}
-              className="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-              placeholder="Email"
+              label="Email"
+              value={values.email}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              error={touched.email && Boolean(errors.email)}
+              helperText={touched.email && errors.email}
+              sx={{ mb: 3 }} // Add margin bottom
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <Email className="text-gray-400" />
+                  </InputAdornment>
+                ),
+              }}
+              className="bg-white"
             />
-            <ErrorMessage
-              className="text-red-500"
-              name="email"
-              component={Typography}
-            />
-          </div>
-          <div>
-            <Field
+            <TextField
+              fullWidth
+              id="password"
               name="password"
-              type="password"
-              as={Input}
-              className="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-              placeholder="Mot de passe"
+              type={showPassword ? "text" : "password"}
+              label="Mot de passe"
+              value={values.password}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              error={touched.password && Boolean(errors.password)}
+              helperText={touched.password && errors.password}
+              sx={{ mb: 3 }} // Add margin bottom
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <Lock className="text-gray-400" />
+                  </InputAdornment>
+                ),
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      onClick={() => setShowPassword(!showPassword)}
+                      edge="end"
+                    >
+                      {showPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+              className="bg-white"
             />
-            <ErrorMessage
-              className="text-red-500"
-              name="password"
-              component={Typography}
-            />
-          </div>
-        </div>
 
-        <div>
-          <Button
-            type="submit"
-            className="w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium 
-              rounded-md text-white bg-indigo-500 hover:bg-indigo-700 
-              transition-transform transform hover:scale-105 shadow-md"
-          >
-            Register
-          </Button>
-        </div>
-      </Form>
-    </Formik>
+            <TextField
+              fullWidth
+              id="confirm_password"
+              name="confirm_password"
+              type={showConfirmPassword ? "text" : "password"}
+              label="Confirmer le mot de passe"
+              value={values.confirm_password}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              error={touched.confirm_password && Boolean(errors.confirm_password)}
+              helperText={touched.confirm_password && errors.confirm_password}
+              sx={{ mb: 3 }} // Add margin bottom
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <Lock className="text-gray-400" />
+                  </InputAdornment>
+                ),
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      edge="end"
+                    >
+                      {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+              className="bg-white"
+            />
+            <Button
+              type="submit"
+              variant="contained"
+              disabled={!isValid}
+              fullWidth
+              className="bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 text-white py-3 rounded-lg transition-all duration-300 transform hover:scale-[1.02]"
+            >
+              Créer mon compte
+            </Button>
+
+            <div className="text-center mt-4">
+              <Typography variant="body2" className="text-gray-600">
+                Vous avez déjà un compte ?{' '}
+                <Link to={constants.ROUTES.LOGIN} className="text-indigo-600 hover:text-indigo-500 font-medium">
+                  Se connecter
+                </Link>
+              </Typography>
+            </div>
+          </Form>
+        )}
+      </Formik>
+    </Paper>
   );
 };
 export default RegisterForm;

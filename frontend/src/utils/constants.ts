@@ -13,6 +13,9 @@ export const constants = {
     TOKEN: "auth_token",
     USER: "user_data",
     THEME: "app_theme",
+    SAVED_EMAIL: "savedEmail",
+    SAVED_PASSWORD: "savedPassword",
+    SAVED_REMEMBER_ME: "savedRememberMe",
   },
 
   ROUTES: {
@@ -20,14 +23,11 @@ export const constants = {
     LOGIN: "/login",
     REGISTER: "/register",
     PROFILE: "/profile",
+    DASHBOARD: "/dashboard",
+    TRANSACTIONS: "/transactions",
+    ACCOUNTS: "/accounts",
+    BENEFICIAIRES: "/beneficiaries",
   },
-
-  MENU_ITEMS: [
-    { title: "Home", path: "/" },
-    { title: "Login", path: "/login" },
-    { title: "Register", path: "/register" },
-    { title: "Profile", path: "/profile" },
-  ],
 
   BREAKPOINTS: {
     sm: 640,

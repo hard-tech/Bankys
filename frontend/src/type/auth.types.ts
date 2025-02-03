@@ -2,23 +2,30 @@
 export interface User {
     id: string;
     email: string;
-    username: string;
-    createdAt: Date;
+    first_name: string;
+    last_name: string;
   }
   
   export interface LoginCredentials {
     email: string;
     password: string;
-  }
-  
-  export interface RegisterCredentials {
-    email: string;
-    password: string;
-    first_name: string;
-    last_name: string;
+    rememberMe: boolean;
   }
   
   export interface AuthResponse {
     user: User;
     token: string;
+  }
+
+  export interface ChangePasswordCredentials {
+    oldPassword: string;
+    newPassword: string;
+  }
+
+  export interface RegisterCredentials {
+    email: string;
+    password: string;
+    confirm_password: string;
+    first_name: string;
+    last_name: string;
   }

@@ -6,27 +6,58 @@ from app.models.account import Account
 from app.utils.exceptions import CustomHTTPException
 import random
 import string
+from app.models.transaction import Transaction, TransactionType, TransactionStatus
+from sqlalchemy.orm import Session
+from datetime import datetime
 
 def generate_iban(session: Session) -> str:
-    while True:
-        # Générer une chaîne aléatoire de type IBAN avec un préfixe fixe et des caractères alphanumériques aléatoires
-        prefix = "FR"
-        random_part = ''.join(random.choices(string.digits, k=20))
-        iban = f"{prefix}{random_part}"
+    prefix = "FR"
+    check_digits = "00"
+    bank_code = "12345"  # Code bancaire fictif, à remplacer par un vrai code
+    branch_code = "67890"  # Code guichet fictif, à remplacer par un vrai code
 
+    max_attempts = 100
+    for _ in range(max_attempts):
+        # Générer une partie aléatoire pour le numéro de compte (11 chiffres)
+        account_number = ''.join(random.choices(string.digits, k=13))
+
+        # Construire l'IBAN
+        iban = f"{prefix}{check_digits}{bank_code}{branch_code}{account_number}"
+
+        # Calculer les chiffres de contrôle
+        iban_numeric = int((iban[4:] + iban[:4]).translate(str.maketrans('ABCDEFGHIJKLMNOPQRSTUVWXYZ', '12345678912345678923456789')))
+        check_digits = f"{98 - (iban_numeric % 97):02d}"
+
+        # Construire l'IBAN final
+        final_iban = f"{prefix}{check_digits}{bank_code}{branch_code}{account_number}"
         # Vérifier si l'IBAN existe déjà dans la base de données
-        if not session.query(Account).filter_by(iban=iban).first():
-            return iban
+        if not session.query(Account).filter_by(iban=final_iban).first():
+            return final_iban
+
+    raise ValueError("Impossible de générer un IBAN unique après plusieurs tentatives")
 
 class AccountService:
 
     def create_principal_account(self, user_id: int, session: Session) -> Account:
         try:
-            # Créer un compte principal avec un solde initial de 100
-            account = Account(sold=100, iban=generate_iban(session), user_id=user_id, status=True, main=True)
+            # Créer un compte principal avec un balance initial de 100
+            account = Account(balance=100, iban=generate_iban(session), user_id=user_id, status=True, main=True, name="Principal")
+            transaction = Transaction(
+                type=TransactionType.DEPOSIT,
+                status=TransactionStatus.COMPLETED,
+                amount=100,
+                account_from_iban="Banque",
+                account_to_iban=account.iban,
+                date=datetime.now(),
+                transaction_note="Cadeau de bienvenue",
+                user_id=user_id
+            )
+
+            session.add(transaction)
             session.add(account)
             session.commit()
             session.refresh(account)
+            session.refresh(transaction)
             return account
         except Exception as e:
 
@@ -36,10 +67,10 @@ class AccountService:
                 error_code="CREATE_PRINCIPAL_ACCOUNT_ERROR"
             )
 
-    def create_account(self, user_id: int, session: Session) -> Account:
+    def create_account(self, user_id: int, account_name: str, session: Session) -> Account:
         try:
-            # Créer un compte secondaire avec un solde initial de 0
-            account = Account(sold=0, iban=generate_iban(session), user_id=user_id, actived=True, main=False)
+            # Créer un compte secondaire avec un balance initial de 0
+            account = Account(balance=0, iban=generate_iban(session), user_id=user_id, actived=True, main=False, name=account_name)
             session.add(account)
             session.commit()
             session.refresh(account)
@@ -51,16 +82,16 @@ class AccountService:
                 error_code="CREATE_ACCOUNT_ERROR"
             )
 
-    def close_account(self, account_id: int, user_id: int, session: Session) -> Account:
+    def close_account(self, account_iban: int, user_id: int, session: Session) -> Account:
         try:
-            # Récupérer le compte en fonction de l'ID
-            account = session.query(Account).filter_by(id=account_id).first()
+            # Récupérer le compte en fonction de l'IBAN
+            account = session.query(Account).filter_by(iban=account_iban).first()
 
             # Vérifier si le compte existe
             if not account:
                 raise CustomHTTPException(
                     status_code=status.HTTP_404_NOT_FOUND,
-                    detail=f"Le compte avec l'ID {account_id} n'existe pas.",
+                    detail=f"Le compte avec l'IBAN: '{account_iban}' n'existe pas.",
                     error_code="ACCOUNT_NOT_FOUND"
                 )
 
@@ -112,16 +143,38 @@ class AccountService:
                     error_code="MAIN_ACCOUNT_NOT_FOUND"
                 )
 
-            # Transférer le solde du compte à fermer vers le compte principal
-            main_account.sold += account.sold
-            account.sold = 0
+            # Ensure IBANs are not null
+            if not account.iban or not main_account.iban:
+                raise CustomHTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="IBANs ne peuvent pas être null.",
+                    error_code="NULL_IBAN_ERROR"
+                )
+            # Transférer le balance du compte à fermer vers le compte principal
+            main_account.balance += account.balance
+
+            # Crée une transaction de clôture
+            transaction = Transaction(
+                account_from_iban=account.iban,
+                account_to_iban=main_account.iban,
+                user_id=account.user_id,
+                amount=account.balance,
+                type=TransactionType.CLOSING,
+                status=TransactionStatus.COMPLETED,
+                transaction_note="Transfert du solde du compte fermé vers le compte principal",
+                created_at=datetime.utcnow()
+            )
+
+            account.balance = 0
             # Mettre à jour le statut du compte à False
             account.actived = False
 
             session.add(account)
             session.add(main_account)
+            session.add(transaction)
             session.commit()
             session.refresh(account)
+            session.refresh(transaction)
 
             return account
         except CustomHTTPException as e:
@@ -129,7 +182,7 @@ class AccountService:
         except Exception as e:
             raise CustomHTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail="Erreur lors de la fermeture du compte",
+                detail="Erreur lors de la fermeture du compte"+ str(e),
                 error_code="CLOSE_ACCOUNT_ERROR"
             )
     def get_accounts_of_user(self, user_id: int, session: Session) -> Get_Accounts:
@@ -141,8 +194,10 @@ class AccountService:
                 return [
                     Get_Accounts(
                         id=account.id,
-                        sold=account.sold,
+                        balance=account.balance,
                         iban=account.iban,
+                        name=account.name,
+                        main=account.main
                     )
                     for account in accounts
                 ]
@@ -176,7 +231,8 @@ class AccountService:
                     )
                 return Account_Info(
                     id=account.id,
-                    sold=account.sold,
+                    balance=account.balance,
+                    name=account.name,
                     iban=account.iban,
                     user_id=account.user_id,
                     actived=account.actived,
@@ -209,7 +265,7 @@ class AccountService:
                         detail="Ce compte est clôturé et ne peut pas être consulté.",
                         error_code="ACCOUNT_CLOSED"
                     )
-                
+
                 # Vérifier si le compte appartient à l'utilisateur connecté
                 if not account.user_id == user_id:
                     raise CustomHTTPException(
@@ -219,7 +275,8 @@ class AccountService:
                     )
                 return Account_Info(
                     id=account.id,
-                    sold=account.sold,
+                    balance=account.balance,
+                    name=account.name,
                     iban=account.iban,
                     user_id=account.user_id,
                     actived=account.actived,

@@ -19,6 +19,10 @@ class User_Without_Password(BaseModel):
     first_name: str
     last_name: str
 
+class ChangePassword(BaseModel):
+    current_password: str
+    new_password: str
+
 # class User(BaseModel):
 #     user_id: int
 #     email: str

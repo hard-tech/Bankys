@@ -5,7 +5,8 @@ from sqlmodel import Field, SQLModel
 
 class Account(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
-    sold: float = Field(default=0)
+    name: str
+    balance: float = Field(default=0)
     iban: str
     user_id: int = Field(foreign_key="user.id")  # La clé étrangère pointe vers `user.id`
     actived: bool = Field(default=True)
