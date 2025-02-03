@@ -7,16 +7,8 @@ import NoPage from "./pages/NotFound";
 import PrivateRoute from "./components/PrivateRoute";
 import Layout from "./layouts/Layout";
 import { Toaster } from "react-hot-toast";
-
-import Home from "./pages/Home";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
 import Profile from "./pages/Profile";
-import NoPage from "./pages/NotFound";
-
-import PrivateRoute from "./components/PrivateRoute";
 import { AuthProvider } from "./context/AuthContext";
-import Layout from "./layouts/Layout";
 import CrmLayout from "./layouts/CrmLayout.tsx";
 import { constants } from "./utils/constants";
 import Dashboard from "./pages/Dashboard";
