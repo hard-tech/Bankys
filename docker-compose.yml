@@ -3,11 +3,13 @@ version: '3.8'
 services:
   frontend:
     build:
-      context: .
-      dockerfile: frontend/Dockerfile
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        - VITE_API_URL=http://localhost:8000
     image: registry.gitlab.com/hard-tech/bankys/frontend:latest
     environment:
-      - VITE_API_URL=http://backend:8000
+      - VITE_API_URL=http://localhost:8000
     ports:
       - "80:80"
     networks:
@@ -15,8 +17,8 @@ services:
 
   backend:
     build:
-      context: .
-      dockerfile: backend/Dockerfile
+      context: ./backend
+      dockerfile: Dockerfile
     image: registry.gitlab.com/hard-tech/bankys/backend:latest
     ports:
       - "8000:8000"
@@ -24,6 +26,7 @@ services:
       - bankys_network
     environment:
       - DATABASE_URL=sqlite:///app/bankys.db  # Si tu utilises SQLite
+
 networks:
   bankys_network:
     driver: bridge

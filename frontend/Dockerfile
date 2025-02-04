@@ -5,13 +5,13 @@ FROM node:20 as build
 WORKDIR /app
 
 # Copier le package.json du frontend
-COPY frontend/package*.json ./
+COPY package*.json ./
 
 # Installer les dépendances
 RUN yarn install
 
 # Copier les fichiers source du frontend
-COPY frontend/ .
+COPY . .
 
 # Construire l'application
 RUN yarn build
@@ -23,7 +23,7 @@ FROM nginx:alpine
 COPY --from=build /app/dist /usr/share/nginx/html
 
 # Copier la configuration Nginx personnalisée
-COPY frontend/nginx.conf /etc/nginx/conf.d/default.conf
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 EXPOSE 80
 
