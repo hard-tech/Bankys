@@ -18,6 +18,8 @@ origins = [
     "http://localhost",  # Allow requests from localhost
     "http://localhost:3000",  # Allow requests from your frontend dev server
     "http://localhost:5173",  # Allow requests from your frontend dev server
+    "http://pg7.finder-me.com:80",
+    "http://pg7.finder-me.com",
     # Add other origins as needed
 ]
 

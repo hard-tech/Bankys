@@ -1,8 +1,9 @@
 from sqlmodel import SQLModel, Session, create_engine
 from sqlalchemy.orm import sessionmaker
+# import .env
 
 sqlite_file_name = "bankys.db"
-sqlite_url = f"sqlite:///{sqlite_file_name}"
+sqlite_url = f"sqlite:///{sqlite_file_name}" # Appler une var d'environnement pour le chemin vers la base de données SQLite
 
 connect_args = {"check_same_thread": False}
 engine = create_engine(sqlite_url, connect_args=connect_args)
