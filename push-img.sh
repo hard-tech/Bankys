@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Définir la version
-VERSION=$(git describe --tags --always)
+VERSION="0.0.1"
 
 # Activer Buildx si ce n'est pas déjà fait
 docker buildx create --use 2>/dev/null || echo "Buildx déjà activé"
@@ -10,7 +10,7 @@ docker buildx create --use 2>/dev/null || echo "Buildx déjà activé"
 echo "glpat-rsCL_t8n3bD9ss1nuM_Y" | docker login registry.gitlab.com -u hard-tech --password-stdin
 
 # Définir les plateformes cibles
-PLATFORMS="linux/amd64,linux/arm64"
+PLATFORMS="linux/amd64"
 
 # Build et push frontend
 docker buildx build --platform $PLATFORMS \

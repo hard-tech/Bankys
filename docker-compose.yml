@@ -1,31 +1,35 @@
-version: '3.8'
-
 services:
   frontend:
+    container_name: frontend
     build:
-      context: ./frontend
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: frontend/Dockerfile
       args:
-        - VITE_API_URL=http://localhost:8000
+        - VITE_API_URL=http://pg7.finder-me.com:8000/
     image: registry.gitlab.com/hard-tech/bankys/frontend:latest
     environment:
-      - VITE_API_URL=http://localhost:8000
+      - VITE_API_URL=http://pg7.finder-me.com:8000/
     ports:
       - "80:80"
+    depends_on:
+      - backend
     networks:
       - bankys_network
 
   backend:
+    container_name: backend
     build:
-      context: ./backend
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: backend/Dockerfile
     image: registry.gitlab.com/hard-tech/bankys/backend:latest
     ports:
       - "8000:8000"
+    environment:
+      - DATABASE_URL=sqlite:///app/bankys.db
+      - HOST=0.0.0.0
+    command: ["python", "-m", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
     networks:
       - bankys_network
-    environment:
-      - DATABASE_URL=sqlite:///app/bankys.db  # Si tu utilises SQLite
 
 networks:
   bankys_network:

@@ -1,7 +1,7 @@
 // utils/constants.ts
 export const constants = {
   API: {
-    BASE_URL: import.meta.env.VITE_API_URL,
+    BASE_URL: import.meta.env.VITE_API_URL || "http://localhost:8000",
     TIMEOUT: 5000,
     HEADERS: {
       "Content-Type": "application/json",

@@ -1,7 +1,7 @@
 import axios from 'axios';
 // import { endpoints } from './api/endpoints';
 
-const BASE_URL = import.meta.env.VITE_API_URL;
+const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 export const apiService = {
   async get(endpoint: string) {
