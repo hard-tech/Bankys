@@ -7,7 +7,7 @@ VERSION="0.0.2"
 docker buildx create --use 2>/dev/null || echo "Buildx déjà activé"
 
 # Login au registry GitLab
-echo "glpat-rsCL_t8n3bD9ss1nuM_Y" | docker login registry.gitlab.com -u hard-tech --password-stdin
+echo "glpat-s5wZb38F-YtZ_AiEZoUx" | docker login registry.gitlab.com -u hard-tech --password-stdin
 
 # Définir les plateformes cibles
 PLATFORMS="linux/amd64"
