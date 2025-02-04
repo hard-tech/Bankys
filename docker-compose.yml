@@ -6,6 +6,8 @@ services:
       context: .
       dockerfile: frontend/Dockerfile
     image: registry.gitlab.com/hard-tech/bankys/frontend:latest
+    environment:
+      - VITE_API_URL=http://backend:8000
     ports:
       - "80:80"
     networks:
@@ -20,7 +22,8 @@ services:
       - "8000:8000"
     networks:
       - bankys_network
-
+    environment:
+      - DATABASE_URL=sqlite:///app/bankys.db  # Si tu utilises SQLite
 networks:
   bankys_network:
     driver: bridge

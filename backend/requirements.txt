@@ -1,10 +1,10 @@
-sqlmodel
-fastapi
 uvicorn
+fastapi
+sqlmodel
 sqlalchemy
-passlib[bcrypt]
 python-dotenv
 pydantic
 pyjwt
 fs
+passlib[bcrypt]
 pydantic[email]
