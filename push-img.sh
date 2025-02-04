@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Définir la version
-VERSION="0.0.1"
+VERSION="0.0.2"
 
 # Activer Buildx si ce n'est pas déjà fait
 docker buildx create --use 2>/dev/null || echo "Buildx déjà activé"
