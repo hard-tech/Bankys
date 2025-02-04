@@ -1,83 +1,60 @@
-# Définition des variables globales
-variables:
-  DOCKER_TLS_CERTDIR: "/certs"
-  DOCKER_DRIVER: overlay2
-  DOCKER_HOST: tcp://docker:2376
-
-# Définition des stages
 stages:
   - build
   # - test
   - deploy
 
-# Service Docker-in-Docker nécessaire pour build des images
+variables:
+  DOCKER_DRIVER: overlay2
+  DOCKER_TLS_CERTDIR: ""
+
 services:
   - docker:dind
 
-# Configuration par défaut pour tous les jobs
-default:
-  image: docker:latest
-  before_script:
-    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+before_script:
+  - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
 
-# Build Frontend
 build_frontend:
   stage: build
+  image: docker:latest
   script:
-    - docker build -t $CI_REGISTRY/hard-tech/bankys/frontend:$CI_COMMIT_SHA -t $CI_REGISTRY/hard-tech/bankys/frontend:latest -f frontend/Dockerfile .
-    - docker push $CI_REGISTRY/hard-tech/bankys/frontend:$CI_COMMIT_SHA
-    - docker push $CI_REGISTRY/hard-tech/bankys/frontend:latest
-  only:
-    changes:
-      - frontend/**/*
-      - .gitlab-ci.yml
+    - docker build -t $CI_REGISTRY_IMAGE/frontend:$CI_COMMIT_SHA -t $CI_REGISTRY_IMAGE/frontend:latest -f frontend/Dockerfile --build-arg VITE_API_URL=http://backend:8000 .
+    - docker push $CI_REGISTRY_IMAGE/frontend:$CI_COMMIT_SHA
+    - docker push $CI_REGISTRY_IMAGE/frontend:latest
 
-# Build Backend
 build_backend:
   stage: build
+  image: docker:latest
   script:
-    - docker build -t $CI_REGISTRY/hard-tech/bankys/backend:$CI_COMMIT_SHA -t $CI_REGISTRY/hard-tech/bankys/backend:latest -f backend/Dockerfile .
-    - docker push $CI_REGISTRY/hard-tech/bankys/backend:$CI_COMMIT_SHA
-    - docker push $CI_REGISTRY/hard-tech/bankys/backend:latest
-  only:
-    changes:
-      - backend/**/*
-      - .gitlab-ci.yml
+    - docker build -t $CI_REGISTRY_IMAGE/backend:$CI_COMMIT_SHA -t $CI_REGISTRY_IMAGE/backend:latest -f backend/Dockerfile .
+    - docker push $CI_REGISTRY_IMAGE/backend:$CI_COMMIT_SHA
+    - docker push $CI_REGISTRY_IMAGE/backend:latest
 
-# # Tests Frontend
 # test_frontend:
 #   stage: test
-#   image: node:20
+#   image: node:22.13-alpine3.20
 #   script:
 #     - cd frontend
 #     - yarn install
 #     - yarn test
-#   only:
-#     changes:
-#       - frontend/**/*
 
-# # Tests Backend
 # test_backend:
 #   stage: test
-#   image: node:20
+#   image: python:3.9
 #   script:
 #     - cd backend
-#     - yarn install
-#     - yarn test
-#   only:
-#     changes:
-#       - backend/**/*
+#     - pip install -r requirements.txt
+#     - python -m pytest
 
-# Déploiement en production
-deploy_production:
+deploy:
   stage: deploy
-  image: docker/compose:latest
-  variables:
-    DOCKER_HOST: tcp://docker:2376
+  image: docker:latest
   script:
-    - docker-compose -f docker-compose.prod.yml pull
-    - docker-compose -f docker-compose.prod.yml up -d
+    - docker pull $CI_REGISTRY_IMAGE/frontend:$CI_COMMIT_SHA
+    - docker pull $CI_REGISTRY_IMAGE/backend:$CI_COMMIT_SHA
+    - docker tag $CI_REGISTRY_IMAGE/frontend:$CI_COMMIT_SHA $CI_REGISTRY_IMAGE/frontend:production
+    - docker tag $CI_REGISTRY_IMAGE/backend:$CI_COMMIT_SHA $CI_REGISTRY_IMAGE/backend:production
+    - docker push $CI_REGISTRY_IMAGE/frontend:production
+    - docker push $CI_REGISTRY_IMAGE/backend:production
+    # Ajoutez ici les commandes pour déployer sur votre environnement de production
   only:
-    - main
-  environment:
-    name: production
+    - devlop  # Ce job ne s'exécute que sur la branche develop
